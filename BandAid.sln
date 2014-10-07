@@ -3,12 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BandAid", "BandAid\BandAid.csproj", "{F3DAB76E-F46D-455C-8D48-58B04F9836A1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BandAidTests", "..\BandAid\BandAidTests\BandAidTests.csproj", "{DEE68B89-F56E-4DC5-A7FF-7D6EAD402093}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DEE68B89-F56E-4DC5-A7FF-7D6EAD402093}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEE68B89-F56E-4DC5-A7FF-7D6EAD402093}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEE68B89-F56E-4DC5-A7FF-7D6EAD402093}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEE68B89-F56E-4DC5-A7FF-7D6EAD402093}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F3DAB76E-F46D-455C-8D48-58B04F9836A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F3DAB76E-F46D-455C-8D48-58B04F9836A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3DAB76E-F46D-455C-8D48-58B04F9836A1}.Release|Any CPU.ActiveCfg = Release|Any CPU

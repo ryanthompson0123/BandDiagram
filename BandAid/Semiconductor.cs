@@ -32,10 +32,6 @@ namespace Band
 			{
 				return Length.FromMicrometers(50);
 			}
-			set
-			{
-				// Can't do this for semiconductors
-			}
 		}
 
 		public override Energy EnergyFromVacuumToTopBand
@@ -60,7 +56,11 @@ namespace Band
 
 		public override Energy WorkFunction
 		{
-			get { return EnergyFromVacuumToEfi + PhiF; }
+            get
+            {
+                Energy phiFEv = PhiF;
+                return EnergyFromVacuumToEfi + phiFEv; 
+            }
 		}
 
 		public ElectricPotential PhiF
@@ -78,46 +78,52 @@ namespace Band
             get
             {
                 return Math.Sqrt(2 * ElectricCharge.Elementary.Coulombs
-                    * Permittivity.OfFreeSpace.FaradsPerMeter * DielectricConstant
-                    * DopantConcentration.PerCubicMeter);
+                    * Permittivity.OfFreeSpace.FaradsPerCentimeter * DielectricConstant
+                    * DopantConcentration.PerCubicCentimeter);
             }
         }
 
-		public override void Prepare()
+		public sealed override void Prepare()
 		{
 			EvalPoints.Clear();
 			EvalPoints.Add(new EvalPoint {
 				Location = Length.Zero,
-				Charge = ElectricCharge.Zero,
+                ChargeDensity = ChargeDensity.Zero,
 				ElectricField = ElectricField.Zero,
 				Potential = ElectricPotential.Zero
 			});
 
 			EvalPoints.Add(new EvalPoint {
-				Location = Length.FromMicrometers(50),
-				Charge = ElectricCharge.Zero,
+                Location = Length.FromNanometers(50),
+                ChargeDensity = ChargeDensity.Zero,
 				ElectricField = ElectricField.Zero,
 				Potential = ElectricPotential.Zero
 			});
 		}
-
+            
 		public ChargeDensity GetChargeY(ElectricPotential potential)
 		{
 			if (DopingType == DopingType.P)
 			{
-				return ElectricCharge.Elementary * 
+				var cConc = ElectricCharge.Elementary * 
                     (FreeHoleConcentration * Math.Exp(-potential / ThermalVoltage) 
                     - FreeElectronConcentration * Math.Exp(potential / ThermalVoltage) 
                     - DopantConcentration);
+
+                // Apparently this is ok, but I don't know why - RT
+                return new ChargeDensity(cConc.CoulombsPerCubicMeter);
 			}
 			else
 			{
-				return ElectricCharge.Elementary * 
+                var cConc = ElectricCharge.Elementary * 
                     (FreeElectronConcentration * Math.Exp(potential / ThermalVoltage) 
                     - FreeHoleConcentration * Math.Exp(-potential / ThermalVoltage) 
                     - DopantConcentration);
+
+                // Apparently this is ok, but I don't know why - RT
+                return new ChargeDensity(cConc.CoulombsPerCubicMeter);
 			}
-		}
+        }
 
 		public Concentration FreeElectronConcentration
 		{
@@ -149,9 +155,30 @@ namespace Band
 			}
 		}
 
-		public ElectricCharge GetCharge(ElectricPotential surfacePotential)
-		{
-			ElectricCharge charge;
+        public Semiconductor()
+        {
+            Prepare();
+        }
+
+        public override Material DeepClone()
+        {
+            var semiconductor = new Semiconductor()
+            {
+                    SurfacePotential = SurfacePotential,
+                    DielectricConstant = DielectricConstant,
+                    BandGap = BandGap,
+                    ElectronAffinity = ElectronAffinity,
+                    DopingType = DopingType,
+                    DopantConcentration = DopantConcentration,
+                    IntrinsicCarrierConcentration = IntrinsicCarrierConcentration
+            };
+
+            InitClone(semiconductor);
+            return semiconductor;
+        }
+
+        public ChargeDensity GetChargeDensity(ElectricPotential surfacePotential)
+        {
             ElectricPotential innerTerm;
 			if (DopingType == DopingType.P)
 			{
@@ -170,25 +197,25 @@ namespace Band
 								 - ThermalVoltage);
 			}
 
-            charge = new ElectricCharge(SemiconductorConstant * Math.Sqrt(innerTerm.Volts));
+            var charge = ChargeDensity.FromCoulombsPerSquareCentimeter(SemiconductorConstant * Math.Sqrt(innerTerm.Volts));
 
             return surfacePotential >= ElectricPotential.Zero ? -charge : charge;
 		}
 
-        private bool ShouldKeepTryingSurfacePotential(ElectricCharge charge,
-                ElectricCharge guessCharge, int iterationNumber)
+        private bool ShouldKeepTryingSurfacePotential(ChargeDensity charge,
+            ChargeDensity guessCharge, int iterationNumber)
         {
-            var maxDelta = new ElectricCharge(Math.Abs(charge.Coulombs * 1e-6));
+            var maxDelta = ChargeDensity.FromCoulombsPerSquareCentimeter(Math.Abs(charge.CoulombsPerSquareCentimeter * 1e-6));
             return ((charge - maxDelta > guessCharge) || (guessCharge > charge + maxDelta))
                     && iterationNumber < 1000;
         }
 
-		public ElectricPotential GetSurfacePotential(ElectricCharge charge)
+        public ElectricPotential GetSurfacePotential(ChargeDensity charge)
 		{
 			var highPotential = BandGap.ToPotential() * 3;
-			var lowPotential = ElectricPotential.Zero - 2 * BandGap.ToPotential();
-			var guessPotential = (highPotential - lowPotential) / 2;
-			var guessCharge = GetCharge(guessPotential);
+            var lowPotential = ElectricPotential.Zero - 2 * BandGap;
+			var guessPotential = (highPotential + lowPotential) / 2;
+			var guessCharge = GetChargeDensity(guessPotential);
 
             for (int i = 0; ShouldKeepTryingSurfacePotential(charge, guessCharge, i); i++)
             {
@@ -202,7 +229,7 @@ namespace Band
                 }
 
                 guessPotential = (highPotential + lowPotential) / 2;
-                guessCharge = GetCharge(guessPotential);
+                guessCharge = GetChargeDensity(guessPotential);
             }
 
             return guessPotential;
@@ -234,7 +261,7 @@ namespace Band
                         - ThermalVoltage);
 			}
 
-            var otherTerm = SemiconductorConstant / Permittivity.OfFreeSpace.FaradsPerMeter 
+            var otherTerm = SemiconductorConstant / Permittivity.OfFreeSpace.FaradsPerCentimeter
                 * DielectricConstant;
 
             var value = new ElectricField(otherTerm * Math.Sqrt(typeDependantTerm.Volts));
@@ -242,7 +269,7 @@ namespace Band
             return potential >= ElectricPotential.Zero ? value : -value;
 		}
 
-        public CapacitanceDensity Capacitance
+        public CapacitanceDensity CapacitanceDensity
         {
             get
             {
@@ -264,7 +291,7 @@ namespace Band
 
                     var denominator = 2 * Math.Sqrt(denominatorInside.Volts);
 
-                    var value = new CapacitanceDensity(
+                    var value = CapacitanceDensity.FromFaradsPerSquareCentimeter(
                         SemiconductorConstant * numerator / denominator);
 
                     return phiS > ElectricPotential.Zero ? value : -value;
@@ -283,7 +310,7 @@ namespace Band
 
                     var denominator = 2 * Math.Sqrt(denominatorInside.Volts);
 
-                    var value = new CapacitanceDensity(
+                    var value = CapacitanceDensity.FromFaradsPerSquareCentimeter(
                         SemiconductorConstant * numerator / denominator);
 
                     return phiS > ElectricPotential.Zero ? -value : value;
@@ -307,17 +334,16 @@ namespace Band
                 pointPastLocation.Potential : ElectricPotential.Zero;
         }
 
-        // TODO: Does this need to take a surfacePotential parameter, or can it use the property?
-        public ElectricCharge GetDepletionCharge(ElectricPotential surfacePotential)
+        public ChargeDensity GetDepletionCharge(ElectricPotential surfacePotential)
         {
             if (DopingType == DopingType.P)
             {
-                if (surfacePotential <= ElectricPotential.Zero) return ElectricCharge.Zero;
+                if (surfacePotential <= ElectricPotential.Zero) return ChargeDensity.Zero;
 
-                var realSurfacePotential = surfacePotential - ThermalVoltage);
+                var realSurfacePotential = surfacePotential - ThermalVoltage;
                 var value = -SemiconductorConstant * Math.Sqrt(realSurfacePotential.Volts);
 
-                return new ElectricCharge(value);
+                return ChargeDensity.FromCoulombsPerSquareCentimeter(value);
             }
             else
             {
@@ -325,11 +351,9 @@ namespace Band
                 throw new NotImplementedException();
             }
         }
-
 			
 		// *** NEW FUNCTIONS ***
 		/*
-            * 
 		public double getCapacitanceFPerCm() {
 			return capacitance();
 		}

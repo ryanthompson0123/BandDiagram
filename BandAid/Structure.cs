@@ -21,6 +21,12 @@ namespace Band
         public Structure(List<Material> layers)
         {
             layersValue = layers;
+
+            foreach (var layer in Layers)
+            {
+                layer.ParentStructure = this;
+            }
+
             Evaluate();
         }
 
@@ -34,10 +40,7 @@ namespace Band
 
         public void AddLayer(Material layer)
         {
-            layer.ParentStructure = this;
-            layersValue.Add(layer);
-
-            Evaluate();
+            InsertLayer(0, layer);
         }
 
         public void RemoveLayer(Material layer)
@@ -107,7 +110,7 @@ namespace Band
 
         public Material GetLayerBelow(Material material)
         {
-            var index = Layers.IndexOf(Material);
+            var index = Layers.IndexOf(material);
             if (index < Layers.Count - 1)
                 return Layers[index + 1];
 
@@ -173,6 +176,11 @@ namespace Band
             }
         }
 
+        public bool HasAtLeastOneDielectricLayer
+        {
+            get { return Layers.Any(l => l is Dielectric); }
+        }
+
         public Length Thickness
         {
             get
@@ -229,12 +237,29 @@ namespace Band
                 // Make sure there's no semiconductor inside the structure
                 if (IsSemiconductorAboveBottomLayer) return false;
 
+                // Make sure we have at least one oxide
+                if (!HasAtLeastOneDielectricLayer) return false;
+
                 // Make sure we don't have two metals next to each other
                 return !HasTwoMetalsNextToEachOther;
             }
         }
 
-        private const int maximumIterations = 1000;
+        public Structure DeepClone()
+        {
+            var structure = new Structure();
+            structure.Bias = Bias;
+            structure.Temperature = Temperature;
+
+            foreach (var layer in ((IEnumerable<Material>)Layers).Reverse())
+            {
+                structure.AddLayer(layer.DeepClone());
+            }
+
+            return structure;
+        }
+
+        private const int maximumIterations = 10000;
 
         private void Evaluate()
         {
@@ -247,12 +272,12 @@ namespace Band
             var voltageBias = -Bias + WorkFunctionDifference;
 
             // Iterate until we find the desired voltage
-            var chargeHigh = new ElectricCharge(1.0);
-            var chargeLow = new ElectricCharge(-1.0);
-            var chargeGuess = (chargeHigh - chargeLow) / 2;
+            var chargeHigh = ChargeDensity.FromCoulombsPerSquareCentimeter(1.0);
+            var chargeLow = ChargeDensity.FromCoulombsPerSquareCentimeter(-1.0);
+            var chargeGuess = (chargeHigh + chargeLow) / 2;
 
             // !!!!!!!!!!!!!!!!!!
-            EvaluteGivenCharge(chargeGuess);
+            EvaluateGivenCharge(chargeGuess);
             // !!!!!!!!!!!!!!!!!!
 
             var potentialCalc = BottomLayer.EvalPoints[1].Potential;
@@ -264,7 +289,7 @@ namespace Band
                 (potentialCalc > voltageBias + ElectricPotential.Abs(voltageBias * 1e-6) 
                     + tinyPositiveBias
                 || potentialCalc < voltageBias - ElectricPotential.Abs(voltageBias * 1e-6) 
-                    - tinyNegativeBias)
+                    + tinyNegativeBias)
                 && iterationNumber < maximumIterations;
                 iterationNumber++)
             {
@@ -281,7 +306,7 @@ namespace Band
                 chargeGuess = (chargeHigh + chargeLow) / 2;
 
                 // !!!!!!!!!!!!!!!!!!
-                EvaluteGivenCharge(chargeGuess);
+                EvaluateGivenCharge(chargeGuess);
                 // !!!!!!!!!!!!!!!!!!
 
                 potentialCalc = BottomLayer.EvalPoints[1].Potential;
@@ -309,774 +334,365 @@ namespace Band
 
         private void EvaluateSemiconductor()
         {
-            var evalSemiconductor = (Semiconductor)BottomLayer;
-            var storePotential = evalSemiconductor.EvalPoints[0].Potential;
+            var semiconductor = (Semiconductor)BottomLayer;
+            var storePotential = semiconductor.EvalPoints[0].Potential;
 
             // First remove all the points
-            evalSemiconductor.EvalPoints.Clear();
-
-            // Calculate how long the semiconductor should be for the band bending
-            // Set the max with to 1.25 times the max dep width
-            var depCharge = evalSemiconductor.GetDepletionCharge(
-                evalSemiconductor.SurfacePotential);
-            var thickness = new Length(Math.Abs(depCharge.Coulombs / (ElectricCharge.Elementary
-                                * evalSemiconductor.DopantConcentration).CoulombsPerCubicMeter));
+            semiconductor.EvalPoints.Clear();
 
             // Find the thickness through integration
             // Integrate from 0 to the surface potential
             // Integrate 2000 times so change stepSize depending on the surface potential
-            var stepSize = evalSemiconductor.SurfacePotential / 2000;
+            var stepSize = semiconductor.SurfacePotential / 2000;
 
-            stepSize = evalSemiconductor.SurfacePotential > ElectricPotential.Zero ?
+            stepSize = semiconductor.SurfacePotential > ElectricPotential.Zero ?
                 ElectricPotential.Abs(stepSize) : -ElectricPotential.Abs(stepSize);
 
-            var previousValue = 1 / evalSemiconductor.GetElectricField(
-                evalSemiconductor.SurfacePotential).VoltsPerMeter;
-            var value = 1 / evalSemiconductor.GetElectricField(
-                            evalSemiconductor.SurfacePotential - stepSize).VoltsPerMeter;
+            var previousValue = 1 / semiconductor
+                .GetElectricField(semiconductor.SurfacePotential).VoltsPerMeter;
             var runningThickness = Length.Zero;
             var previousThickness = Length.Zero;
+
             var point = new EvalPoint
             {
                 Location = runningThickness,
-                Charge = evalSemiconductor.GetChargeY(evalSemiconductor.SurfacePotential),
+                ChargeDensity = semiconductor.GetChargeY(semiconductor.SurfacePotential),
                 ElectricField = new ElectricField(1 / previousValue),
-                Potential = evalSemiconductor.SurfacePotential
+                Potential = semiconductor.SurfacePotential
             };
 
-            evalSemiconductor.EvalPoints.Add(point);
+            semiconductor.EvalPoints.Add(point);
 
+            for (var i = 1; ElectricPotential.Abs(semiconductor.SurfacePotential - stepSize * i)
+                > ElectricPotential.FromMillivolts(1) && i < 100000; i++)
+            {
+                var potentialValue = semiconductor.SurfacePotential - stepSize * i;
+                var value = 1 / semiconductor.GetElectricField(potentialValue).VoltsPerMeter;
+                previousThickness = runningThickness;
+                runningThickness += new Length(((previousValue + value) / 2) * stepSize.Volts);
 
-        }
+                point = new EvalPoint
+                {
+                        Location = runningThickness,
+                        ChargeDensity = semiconductor.GetChargeY(potentialValue) * 1E-8,
+                        ElectricField = new ElectricField(1 / value),
+                        Potential = potentialValue
+                };
 
-        private ElectricCharge EvaluteGivenCharge(ElectricCharge charge)
-        {
-        }
+                semiconductor.EvalPoints.Add(point);
+                previousValue = value;
+            }
 
-        /*
-        public void Evaluate(double voltageBias, double temperature) throws Exception {
-ryan.
+            // Now add the offset in potential
+            var checkCharge = ChargeDensity.Zero; // check and see if the charges add up
+            foreach (var checkPoint in semiconductor.EvalPoints)
+            {
+                checkPoint.Potential = checkPoint.Potential + storePotential;
+                checkPoint.Potential = checkPoint.Potential - semiconductor.SurfacePotential;
+                checkCharge += checkPoint.ChargeDensity;
+            }
 
-                evalSemiconductor.getPoint().add(point);
+            // Now subtract the potential from all the points so the right is ref to 0
+            var lastPoint = BottomLayer.EvalPoints.Last();
+            var potential = lastPoint.Potential;
 
-                for (int i = 1; Math.abs(evalSemiconductor.getSurfacePot() - stepSize * i) > 0.001 && i < 100000; i++) {
-                    potentialValue = evalSemiconductor.getSurfacePot() - stepSize * i;
-                    value = 1 / evalSemiconductor.electricField(potentialValue);
-                    previousThickness = runningThickness;
-                    runningThickness += ((previousValue + value) / 2) * stepSize;
-                    point = new EvalPoint(runningThickness, evalSemiconductor.chargeY(potentialValue) *
-                        1e-8, 1 / value, potentialValue);
-                    evalSemiconductor.getPoint().add(point);
-                    previousValue = value;
-                }
-
-                // Now add the offset in potential
-                double checkCharge = 0; // check and see if the charges add up
-                for(EvalPoint itr: evalSemiconductor.getPoint()){
-                    itr.setPotential(itr.getPotential() + storePotential);
-                    itr.setPotential(itr.getPotential() - evalSemiconductor.getSurfacePot());
-                    checkCharge += itr.getCharge();
+            foreach (var layer in Layers)
+            {
+                foreach (var ep in layer.EvalPoints)
+                {
+                    ep.Potential = ep.Potential = potential;
                 }
             }
 
-            // now subtract the potential from all the points so the right is ref to 0
-            int lastPoint = this.getBottomLayer().getPoint().size() - 1;
-            double potential = this.getBottomLayer().getPoint().get(lastPoint).getPotential();
-            for (Material m: structure)
-                for (EvalPoint e: m.getPoint()){
-                    e.setPotential(e.getPotential() - potential);
-                }
-
-            EvalPoint last = this.getBottomLayer().getPoint().get(lastPoint);
-            EvalPoint trueLast = new EvalPoint(last);
-            if (trueLast.getLocationNm() < 50) {
-                trueLast.setLocationNm(50);
+            var trueLast = lastPoint.DeepClone();
+            if (trueLast.Location < Length.FromNanometers(50))
+            {
+                trueLast.Location = Length.FromNanometers(50);
             }
-            this.getBottomLayer().getPoint().add(trueLast);
+            BottomLayer.EvalPoints.Add(trueLast);
+
         }
 
         // Calculate based on top charge return running charge
-        public double evaluateGivenCharge(double topCharge) throws Exception {
-            // Evaluate the structure given a top charge
-
-            EvalPoint point;
-
+        private ChargeDensity EvaluateGivenCharge(ChargeDensity topCharge)
+        {
             // Set the top metal to have a charge at the bottom (location = thickness)
-            Metal topMetal = (Metal)this.getTopLayer();
-            topMetal.prepare();
+            TopLayer.Prepare();
 
             // Set the first point to all zeros
-            point = new EvalPoint(0,0,0,0);
-            topMetal.getPoint().set(0, point);
+            TopLayer.EvalPoints[0] = new EvalPoint();
 
             // Add charge to the last point
-            point = new EvalPoint(topMetal.getThickness(), topCharge, 0, 0);
-            topMetal.getPoint().set(1, point);
+            TopLayer.EvalPoints[1] = new EvalPoint
+            {
+                Location = TopLayer.Thickness,
+                ChargeDensity = topCharge
+            };
+
+            var runningCharge = topCharge;
+            var runningPotential = ElectricPotential.Zero;
 
             // Now integrate the charges to get the electric field in all the dielectrics
-            Dielectric evalDielectric;
-            Metal evalMetal;
-            double runningCharge = topCharge;
-            double runningPotential = 0;
-            for (int i = 1; i < structure.size() - 1; i++) { // assume the last is a metal as well
-                // Check to see what kind of a material we are dealing with
-                if (structure.get(i) instanceof Dielectric) {
-                    // Get the oxide
-                    evalDielectric = (Dielectric)structure.get(i);
-                    // Prep the Dielectric (oxide)
-                    evalDielectric.prepare();
+            foreach (var layer in Layers.Skip(1)) // Only inner layers
+            {
+                if (layer is Dielectric)
+                {
+                    var dielectric = (Dielectric)layer;
+                    dielectric.Prepare();
 
-                    for (int j = 0; j < evalDielectric.getPoint().size(); j++) {
+                    for (var i = 0; i < dielectric.EvalPoints.Count; i++)
+                    {
+                        var point = dielectric.EvalPoints[i];
 
                         // Integrate the charge (sum really)
-                        runningCharge += evalDielectric.getPoint().get(j).getCharge();
+                        runningCharge += point.ChargeDensity;
 
                         // Calculate the Electric Field
-                        if (evalDielectric.getDielectricConstantExpression() != null) {
-                            if (evalDielectric.getDielectricConstantExpression().contains("F")) {
-                                // here we need to do some fancy footwork for the dielectric dependent calculation
-                                // let's use slope of the function to find the dielectric constant
-                                double highEField = 1e3;
-                                double lowEField = -1e3;
-                                double eFieldGuess = (highEField + lowEField) / 2;
-                                double calcEField = runningCharge / evalDielectric.eFieldPermittivityFPerCm(eFieldGuess);
-                                boolean bHighInRange = false;
-                                boolean bLowInRange = false;
-                                double highrange = 0;
-                                double lowrange = 0;
-                                for (int k = 0; k < 1000; k++) {
-                                    //                         highrange = eFieldGuess + Math.abs(eFieldGuess*1e-6) + 1e-6;
-                                    //                         lowrange = eFieldGuess + Math.abs(eFieldGuess*1e-6) - 1e-6;
-                                    //                         System.out.printf("High range = " + highrange + "\n");
-                                    //                         System.out.printf("calcEField = " + calcEField + "\n");
-                                    //                         System.out.printf("Low range = " + lowrange + "\n");
-                                    if (eFieldGuess + Math.abs(eFieldGuess * 1e-6) + 1e-6 > calcEField &&
-                                        eFieldGuess - Math.abs(eFieldGuess * 1e-6) - 1e-6 < calcEField) {
-                                        break;
-                                    }
-
-                                    // Check range of numbers to search within
-                                    if (bHighInRange == false) {
-                                        if (eFieldGuess < calcEField) {
-                                            // Could not find a solution in the range of interest
-                                            highEField = highEField * 1000; // increase the range
-                                        }
-                                        else {
-                                            // solution is in range
-                                            bHighInRange = true;
-                                        }
-                                    }
-
-                                    if (bLowInRange == false) {
-                                        if (eFieldGuess > calcEField) {
-                                            // could not find a solution in the range of interest
-                                            lowEField = lowEField * 1000; // increase the range
-                                        }
-                                        else {
-                                            // solution is in range
-                                            bLowInRange = true;
-                                        }
-                                    }
-
-                                    // Check to see if we could not converge within 1000 iterations
-                                    if (k == 1000 - 1) {
-                                        throw new Exception("Could not converge electric field dependent dielectric constant!");
-                                    }
-
-                                    if (calcEField < eFieldGuess) {
-                                        highEField = eFieldGuess;
-                                    }
-                                    else {
-                                        lowEField = eFieldGuess;
-                                    }
-
-                                    eFieldGuess = (highEField + lowEField) / 2;
-                                    calcEField = runningCharge / evalDielectric.eFieldPermittivityFPerCm(eFieldGuess);
-                                }
-                                evalDielectric.getPoint().get(j).setElectricField(eFieldGuess);
-                            }
-                            else {
-                                evalDielectric.getPoint().get(j).setElectricField(runningCharge / evalDielectric.getPermittivityFPerCm());
-                            }
-                        }
-                        else {
-                            evalDielectric.getPoint().get(j).setElectricField(runningCharge / evalDielectric.getPermittivityFPerCm());
-                        }
+                        point.ElectricField = runningCharge / dielectric.Permittivity;
 
                         // Calculate the potential
-                        if (j == 0) { // only for the first point
-                            evalDielectric.getPoint().get(j).setPotential(runningPotential);
+                        if (i == 0)
+                        {
+                            point.Potential = runningPotential;
                         }
-                        else {
-                            runningPotential += -evalDielectric.getPoint().get(j-1).getElectricFieldM() *
-                                (evalDielectric.getPoint().get(j).getLocationM() - evalDielectric.getPoint().get(j - 1).getLocationM());
-                            evalDielectric.getPoint().get(j).setPotential(runningPotential);
+                        else
+                        {
+                            var previousPoint = dielectric.EvalPoints[i - 1];
+                            runningPotential -= previousPoint.ElectricField
+                                * (point.Location - previousPoint.Location);
+
+                            point.Potential = runningPotential;
                         }
                     }
                 }
-                else {
-                    if (structure.get(i) instanceof Metal) {
-                        // Get the metal
-                        evalMetal = (Metal)structure.get(i);
-                        // Prep the metal
-                        evalMetal.prepare();
+                else if (layer is Metal)
+                {
+                    var metal = (Metal)layer;
+                    metal.Prepare();
 
-                        // For the first point put the neg of the charge we have accumulated so far
-                        evalMetal.getPoint().get(0).setCharge(-runningCharge);
-                        evalMetal.getPoint().get(0).setElectricField(0);
-                        evalMetal.getPoint().get(0).setPotential(runningPotential);
+                    // For the first point put the neg of the charge we have accumulated so far
+                    metal.EvalPoints[0].ChargeDensity = -runningCharge;
+                    metal.EvalPoints[0].ElectricField = ElectricField.Zero;
+                    metal.EvalPoints[0].Potential = runningPotential;
 
-                        // For the last point put the accumulated charge pulse the free charge
-                        runningCharge += evalMetal.getExtraCharge(); // Integrate the charge
-                        evalMetal.getPoint().get(1).setCharge(runningCharge);
-                        evalMetal.getPoint().get(1).setElectricField(0);
-                        evalMetal.getPoint().get(1).setPotential(runningPotential);
-                    }
-                    else { // we have a material that is not a metal or oxide
-                        // do nothing
-                    }
+                    // For the last point put the accumulated charge plus the free charge
+                    runningCharge += metal.ExtraCharge; // Integrate the extra charge
+                    metal.EvalPoints[1].ChargeDensity = runningCharge;
+                    metal.EvalPoints[1].ElectricField = ElectricField.Zero;
+                    metal.EvalPoints[1].Potential = runningPotential;
+                }
+                else // layer is Semiconductor
+                {
+                    // do nothing
                 }
             }
 
             // Now add the stuff for the last point - here we assume that it is a metal
-            if (this.getBottomLayer() instanceof Metal) {
-                // Get the metal
-                evalMetal = (Metal)this.getBottomLayer();
-
-                // Prep the metal
-                evalMetal.prepare();
+            if (IsBottomLayerMetal)
+            {
+                var metal = (Metal)BottomLayer;
+                metal.Prepare();
 
                 // For the first point put the neg of the charge we have accumulated so far
-                evalMetal.getPoint().get(0).setCharge(-runningCharge);
-                evalMetal.getPoint().get(0).setElectricField(0);
-                evalMetal.getPoint().get(0).setPotential(runningPotential);
+                metal.EvalPoints[0].ChargeDensity = -runningCharge;
+                metal.EvalPoints[0].ElectricField = ElectricField.Zero;
+                metal.EvalPoints[0].Potential = runningPotential;
 
                 // For the last point put no charge
-                evalMetal.getPoint().get(1).setCharge(0);
-                evalMetal.getPoint().get(1).setElectricField(0);
-                evalMetal.getPoint().get(1).setPotential(runningPotential);
+                metal.EvalPoints[0].ChargeDensity = ChargeDensity.Zero;
+                metal.EvalPoints[0].ElectricField = ElectricField.Zero;
+                metal.EvalPoints[0].Potential = runningPotential;
             }
-            else {
-                if (this.getBottomLayer() instanceof Semiconductor) {
-                    // Get the semiconductor
-                    Semiconductor evalSemiconductor = (Semiconductor)this.getBottomLayer();
+            else if (IsBottomLayerSemiconductor)
+            {
+                var semiconductor = (Semiconductor)BottomLayer;
 
-                    // Calculate the surface potential given the charge
-                    evalSemiconductor.setSurfacePot(evalSemiconductor.surfacePotential(-runningCharge));
+                // Calculate the surface potential and prepare
+                semiconductor.SurfacePotential = semiconductor.GetSurfacePotential(-runningCharge);
+                semiconductor.Prepare();
 
-                    // Prep the semiconductor
-                    evalSemiconductor.prepare();
+                // Evaulate the potential drop given the remaining charge
+                semiconductor.EvalPoints[0].ChargeDensity = -runningCharge;
+                semiconductor.EvalPoints[0].Potential = runningPotential;
 
-                    // Evaluate the potential drop given the remaining charge
-                    evalSemiconductor.getPoint().get(0).setCharge(-runningCharge);
-                    evalSemiconductor.getPoint().get(0).setPotential(runningPotential);
-
-                    // Last Point
-                    evalSemiconductor.getPoint().get(1).setPotential(runningPotential - evalSemiconductor.getSurfacePot());
-                }
+                // Last Point
+                semiconductor.EvalPoints[1].Potential 
+                    = runningPotential - semiconductor.SurfacePotential;
             }
+
             return runningCharge;
         }
 
-        public double calculateVTH() throws Exception {
+        public ElectricPotential ThresholdVoltage 
+        {
+            get
+            {
+                if (IsBottomLayerSemiconductor)
+                {
+                    // Make a deep copy of the structure so we don't ruin anything.
+                    var structureClone = DeepClone();
 
-            // Check to see if we have a semiconductor
-            if (this.getBottomLayer() instanceof Semiconductor) {
-                // we have a semiconductor that we can calculate the threshold voltage from
+                    var semiconductor = (Semiconductor)structureClone.BottomLayer;
+                    var surfacePotential = 2 * semiconductor.PhiF;
+                    var chargeAtVth = semiconductor.GetChargeDensity(surfacePotential);
+                    var trappedCharge = ChargeDensity.Zero;
 
-                // make a deep copy of the structure so we don't ruin anything        
-                Structure VBStructure = this.clone();
+                    // Get all the charge in the metals and dielectrics.
+                    foreach (var layer in structureClone.Layers)
+                    {
+                        if (layer is Metal)
+                        {
+                            trappedCharge += ((Metal)layer).ExtraCharge;
+                        }
 
-                Semiconductor tempSemiconductor = (Semiconductor)VBStructure.getBottomLayer();
-                double surfacePotential = 2 * tempSemiconductor.phiF();
-                double chargeAtVth = tempSemiconductor.charge(surfacePotential);
-                double trappedCharge = 0;
+                        if (layer is Dielectric)
+                        {
+                            foreach (var point in layer.EvalPoints)
+                            {
+                                trappedCharge += point.ChargeDensity;
+                            }
+                        }
+                    }
 
-                // get all the charge in the metals and dielectrics
-                for(int i = 1; i < VBStructure.structure.size() - 1;i++) {
-                    if(VBStructure.structure.get(i) instanceof Metal)
-                        trappedCharge += ((Metal)VBStructure.structure.get(i)).getExtraCharge();
-                    if(VBStructure.structure.get(i) instanceof Dielectric)
-                        for(EvalPoint p : VBStructure.structure.get(i).point)
-                            trappedCharge += p.getCharge();
+                    structureClone.EvaluateGivenCharge(-chargeAtVth - trappedCharge);
+
+                    var vth = (ElectricPotential)structureClone.WorkFunctionDifference
+                                           - structureClone.BottomLayer.EvalPoints[1].Potential;
+
+                    return vth;
                 }
-
-                VBStructure.evaluateGivenCharge(-chargeAtVth - trappedCharge);
-
-                double thresholdVoltage = VBStructure.workFunctionDifference() -
-                    VBStructure.getBottomLayer().getPoint().get(1).getPotential();
-                return thresholdVoltage;
-            }
-            else {
-                // Messagebox: There is no semiconductor in the stack. A threshold voltage could not be calculated.
-                return 0;
+                else
+                {
+                    return null;   // Can't have a threshold without a semiconductor
+                }
             }
         }
 
-        public double calculateVFB() throws Exception {
-            // make a deep copy of the structure so we don't ruin anything
-            Structure VBStructure = this.clone();
-            double semiconductorCharge = 0;
+        public ElectricPotential FlatbandVoltage
+        {
+            get
+            {
+                // Make a deep copy of the structure so we don't ruin anything
+                var structureClone = DeepClone();
+                var semiconductorCharge = ChargeDensity.Zero;
 
-            // If the end material is a semiconductor
-            if (VBStructure.getBottomLayer() instanceof Semiconductor) {
-                // get the semiconductor charge for a surface potential of zero
-                Semiconductor tempSemiconductor = (Semiconductor)VBStructure.getBottomLayer();
-                semiconductorCharge = tempSemiconductor.charge(0);
+                if (structureClone.IsBottomLayerSemiconductor)
+                {
+                    semiconductorCharge = ((Semiconductor)BottomLayer)
+                        .GetChargeDensity(ElectricPotential.Zero);
+                }
+
+                var runningTrapCharge = ChargeDensity.Zero;
+
+                foreach (var layer in structureClone.Layers)
+                {
+                    if (layer is Metal)
+                    {
+                        runningTrapCharge += ((Metal)layer).ExtraCharge;
+                    }
+
+                    if (layer is Dielectric)
+                    {
+                        foreach (var point in layer.EvalPoints)
+                        {
+                            runningTrapCharge += point.ChargeDensity;
+                        }
+                    }
+                }
+
+                structureClone.EvaluateGivenCharge(-runningTrapCharge - semiconductorCharge);
+                var vfb = (ElectricPotential)structureClone.WorkFunctionDifference 
+                    - structureClone.BottomLayer.EvalPoints[0].Potential;
+
+                return vfb;
             }
-
-            double runningTrapCharge = 0;
-
-            // Now add up all the trap charge in the structure
-            for (int i = 1; i < VBStructure.structure.size() -1; i++) {
-                if (VBStructure.structure.get(i) instanceof Metal) {
-                    runningTrapCharge += ((Metal)VBStructure.structure.get(i)).getExtraCharge();
-                }
-                if (VBStructure.structure.get(i) instanceof Dielectric) {
-                    for (EvalPoint p : VBStructure.structure.get(i).point)
-                        runningTrapCharge += p.getCharge();
-                }
-                else {
-                    throw new Exception("Material exception unhandled in Flatband voltage calculation");
-                }
-            }
-
-            VBStructure.evaluateGivenCharge(-runningTrapCharge - semiconductorCharge);
-
-            double flatBandVoltage = VBStructure.workFunctionDifference() - VBStructure.getBottomLayer().getPoint().get(0).getPotential();
-            return flatBandVoltage;
         }
 
-        // Calculate the oxide capacitance
-        public double cox() throws Exception {
-            double oneOverCap = 0;
+        public CapacitanceDensity OxideCapacitance
+        {
+            get
+            {
+                var oneOverCap = 0.0;
 
-            for (int i = 1; i < structure.size() - 1; i++) {
-                if (structure.get(i) instanceof Dielectric) {
-                    oneOverCap += 1 / ((Dielectric)structure.get(i)).getCoxFPerCm2();
+                foreach (var layer in Layers)
+                {
+                    if (layer is Dielectric)
+                    {
+                        oneOverCap += 1 / ((Dielectric)layer).OxideCapacitance.FaradsPerSquareMeter;
+                    }
                 }
+
+                return new CapacitanceDensity(1 / oneOverCap);
             }
-            return 1 / oneOverCap;
         }
 
-        // Calculate the stack capacitance // assumes the structure has already been evaluated
-        public double stackCap() throws Exception {
-            // stack capacitance
-            double oneOverCap = 0;
-            for (Material m : structure) {
-                if (m instanceof Dielectric)
-                    oneOverCap += 1 / ((Dielectric)m).getCoxFPerCm2();
+        public CapacitanceDensity StackCapacitance
+        {
+            get
+            {
+                var oneOverCap = 0.0;
 
-                if (m instanceof Semiconductor)
-                    oneOverCap += 1 / ((Semiconductor)m).getCapacitanceFPerCm();
+                foreach (var layer in Layers)
+                {
+                    if (layer is Dielectric)
+                    {
+                        oneOverCap += 1 / ((Dielectric)layer).OxideCapacitance
+                            .FaradsPerSquareCentimeter;
+                    }
+
+                    if (layer is Semiconductor)
+                    {
+                        oneOverCap += 1 / ((Semiconductor)layer).CapacitanceDensity
+                            .FaradsPerSquareCentimeter;
+                    }
+                }
+
+                return CapacitanceDensity.FromFaradsPerSquareCentimeter(1 / oneOverCap);
             }
-
-            return 1/oneOverCap;
         }
 
-        public double calculateEotNm() throws Exception {
-            return (3.9 * Constant.PermitivityOfFreeSpace_cm * 1e7) / this.cox();
+        public Length EquivalentOxideThickness
+        {
+            get
+            {
+                return 3.9 * Permittivity.OfFreeSpace / OxideCapacitance;
+            }
         }
 
-        public List<String> outputParametersTitles() throws Exception {
-            ArrayList<String> outputParameters = new ArrayList<String>();
+        public ElectricField GetElectricField(Length location)
+        {
+            var thickness = Length.Zero;
+            var lastThickness = Length.Zero;
 
-            outputParameters.add("Voltage (V)");
-            outputParameters.add("Stack Capacitance (F/cm2)");
-            outputParameters.add("Cox (F/cm2)");
-            outputParameters.add("GateCharge (C/cm2)");
-
-            // iterate through the structure
-            for (Material m : structure) {
-                if (m instanceof Metal) {
-                    outputParameters.add(m.getName() + " Potential (V)");
-                }
-                if (m instanceof Dielectric) {
-                    // iterate through each point
-                    for (EvalPoint p : m.point) {
-                        outputParameters.add(m.getName() + " Potential (V) @ " +
-                            p.getLocationNm() + "nm");
-                        outputParameters.add(m.getName() + " EField (MV/cm) @ " +
-                            p.getLocationNm() + "nm");
-                    }
-
-                    outputParameters.add(m.getName() + " Cap (F/cm2)");
-                    outputParameters.add(m.getName() + " Gate Tunnel Distance to CB (nm)");
-                    outputParameters.add(m.getName() + " Gate Tunnel Distance to VB (nm)");
-
-                    if (this.getBottomLayer() instanceof Semiconductor) {
-                        outputParameters.add(m.getName() + " S/C CB TunnelDistance to CB (nm)");
-                        outputParameters.add(m.getName() + " S/C VB TunnelDistance to VB (nm)");
-                        outputParameters.add(m.getName() + " S/C Ef TunnelDistance to CB (nm)");
-                        outputParameters.add(m.getName() + " S/C Ef TunnelDistance to VB (nm)");
-                    }
-                    else {
-                        outputParameters.add(m.getName() + " Bottom Gate Tunnel Distance CB (nm)");
-                        outputParameters.add(m.getName() + " Bottom Gate Tunnel Distance VB (nm)");
-                    }
-                }
-                if (m instanceof Semiconductor) {
-                    // record just the potential at 0nm an the surface potential
-                    outputParameters.add(m.getName() + " Potential (V) @ 0nm");
-                    outputParameters.add(m.getName() + " SurfacePotential (ev)");
-                    outputParameters.add(m.getName() + " Capacitance (F/cm2)");
-
-                    Semiconductor tempSemiconductor = (Semiconductor)m;
-                    if (tempSemiconductor.getDitType() == Constant.CONSTANT ||
-                        tempSemiconductor.getDitType() == Constant.PARABOLIC || 
-                        tempSemiconductor.getDitType() == Constant.GAUSSIAN) {
-                        outputParameters.add("Qit (C/cm2)");
-                        outputParameters.add("Cit (F/cm2)");
-                    }
-                }
-            }
-            return outputParameters;
-        }
-
-        public List<Double> outputParameters(double voltage) throws Exception {
-            List<Double> columnList = new ArrayList<Double>();
-
-            Dielectric tempDielectric;
-            Semiconductor refSemiconductor;
-
-            double gateEnergy;
-            double bottomGateEnergy = 0;
-            double bottomCBEnergy = 0;
-            double bottomVBEnergy = 0;
-            double SCEfermi = 0;
-
-            // add the parameters
-            columnList.add(voltage);
-            columnList.add(this.stackCap());
-            columnList.add(this.cox());
-            columnList.add(this.getTopLayer().getPoint().get(1).getCharge());
-
-            gateEnergy = -this.getTopLayer().getPoint().get(0).getPotential() - this.getTopLayer().getEnergyFromVacuumToTopBand();
-
-            if (this.getBottomLayer() instanceof Semiconductor) {
-                bottomCBEnergy = -this.getBottomLayer().getPoint().get(0).getPotential() -
-                    this.getBottomLayer().getEnergyFromVacuumToTopBand();
-                bottomVBEnergy = -this.getBottomLayer().getPoint().get(0).getPotential() -
-                    this.getBottomLayer().getEnergyFromVacuumToBottomBand();
-
-                SCEfermi = -((Semiconductor)this.getBottomLayer()).getWorkFunction();
-            }
-            else { // bottom material is a metal
-                bottomGateEnergy = -this.getBottomLayer().getPoint().get(0).getPotential() -
-                    this.getBottomLayer().getEnergyFromVacuumToTopBand();
-            }
-
-            // iterate through the structure2
-            for (Material m : structure) {
-                if (m instanceof Metal) {
-                    columnList.add(m.getPoint().get(0).getPotential());
-                }
-                if (m instanceof Dielectric) {
-                    // iterate through each point
-                    for (EvalPoint p : m.point) {
-                        columnList.add(p.getPotential());
-                        columnList.add(p.getElectricFieldMv());
-                    }
-
-                    tempDielectric = (Dielectric)m;
-                    columnList.add(tempDielectric.getCoxFPerCm2());
-                    columnList.add(tempDielectric.distanceToCBCm(gateEnergy) * 1e7);
-                    columnList.add(tempDielectric.distanceToVBCm(gateEnergy) * 1e7);
-
-                    // bottom material is a semiconductor
-                    if (this.getBottomLayer() instanceof Semiconductor) {
-                        double tunnelDistance = tempDielectric.distanceToCBCm(bottomCBEnergy) * 1e7;
-                        if (tunnelDistance == 0 || tunnelDistance == tempDielectric.getThicknessNm()) {
-                            columnList.add(tunnelDistance);
-                        }
-                        else {
-                            columnList.add(tempDielectric.getThicknessNm() - tunnelDistance);
-                        }
-
-                        tunnelDistance = tempDielectric.distanceToVBCm(bottomVBEnergy) * 1e7;
-                        if (tunnelDistance == 0 || tunnelDistance == tempDielectric.getThicknessNm()) {
-                            columnList.add(tunnelDistance);
-                        }
-                        else {
-                            columnList.add(tempDielectric.getThicknessNm() - tunnelDistance);
-                        }
-
-                        tunnelDistance = tempDielectric.distanceToCBCm(SCEfermi) * 1e7;
-                        if (tunnelDistance == 0 || tunnelDistance == tempDielectric.getThicknessNm()) {
-                            columnList.add(tunnelDistance);
-                        }
-                        else {
-                            columnList.add(tempDielectric.getThicknessNm() - tunnelDistance);
-                        }
-
-                        tunnelDistance = tempDielectric.distanceToVBCm(SCEfermi) * 1e7;
-                        if (tunnelDistance == 0 || tunnelDistance == tempDielectric.getThicknessNm()) {
-                            columnList.add(tunnelDistance);
-                        }
-                        else {
-                            columnList.add(tempDielectric.getThicknessNm() - tunnelDistance);
-                        }
-                    }
-                    else { // bottom material is a metal
-                        double tunnelDistance = tempDielectric.distanceToCBCm(bottomGateEnergy) * 1e7;
-                        if (tunnelDistance == 0 || tunnelDistance == tempDielectric.getThicknessNm()) {
-                            columnList.add(tunnelDistance);
-                        }
-                        else {
-                            columnList.add(tempDielectric.getThicknessNm() - tunnelDistance);
-                        }
-                        tunnelDistance = tempDielectric.distanceToVBCm(bottomGateEnergy) * 1e7;
-                        if (tunnelDistance == 0 || tunnelDistance == tempDielectric.getThicknessNm()) {
-                            columnList.add(tunnelDistance);
-                        }
-                        else {
-                            columnList.add(tempDielectric.getThicknessNm() - tunnelDistance);
-                        }
-                    }
-                }
-                if (m instanceof Semiconductor) {
-                    refSemiconductor = (Semiconductor)m;
-                    columnList.add(m.getPoint().get(0).getPotential());
-                    columnList.add(refSemiconductor.getSurfacePot());
-                    columnList.add(refSemiconductor.getCapacitanceFPerCm());
-
-                    if (refSemiconductor.getDitType() == Constant.CONSTANT ||
-                        refSemiconductor.getDitType() == Constant.PARABOLIC ||
-                        refSemiconductor.getDitType() == Constant.GAUSSIAN) {
-                        columnList.add(refSemiconductor.qit(refSemiconductor.getSurfacePot()));
-                        columnList.add(refSemiconductor.citFPerCm(refSemiconductor.getSurfacePot()));
-                    }
-                }
-            }
-
-            return columnList;
-        }
-
-        public XYSeriesCollection getPotentialDataset() {
-            XYSeriesCollection potential = new XYSeriesCollection();
-
-            double pointX = 0;
-            double pointY = 0;
-            double thickness = 0;
-            XYSeries series;
-            for (int i = 0; i < structure.size(); i++) {
-                series = new XYSeries(structure.get(i).getName());
-
-                for (EvalPoint j : structure.get(i).getPoint()){
-                    pointX = j.getLocationNm() + thickness;
-                    pointY = j.getPotential();
-                    series.add(pointX, pointY);
-                }
-                if (i < structure.size() - 1) {
-                    pointY = structure.get(i + 1).getPoint().get(0).getPotential();
-                    series.add(pointX, pointY);
-                }
-
-                thickness += structure.get(i).getThicknessNm();
-                potential.addSeries(series);
-            }
-
-            return potential;
-        }
-
-        public XYSeriesCollection getChargeDensityDataset() {
-            XYSeriesCollection charge = new XYSeriesCollection();
-
-            double pointX = 0;
-            double pointY = 0;
-            double thickness = 0;
-            XYSeries series;
-            for (int i = 0; i < structure.size(); i++) {
-                series = new XYSeries(structure.get(i).getName());
-                for (int j = 0; j < structure.get(i).getPoint().size(); j++) {
-                    if (structure.get(i) instanceof Semiconductor) {
-                        if (j == 0) {
-                            pointX = structure.get(i).getPoint().get(j).getLocationNm() + thickness;
-                            series.add(pointX, 0);
-
-                            pointY = structure.get(i).getPoint().get(j).getCharge();
-                            series.add(pointX, pointY);
-                        } else {
-                            pointX = structure.get(i).getPoint().get(j).getLocationNm() + thickness;
-                            pointY = structure.get(i).getPoint().get(j).getCharge();
-                            series.add(pointX, pointY);
-                        }
-                    } else {
-                        pointX = structure.get(i).getPoint().get(j).getLocationNm() + thickness;
-                        series.add(pointX, 0);
-
-                        pointY = structure.get(i).getPoint().get(j).getCharge();
-                        series.add(pointX, pointY);
-
-                        pointX = structure.get(i).getPoint().get(j).getLocationNm() + thickness;
-                        series.add(pointX, 0);
-                    }
-                }
-
-                thickness += structure.get(i).getThicknessNm();
-                charge.addSeries(series);
-            }
-
-            return charge;
-        }
-
-        public XYSeriesCollection getElectricFieldDataset() {
-            XYSeriesCollection eField = new XYSeriesCollection();
-            double pointX = 0;
-            double pointY = 0;
-            double thickness = 0;
-            XYSeries series;
-            for (int i = 0; i < structure.size(); i++) {
-                series = new XYSeries(structure.get(i).getName());
-                if (i > 0) {
-                    pointY = structure.get(i - 1).getPoint().getLast().getElectricFieldMv();
-                    series.add(pointX, pointY);
-                }
-
-                for (EvalPoint j: structure.get(i).getPoint()){
-                    if (structure.get(i) instanceof Dielectric
-                        && j != structure.get(i).getPoint().getLast()) {
-                        pointX = j.getLocationNm() + thickness;
-                        series.add(pointX, pointY);
-                    }
-                    pointX = j.getLocationNm() + thickness;
-                    pointY = j.getElectricFieldMv();
-                    series.add(pointX, pointY);
-                }
-
-                thickness += structure.get(i).getThicknessNm();
-                eField.addSeries(series);
-            }
-
-            return eField;
-        }
-
-        public XYSeriesCollection getEnergyDataset() {
-            XYSeriesCollection energy = new XYSeriesCollection();
-
-            double pointX = 0;
-            double pointY = 0;
-            double thickness = 0;
-            XYSeries series;
-            for (int i = 0; i < structure.size(); i++) {
-                if (structure.get(i) instanceof Metal) {
-                    series = new XYSeries(structure.get(i).getName());
-                    pointX = structure.get(i).getPoint().getFirst().getLocationNm() + thickness;
-                    pointY = -structure.get(i).getPoint().getFirst().getPotential() - structure.get(i).getEnergyFromVacuumToTopBand();
-                    series.add(pointX, pointY);
-                    pointX = structure.get(i).getPoint().getLast().getLocationNm() + thickness;
-                    pointY = -structure.get(i).getPoint().get(1).getPotential() - structure.get(i).getEnergyFromVacuumToTopBand();
-                    series.add(pointX, pointY);
-                    energy.addSeries(series);
-                }
-                if (structure.get(i) instanceof Dielectric) {
-                    series = new XYSeries(structure.get(i).getName(), false);
-                    // For first point
-                    pointX = structure.get(i).getPoint().getFirst().getLocationNm() + thickness;
-                    pointY = -structure.get(i).getPoint().getFirst().getPotential() - structure.get(i).getEnergyFromVacuumToTopBand();
-                    series.add(pointX, pointY);
-                    pointX = structure.get(i).getPoint().getFirst().getLocationNm() + thickness;
-                    pointY = -structure.get(i).getPoint().getFirst().getPotential() - structure.get(i).getEnergyFromVacuumToBottomBand();
-                    series.add(pointX, pointY);
-
-                    // for in between points
-                    for (EvalPoint j: structure.get(i).getPoint()){
-                        if (j == structure.get(i).getPoint().getFirst())
-                            continue;
-
-                        pointX = j.getLocationNm() + thickness;
-                        pointY = -j.getPotential() - structure.get(i).getEnergyFromVacuumToBottomBand();
-                        series.add(pointX, pointY);
-                    }
-
-                    // for the last point
-                    pointX = structure.get(i).getPoint().getLast().getLocationNm() + thickness;
-                    pointY = -structure.get(i).getPoint().getLast().getPotential() - structure.get(i).getEnergyFromVacuumToTopBand();
-                    series.add(pointX, pointY);
-
-                    // for in between points
-                    for (Iterator<EvalPoint> itr= structure.get(i).getPoint().descendingIterator();
-                        itr.hasNext();){
-                        EvalPoint j = itr.next();
-                        pointX = j.getLocationNm() + thickness;
-                        pointY = -j.getPotential() - structure.get(i).getEnergyFromVacuumToTopBand();
-                        series.add(pointX, pointY);
-                    }
-
-                    pointX = structure.get(i).getPoint().getFirst().getLocationNm() + thickness;
-                    pointY = -structure.get(i).getPoint().getFirst().getPotential() - structure.get(i).getEnergyFromVacuumToTopBand();
-                    series.add(pointX, pointY);
-
-
-                    energy.addSeries(series);
-                }
-                if (structure.get(i) instanceof Semiconductor) {
-                    series = new XYSeries(structure.get(i).getName() + " - Conduction Band");
-                    for (EvalPoint j :structure.get(i).getPoint()){
-                        pointX = j.getLocationNm() + thickness;
-                        pointY = -j.getPotential() - structure.get(i).getEnergyFromVacuumToTopBand();
-                        series.add(pointX, pointY);
-                    }
-                    energy.addSeries(series);
-
-                    series = new XYSeries(structure.get(i).getName() + " - Valance Band");
-                    for(EvalPoint j:structure.get(i).getPoint()){
-                        pointX = j.getLocationNm() + thickness;
-                        pointY = -j.getPotential() - structure.get(i).getEnergyFromVacuumToBottomBand();
-                        series.add(pointX, pointY);
-                    }
-                    energy.addSeries(series);
-
-                    series = new XYSeries(structure.get(i).getName() + " - Fermi Level");
-                    //for (int j = 0; j < passStructure.get(i).getPoint().size(); j++) {
-                    for (EvalPoint j: structure.get(i).getPoint()){
-                        pointX = j.getLocationNm() + thickness;
-                        pointY = -j.getPotential() - structure.get(i).getEnergyFromVacuumToEfi();
-                        series.add(pointX, pointY);
-                    }
-                    energy.addSeries(series);
-
-                    series = new XYSeries(structure.get(i).getName() + " - Work Function");
-                    for(EvalPoint j: structure.get(i).getPoint()) {
-                        pointX = j.getLocationNm() + thickness;
-                        pointY = -structure.get(i).getPoint().getLast().getPotential() - ((Semiconductor)structure.get(i)).getWorkFunction();
-                        series.add(pointX, pointY);
-                    }
-
-                    energy.addSeries(series);
-                }
-
-                thickness += structure.get(i).getThicknessNm();
-            }
-
-            return energy;
-        }
-
-        public double getElectricFieldAtLocation(double nm) {
-            double thickness = 0;
-            double lastThickness = 0;
-            for (int i=0; i < structure.size(); i++) {
+            foreach (var layer in Layers)
+            {
                 lastThickness = thickness;
-                thickness += structure.get(i).getThicknessNm();
-                if(nm < thickness)
-                    return structure.get(i).getElectricFieldAtLocation(nm - lastThickness);
+                thickness += layer.Thickness;
+                if (location < thickness)
+                {
+                    return layer.GetElectricField(location - lastThickness);
+                }
             }
 
-            return 0;
+            return ElectricField.Zero;
         }
 
-        public double getPotentialAtLocation(double nm) {
-            double thickness = 0;
-            double lastThickness = 0;
-            for (int i=0; i < structure.size(); i++) {
+        public ElectricPotential GetPotential(Length location)
+        {
+            var thickness = Length.Zero;
+            var lastThickness = Length.Zero;
+
+            foreach (var layer in Layers)
+            {
                 lastThickness = thickness;
-                thickness += structure.get(i).getThicknessNm();
-                if(nm < thickness)
-                    return structure.get(i).getPotentialAtLocation(nm - lastThickness);
+                thickness += layer.Thickness;
+                if (location < thickness)
+                {
+                    return layer.GetPotential(location - lastThickness);
+                }
             }
 
-            return 0;
+            return ElectricPotential.Zero;
         }
-        */
     }
 }

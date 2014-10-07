@@ -79,14 +79,14 @@ namespace Band.Units
 
 		public static ElectricField operator /(ElectricPotential left, Length right)
 		{
-			return new ElectricField(left.Volts / right.Meters);
+		return new ElectricField(left.Volts / right.Meters);
 		}
 
 		public static double operator /(ElectricPotential left, ElectricPotential right)
 		{
 			return left.Volts/right.Volts;
 		}
-
+            
         public static ElectricPotential operator +(ElectricPotential left, Energy right)
         {
             return new ElectricPotential(left.Volts + right.ElectronVolts);
@@ -136,6 +136,11 @@ namespace Band.Units
 		{
 			return left.Volts != right.Volts;
 		}
+
+        public static implicit operator Energy(ElectricPotential p)
+        {
+            return Energy.FromElectronVolts(p.Volts);
+        }
 
 		public override bool Equals(object obj)
 		{

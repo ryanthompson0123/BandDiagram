@@ -65,6 +65,16 @@ namespace Band.Units
 			return new Permittivity(left.FaradsPerMeter*right);
 		}
 
+        public static Length operator /(Permittivity left, CapacitanceDensity right)
+        {
+            return new Length(left.FaradsPerMeter / right.FaradsPerSquareMeter);
+        }
+
+        public static CapacitanceDensity operator /(Permittivity left, Length right)
+        {
+            return new CapacitanceDensity(left.FaradsPerMeter / right.Meters);
+        }
+
         public static Capacitance operator *(Permittivity left, Length right)
         {
             return new Capacitance(left.FaradsPerMeter * right.Meters);

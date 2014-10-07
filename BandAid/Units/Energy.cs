@@ -58,13 +58,13 @@ namespace Band.Units
 
 		public static Energy operator +(Energy left, ElectricPotential right)
 		{
-			return new Energy(left.ElectronVolts + right.Volts);
+            return new Energy(left.ElectronVolts + right.Volts);
 		}
 
 		public static Energy operator -(Energy left, ElectricPotential right)
 		{
 			return new Energy(left.ElectronVolts - right.Volts);
-		}
+        }         
 
 		public static Energy operator *(double left, Energy right)
 		{
@@ -125,6 +125,11 @@ namespace Band.Units
 		{
 			return left.Joules != right.Joules;
 		}
+
+        public static implicit operator ElectricPotential(Energy e)
+        {
+            return new ElectricPotential(e.ElectronVolts);
+        }
 
 		public override bool Equals(object obj)
 		{

@@ -1,12 +1,23 @@
 ﻿using Band.Units;
 using System;
+using System.Linq;
 
 namespace Band
 {
 	public class Metal : Material
 	{
-		public override Energy WorkFunction { get; set; }
-		public ElectricCharge ExtraCharge { get ; set; }
+        private Energy workFunctionValue;
+		public override Energy WorkFunction
+        {
+            get { return workFunctionValue; }
+        }
+
+        public void SetWorkFunction(Energy energy)
+        {
+            workFunctionValue = energy;
+        }
+
+        public ChargeDensity ExtraCharge { get ; set; }
 
 		public override Energy EnergyFromVacuumToBottomBand
 		{
@@ -32,6 +43,24 @@ namespace Band
 			}
 		}
 
+        public Metal(Length thickness)
+        {
+            ExtraCharge = ChargeDensity.Zero;
+            Thickness = thickness;
+            Prepare();
+        }
+
+        public override Material DeepClone()
+        {
+            var metal = new Metal(Thickness);
+            InitClone(metal);
+
+            metal.SetWorkFunction(WorkFunction);
+            metal.ExtraCharge = ExtraCharge;
+
+            return metal;
+        }
+
 		// Since EField is uniform in metal, we can do this
 		public override ElectricField GetElectricField(Length location)
 		{
@@ -44,7 +73,7 @@ namespace Band
 			return EvalPoints[0].Potential;
 		}
 
-		public override void Prepare()
+		public sealed override void Prepare()
 		{
 			EvalPoints.Clear();
 			EvalPoints.Add(new EvalPoint());

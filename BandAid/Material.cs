@@ -1,6 +1,7 @@
 ﻿using Band.Units;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Band
 {
@@ -8,7 +9,8 @@ namespace Band
 	{
 		public string Name { get; set; }
 		public string Notes { get; set; }
-		public virtual Length Thickness { get; set; }
+        public virtual Length Thickness { get; protected set; }
+
 		public string FillColor { get; set; }
 		public List<EvalPoint> EvalPoints { get; set; }
 
@@ -23,6 +25,16 @@ namespace Band
 		{
 			EvalPoints = new List<EvalPoint>();
 		}
+
+        protected void InitClone(Material material)
+        {
+            material.Name = Name;
+            material.Notes = Notes;
+            material.FillColor = FillColor;
+            material.EvalPoints = EvalPoints.Select(ep => ep.DeepClone()).ToList();
+        }
+
+        public abstract Material DeepClone();
 
 		public abstract ElectricField GetElectricField(Length location);
 		public abstract ElectricPotential GetPotential(Length location);

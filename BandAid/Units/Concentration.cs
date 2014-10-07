@@ -11,6 +11,11 @@ namespace Band.Units
 			PerCubicMeter = perCubicMeter;
 		}
 
+        public double PerCubicCentimeter
+        {
+            get { return PerCubicMeter * 1E6; }
+        }
+
 		public static Concentration Zero
 		{
 			get

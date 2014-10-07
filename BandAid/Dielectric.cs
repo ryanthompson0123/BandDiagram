@@ -6,6 +6,7 @@ namespace Band
 {
 	public class Dielectric : Material
 	{
+
 		public double DielectricConstant { get; set; }
 		public string DielectricConstantExpression { get; set; }
 		public Energy BandGap { get; set; }
@@ -41,11 +42,11 @@ namespace Band
         {
             get
             {
-                throw NotImplementedException("Dielectrics don't have a work function?");
+                throw new NotImplementedException("Dielectrics don't have a work function?");
             }
         }
 
-		public override void Prepare()
+		public sealed override void Prepare()
 		{
 			// Check to see if there is a point at the beginning (0), if not, add one.
 			if (EvalPoints.All(p => p.Location > Length.Zero))
@@ -53,7 +54,7 @@ namespace Band
 				EvalPoints.Add(new EvalPoint
 				{
 					Location = Length.Zero,
-					Charge = ElectricCharge.Zero,
+					ChargeDensity = ChargeDensity.Zero,
 					ElectricField = ElectricField.Zero,
 					Potential = ElectricPotential.Zero
 				});
@@ -64,7 +65,7 @@ namespace Band
 			{
 				EvalPoints.Add(new EvalPoint {
 					Location = Thickness,
-					Charge = ElectricCharge.Zero,
+                    ChargeDensity = ChargeDensity.Zero,
 					ElectricField = ElectricField.Zero,
 					Potential = ElectricPotential.Zero
 				});
@@ -74,32 +75,11 @@ namespace Band
 			EvalPoints.RemoveAll(p => 
 				p.Location != Length.Zero && 
 				p.Location != Thickness &&
-				p.Charge == ElectricCharge.Zero);
+                p.ChargeDensity == ChargeDensity.Zero);
 
 			// Sort the points.
 			EvalPoints.Sort();
 		}
-
-
-		/**
-	    * Get the dielectric constant. If the dielectric constant is an expression
-	    * it will use the eField value to calculate the value, otherwise the value is returned.
-	    *
-	    * @param eField - Value to use when calculating the dielectric constant expression.
-	    *                 This value is referred to as F in the equation.
-	    *
-	    * @return dielectricConstant - The calculated or retrieved value depending on the
-	    *                              existence of the dielectric constant expression.
-	    */
-		/*
-		public double eFieldDielectricConstant(double eField) {
-			if (this.dielectricConstantExpression == null || this.dielectricConstantExpression.equals("")) {
-				return dielectricConstant;
-			}
-			else {
-				return Functions.evaluateExpression(dielectricConstantExpression, 'F', eField);
-			}
-		}*/
 
 		/**
 	    * Find the distance to the valance band in Cm when the energy is set to the
@@ -228,7 +208,7 @@ namespace Band
 	    */
 		public Energy ConductionBandEnergy(EvalPoint p)
 		{
-			return -p.Potential - ElectronAffinity;
+            return -p.Potential - ElectronAffinity;
 		}
 
 		/**
@@ -247,54 +227,45 @@ namespace Band
 		{
 			get
 			{
+                // TODO: Support e-field dependent permittivity
 				return DielectricConstant * Permittivity.OfFreeSpace;
 			}
 		}
-			
-		/*
-		public double eFieldPermittivityFPerCm(double eField) {
-			if (this.dielectricConstantExpression == null || this.dielectricConstantExpression.equals("")) {
-				return dielectricConstant * Constant.PermitivityOfFreeSpace_cm;
-			}
-			else {
-				double evald = Functions.evaluateExpression(dielectricConstantExpression, 'F', eField);
-				//          System.out.printf("Expression was %s\n",dielectricConstantExpression);
-				//          System.out.printf("eField guess was" + eField + "\n");
-				//          System.out.printf("We got " + evald + "\n");
-				return evald * Constant.PermitivityOfFreeSpace_cm;
-			}
-		} */
 
-		/*
-		public double getCoxFPerCm2() {
-			if (this.dielectricConstantExpression != null) {
-				if (this.dielectricConstantExpression.contains("F")) {
-					// If there are not at least two points then return dielectric Constant evaluated at F=0
-					if (point.size() < 2) {
-						return Functions.evaluateExpression(this.dielectricConstantExpression, 'F', 0) *
-							Constant.PermitivityOfFreeSpace_cm / thickness;
-					}
-					else {
-						// Ok evaluate dependenting of what the current e-field is
-						double oneOverCap = 0;
-						double dielectricPointCap;
-						for (int j = 1; j < point.size(); j++) {
-							dielectricPointCap = eFieldPermittivityFPerCm(point.get(j-1).getElectricField()) /
-								point.get(j).getLocation();
-							oneOverCap += 1 / dielectricPointCap;
-						}
-						return 1 / oneOverCap;
-					}
-				}
-			}
+        public Dielectric(Length thickness)
+        {
+            Thickness = thickness;
+            Prepare();
+        }
 
-			return this.dielectricConstant * Constant.PermitivityOfFreeSpace_cm / thickness;
-		} */
+        public override Material DeepClone()
+        {
+            var dielectric = new Dielectric(new Length(Thickness.Meters))
+            {
+                    DielectricConstant = DielectricConstant,
+                    DielectricConstantExpression = DielectricConstantExpression,
+                    BandGap = BandGap,
+                    ElectronAffinity = ElectronAffinity,
+                    HoleEffectiveMass = HoleEffectiveMass,
+                    ElectronEffectiveMass = ElectronEffectiveMass
+            };
+
+            InitClone(dielectric);
+
+            return dielectric;
+        }
+
+        public CapacitanceDensity OxideCapacitance
+        {
+            get
+            {
+                return DielectricConstant * Permittivity.OfFreeSpace / Thickness;
+            }
+        }
 
 		public ElectricPotential VoltageDrop()
 		{
 			return EvalPoints.First().Potential - EvalPoints.Last().Potential;
-		
 		}
 
 		public override ElectricPotential GetPotential(Length location)

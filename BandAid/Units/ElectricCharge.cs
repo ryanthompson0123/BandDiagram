@@ -57,14 +57,14 @@ namespace Band.Units
 			return new ElectricCharge(left.Coulombs/right);
 		}
 
-        public static ChargeDensity operator *(ElectricCharge left, Concentration right)
+        public static ChargeConcentration operator *(ElectricCharge left, Concentration right)
         {
-            return new ChargeDensity(left.Coulombs * right.PerCubicMeter);
+            return new ChargeConcentration(left.Coulombs * right.PerCubicMeter);
         }
 
-        public static ChargeDensity operator *(Concentration left, ElectricCharge right)
+        public static ChargeConcentration operator *(Concentration left, ElectricCharge right)
         {
-            return new ChargeDensity(right.Coulombs * left.PerCubicMeter);
+            return new ChargeConcentration(right.Coulombs * left.PerCubicMeter);
         }
 
 		public static double operator /(ElectricCharge left, ElectricCharge right)

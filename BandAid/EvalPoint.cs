@@ -6,17 +6,9 @@ namespace Band
 	public class EvalPoint : IComparable<EvalPoint>
 	{
 		public Length Location { get; set; }
-		public ElectricCharge Charge { get; set; }
+        public ChargeDensity ChargeDensity { get; set; }
 		public ElectricField ElectricField { get; set; }
 		public ElectricPotential Potential { get; set; }
-
-		public double ElectronCharge
-		{
-			get
-			{
-				return Charge / ElectricCharge.Elementary;
-			}
-		}
 
 		public override bool Equals(object obj)
 		{
@@ -46,15 +38,37 @@ namespace Band
 				return true;
 			}
 
-			return this.Charge == that.Charge && this.ElectricField == that.ElectricField &&
-			this.ElectronCharge == that.ElectronCharge && this.Location == that.Location
-			&& this.Potential == that.Potential;
+			return this.ChargeDensity == that.ChargeDensity
+                && this.ElectricField == that.ElectricField
+                && this.Location == that.Location
+			    && this.Potential == that.Potential;
 		}
+
+        public EvalPoint()
+        {
+            Location = Length.Zero;
+            ChargeDensity = ChargeDensity.Zero;
+            ElectricField = ElectricField.Zero;
+            Potential = ElectricPotential.Zero;
+        }
+
+        public EvalPoint DeepClone()
+        {
+            return new EvalPoint
+            {
+                Location = Location,
+                ChargeDensity = ChargeDensity,
+                ElectricField = ElectricField,
+                Potential = Potential
+            };
+        }
 
 		public override int GetHashCode()
 		{
-			return Charge.GetHashCode() ^ ElectricField.GetHashCode() ^ ElectronCharge.GetHashCode()
-			^ Location.GetHashCode() ^ Potential.GetHashCode();
+            return ChargeDensity.GetHashCode() 
+                ^ ElectricField.GetHashCode()
+			    ^ Location.GetHashCode()
+                ^ Potential.GetHashCode();
 		}
 
 		public int CompareTo(EvalPoint other)

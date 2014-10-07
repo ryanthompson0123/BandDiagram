@@ -53,6 +53,7 @@
     <Compile Include="Units\Temperature.cs" />
     <Compile Include="Units\Concentration.cs" />
     <Compile Include="Units\Volume.cs" />
+    <Compile Include="Units\ChargeConcentration.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
 </Project>

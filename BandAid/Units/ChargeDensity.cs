@@ -4,11 +4,21 @@ namespace Band.Units
 {
     public class ChargeDensity : IComparable<ChargeDensity>
     {
-        public readonly double CoulombsPerCubicMeter;
+        public readonly double CoulombsPerSquareMeter;
 
-        public ChargeDensity(double coulombsPerCubicMeter)
+        public ChargeDensity(double coulombsPerSquareMeter)
         {
-            CoulombsPerCubicMeter = coulombsPerCubicMeter;
+            CoulombsPerSquareMeter = coulombsPerSquareMeter;
+        }
+
+        public double CoulombsPerSquareCentimeter
+        {
+            get { return CoulombsPerSquareMeter / 1E4; }
+        }
+
+        public double ElectronsPerSquareMeter
+        {
+            get { return CoulombsPerSquareMeter / ElectricCharge.Elementary.Coulombs; }
         }
 
         public static ChargeDensity Zero
@@ -19,94 +29,89 @@ namespace Band.Units
             }
         }
 
-        public static ChargeDensity FromCoulombsPerCubicCentimeter(double coulombsPerCubicCentimeter)
+        public static ChargeDensity FromCoulombsPerSquareCentimeter(double coulombsPerSquareCentimeter)
         {
-            return new ChargeDensity(coulombsPerCubicCentimeter / 1E6);
+            return new ChargeDensity(coulombsPerSquareCentimeter * 1E4);
         }
 
         public static ChargeDensity operator -(ChargeDensity right)
         {
-            return new ChargeDensity(-right.CoulombsPerCubicMeter);
+            return new ChargeDensity(-right.CoulombsPerSquareMeter);
         }
 
         public static ChargeDensity operator +(ChargeDensity left, ChargeDensity right)
         {
-            return new ChargeDensity(left.CoulombsPerCubicMeter + right.CoulombsPerCubicMeter);
+            return new ChargeDensity(left.CoulombsPerSquareMeter + right.CoulombsPerSquareMeter);
         }
 
         public static ChargeDensity operator -(ChargeDensity left, ChargeDensity right)
         {
-            return new ChargeDensity(left.CoulombsPerCubicMeter - right.CoulombsPerCubicMeter);
+            return new ChargeDensity(left.CoulombsPerSquareMeter - right.CoulombsPerSquareMeter);
         }
 
         public static ChargeDensity operator *(double left, ChargeDensity right)
         {
-            return new ChargeDensity(left * right.CoulombsPerCubicMeter);
+            return new ChargeDensity(left * right.CoulombsPerSquareMeter);
         }
 
         public static ChargeDensity operator *(ChargeDensity left, double right)
         {
-            return new ChargeDensity(left.CoulombsPerCubicMeter * right);
+            return new ChargeDensity(left.CoulombsPerSquareMeter * right);
         }
 
         public static ChargeDensity operator /(ChargeDensity left, double right)
         {
-            return new ChargeDensity(left.CoulombsPerCubicMeter / right);
+            return new ChargeDensity(left.CoulombsPerSquareMeter / right);
         }
 
-        public static ElectricCharge operator /(ChargeDensity left, Concentration right)
+        public static ElectricField operator /(ChargeDensity left, Permittivity right)
         {
-            return new ElectricCharge(left.CoulombsPerCubicMeter / right.PerCubicMeter);
+            return new ElectricField(left.CoulombsPerSquareMeter / right.FaradsPerMeter);
         }
 
-        public static ElectricCharge operator *(ChargeDensity left, Volume right)
+        public static Length operator /(ChargeDensity left, ChargeConcentration right)
         {
-            return new ElectricCharge(left.CoulombsPerCubicMeter * right.CubicMeters);
-        }
-
-        public static ElectricCharge operator *(Volume left, ChargeDensity right)
-        {
-            return new ElectricCharge(right.CoulombsPerCubicMeter * left.CubicMeters);
+            return new Length(Math.Abs(left.CoulombsPerSquareMeter / right.CoulombsPerCubicMeter));
         }
 
         public static double operator /(ChargeDensity left, ChargeDensity right)
         {
-            return left.CoulombsPerCubicMeter / right.CoulombsPerCubicMeter;
+            return left.CoulombsPerSquareMeter / right.CoulombsPerSquareMeter;
         }
 
         public int CompareTo(ChargeDensity other)
         {
-            return CoulombsPerCubicMeter.CompareTo(other.CoulombsPerCubicMeter);
+            return CoulombsPerSquareMeter.CompareTo(other.CoulombsPerSquareMeter);
         }
 
         public static bool operator <=(ChargeDensity left, ChargeDensity right)
         {
-            return left.CoulombsPerCubicMeter <= right.CoulombsPerCubicMeter;
+            return left.CoulombsPerSquareMeter <= right.CoulombsPerSquareMeter;
         }
 
         public static bool operator >=(ChargeDensity left, ChargeDensity right)
         {
-            return left.CoulombsPerCubicMeter >= right.CoulombsPerCubicMeter;
+            return left.CoulombsPerSquareMeter >= right.CoulombsPerSquareMeter;
         }
 
         public static bool operator <(ChargeDensity left, ChargeDensity right)
         {
-            return left.CoulombsPerCubicMeter < right.CoulombsPerCubicMeter;
+            return left.CoulombsPerSquareMeter < right.CoulombsPerSquareMeter;
         }
 
         public static bool operator >(ChargeDensity left, ChargeDensity right)
         {
-            return left.CoulombsPerCubicMeter > right.CoulombsPerCubicMeter;
+            return left.CoulombsPerSquareMeter > right.CoulombsPerSquareMeter;
         }
 
         public static bool operator ==(ChargeDensity left, ChargeDensity right)
         {
-            return left.CoulombsPerCubicMeter == right.CoulombsPerCubicMeter;
+            return left.CoulombsPerSquareMeter == right.CoulombsPerSquareMeter;
         }
 
         public static bool operator !=(ChargeDensity left, ChargeDensity right)
         {
-            return left.CoulombsPerCubicMeter != right.CoulombsPerCubicMeter;
+            return left.CoulombsPerSquareMeter != right.CoulombsPerSquareMeter;
         }
 
         public override bool Equals(object obj)
@@ -116,12 +121,12 @@ namespace Band.Units
                 return false;
             }
 
-            return CoulombsPerCubicMeter.Equals(((ChargeDensity)obj).CoulombsPerCubicMeter);
+            return CoulombsPerSquareMeter.Equals(((ChargeDensity)obj).CoulombsPerSquareMeter);
         }
 
         public override int GetHashCode()
         {
-            return CoulombsPerCubicMeter.GetHashCode();
+            return CoulombsPerSquareMeter.GetHashCode();
         }
     }
 }
