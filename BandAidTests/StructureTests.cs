@@ -96,6 +96,43 @@ namespace BandAidTests
         }
 
         [TestCase]
+        public void TestStructureHasCorrectStackCapacitanceAtFiveVolts()
+        {
+            var structure = CreateSiO2TestStructure();
+            structure.Bias = new ElectricPotential(5);
+
+            var cStack = Math.Round(structure.StackCapacitance.FaradsPerSquareCentimeter, 9);
+
+            Assert.AreEqual(1.707E-6, cStack);
+        }
+
+        [TestCase]
+        public void TestStructureHasCorrectElectricFieldInDielectricAtZeroVolts()
+        {
+            var structure = CreateSiO2TestStructure();
+            var eFieldLocation = Length.FromNanometers(5);
+
+            var eFieldDielectric 
+                = Math.Round(structure.GetElectricField(eFieldLocation).MegavoltsPerCentimeter, 3);
+
+            Assert.AreEqual(-0.646, eFieldDielectric);
+        }
+
+        [TestCase]
+        public void TestStructureHasCorrectElectricFieldInDielectricAtFiveVolts()
+        {
+            var structure = CreateSiO2TestStructure();
+            structure.Bias = new ElectricPotential(5);
+
+            var eFieldLocation = Length.FromNanometers(5);
+
+            var eFieldDielectric
+                = Math.Round(structure.GetElectricField(eFieldLocation).MegavoltsPerCentimeter, 3);
+
+            Assert.AreEqual(22.333, eFieldDielectric);
+        }
+
+        [TestCase]
         public void TestStructureHasCorrectFlatBandVoltage()
         {
             var structure = CreateSiO2TestStructure();

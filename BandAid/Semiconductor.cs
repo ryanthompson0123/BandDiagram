@@ -111,17 +111,17 @@ namespace Band
                     - DopantConcentration);
 
                 // Apparently this is ok, but I don't know why - RT
-                return new ChargeDensity(cConc.CoulombsPerCubicMeter);
+                return ChargeDensity.FromCoulombsPerSquareCentimeter(cConc.CoulombsPerCubicCentimeter);
 			}
 			else
 			{
-                var cConc = ElectricCharge.Elementary * 
+                var cConc = -ElectricCharge.Elementary * 
                     (FreeElectronConcentration * Math.Exp(potential / ThermalVoltage) 
                     - FreeHoleConcentration * Math.Exp(-potential / ThermalVoltage) 
                     - DopantConcentration);
 
                 // Apparently this is ok, but I don't know why - RT
-                return new ChargeDensity(cConc.CoulombsPerCubicMeter);
+                return ChargeDensity.FromCoulombsPerSquareCentimeter(cConc.CoulombsPerCubicCentimeter);
 			}
         }
 
@@ -251,7 +251,7 @@ namespace Band
 			}
 			else 
             {
-				typeDependantTerm = 
+                typeDependantTerm = 
                     ThermalVoltage * Math.Exp(potential / ThermalVoltage) 
                     - potential 
                     - ThermalVoltage 
@@ -261,10 +261,10 @@ namespace Band
                         - ThermalVoltage);
 			}
 
-            var otherTerm = SemiconductorConstant / Permittivity.OfFreeSpace.FaradsPerCentimeter
-                * DielectricConstant;
+            var otherTerm = SemiconductorConstant / (Permittivity.OfFreeSpace.FaradsPerCentimeter
+                * DielectricConstant);
 
-            var value = new ElectricField(otherTerm * Math.Sqrt(typeDependantTerm.Volts));
+            var value = ElectricField.FromVoltsPerCentimeter(otherTerm * Math.Sqrt(typeDependantTerm.Volts));
 
             return potential >= ElectricPotential.Zero ? value : -value;
 		}
