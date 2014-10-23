@@ -54,6 +54,10 @@
     <Compile Include="Units\Concentration.cs" />
     <Compile Include="Units\Volume.cs" />
     <Compile Include="Units\ChargeConcentration.cs" />
+    <Compile Include="ViewModels\StructureViewModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="ViewModels\" />
+  </ItemGroup>
 </Project>
