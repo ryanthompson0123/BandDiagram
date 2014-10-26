@@ -14,8 +14,16 @@ namespace BandAid.iOS
 	[Register ("StructureViewController")]
 	partial class StructureViewController
 	{
+		[Outlet]
+		[GeneratedCode ("iOS Designer", "1.0")]
+		UIBarButtonItem SettingsButton { get; set; }
+
 		void ReleaseDesignerOutlets ()
 		{
+			if (SettingsButton != null) {
+				SettingsButton.Dispose ();
+				SettingsButton = null;
+			}
 		}
 	}
 }

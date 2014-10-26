@@ -39,20 +39,22 @@ namespace BandAid.iOS
                 var layers = (LayersTableViewController)destination.ChildViewControllers[0];
                 layers.Structure = Structure;
             }
+
+            if (segue.Identifier == "settingsPopoverSegue")
+            {
+                var settings = (SettingsViewController)segue.DestinationViewController;
+                settings.Structure = Structure;
+            }
         }
 
-        private static UIBarButtonItem[] RightBarButtonItems
+        private UIBarButtonItem[] RightBarButtonItems
         {
             get
             {
                 return new []
                 {
                     new UIBarButtonItem(UIBarButtonSystemItem.Action),
-                    new UIBarButtonItem
-                    {
-                        Title = "Settings",
-                        Image = UIImage.FromBundle("settings")
-                    }
+                    NavigationItem.RightBarButtonItem
                 };
             }
         }
