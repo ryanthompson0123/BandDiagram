@@ -39,5 +39,65 @@ namespace Band
 		public abstract ElectricField GetElectricField(Length location);
 		public abstract ElectricPotential GetPotential(Length location);
 		public abstract void Prepare();
+
+        public PlotDataSet GetPotentialDataset(Length offset)
+        {
+            var dataset = new PlotDataSet
+            {
+                Name = Name
+            };
+
+            foreach (var point in EvalPoints)
+            {
+                var location = point.Location + offset;
+                var potential = point.Potential;
+                dataset.DataPoints.Add(new Tuple<double, double>(
+                    location.Nanometers, potential.Volts));
+            }
+
+            return dataset;
+        }
+
+        public abstract List<PlotDataSet> GetEnergyDatasets(Length offset);
+
+        public virtual PlotDataSet GetElectricFieldDataset(Length offset)
+        {
+            var dataset = new PlotDataSet
+            {
+                Name = Name
+            };
+
+            foreach (var point in EvalPoints)
+            {
+                var location = point.Location + offset;
+                dataset.DataPoints.Add(new Tuple<double, double>(
+                    location.Nanometers, point.ElectricField.MegavoltsPerCentimeter));
+            }
+
+            return dataset;
+        }
+
+        public virtual PlotDataSet GetChargeDensityDataset(Length offset)
+        {
+            var dataset = new PlotDataSet
+            {
+                Name = Name
+            };
+
+            foreach (var point in EvalPoints)
+            {
+                var location = point.Location + offset;
+                var charge = point.ChargeDensity;
+
+                dataset.DataPoints.Add(new Tuple<double, double>(
+                    location.Nanometers, 0.0));
+                dataset.DataPoints.Add(new Tuple<double, double>(
+                    location.Nanometers, charge.CoulombsPerSquareCentimeter));
+                dataset.DataPoints.Add(new Tuple<double, double>(
+                    location.Nanometers, 0.0));
+            }
+
+            return dataset;
+        }
 	}
 }

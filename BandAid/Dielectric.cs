@@ -1,6 +1,7 @@
 ﻿using Band.Units;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Band
 {
@@ -281,5 +282,88 @@ namespace Band
 		{
 			return EvalPoints.First().ElectricField;
 		}
+
+        public override PlotDataSet GetElectricFieldDataset(Length offset)
+        {
+            var dataset = new PlotDataSet
+            {
+                Name = Name
+            };
+
+            var lastEField = ElectricField.Zero;
+
+            foreach (var point in EvalPoints)
+            {
+                var location = point.Location + offset;
+
+                if (point != EvalPoints.Last())
+                {
+                    dataset.DataPoints.Add(new Tuple<double, double>(
+                        location.Nanometers, lastEField.MegavoltsPerCentimeter));
+                }
+                    
+                lastEField = point.ElectricField;
+
+                dataset.DataPoints.Add(new Tuple<double, double>(
+                    location.Nanometers, lastEField.MegavoltsPerCentimeter));
+            }
+
+            return dataset;
+        }
+
+        public override List<PlotDataSet> GetEnergyDatasets(Length offset)
+        {
+            var dataset = new PlotDataSet
+            {
+                Name = Name
+            };
+
+            var location1 = EvalPoints.First().Location + offset;
+            var energy1 = -EnergyFromVacuumToTopBand - EvalPoints.First().Potential;
+
+            dataset.DataPoints.Add(new Tuple<double, double>(
+                location1.Nanometers, energy1.ElectronVolts));
+
+            var location2 = EvalPoints.First().Location + offset;
+            var energy2 = -EnergyFromVacuumToBottomBand - EvalPoints.First().Potential;
+
+            dataset.DataPoints.Add(new Tuple<double, double>(
+                location2.Nanometers, energy2.ElectronVolts));
+
+            // for in between points
+            foreach (var point in EvalPoints)
+            {
+                if (point == EvalPoints.First()) continue;
+
+                var locationA = point.Location + offset;
+                var energyA = -EnergyFromVacuumToBottomBand - point.Potential;
+
+                dataset.DataPoints.Add(new Tuple<double, double>(
+                    locationA.Nanometers, energyA.ElectronVolts));
+            }
+
+            // for the last point
+            var location3 = EvalPoints.Last().Location + offset;
+            var energy3 = -EnergyFromVacuumToTopBand - EvalPoints.Last().Potential;
+
+            dataset.DataPoints.Add(new Tuple<double, double>(
+                location3.Nanometers, energy3.ElectronVolts));
+
+            // for in between points
+            foreach (var point in EvalPoints.Reverse<EvalPoint>())
+            {
+                var locationB = point.Location + offset;
+                var energyB = -EnergyFromVacuumToTopBand - point.Potential;
+                dataset.DataPoints.Add(new Tuple<double, double>(
+                    locationB.Nanometers, energyB.ElectronVolts));
+            }
+
+            var location4 = EvalPoints.First().Location + offset;
+            var energy4 = -EnergyFromVacuumToTopBand - EvalPoints.First().Potential;
+            dataset.DataPoints.Add(new Tuple<double, double>(
+                location4.Nanometers, energy4.ElectronVolts));
+
+            return new List<PlotDataSet> { dataset };
+        }
 	}
 }

@@ -1,12 +1,10 @@
 // WARNING
 //
-// This file has been generated automatically by Xamarin Studio from the outlets and
-// actions declared in your storyboard file.
-// Manual changes to this file will not be maintained.
+// This file has been generated automatically by Xamarin Studio to store outlets and
+// actions made in the UI designer. If it is removed, they will be lost.
+// Manual changes to this file may not be handled correctly.
 //
-using System;
 using MonoTouch.Foundation;
-using MonoTouch.UIKit;
 using System.CodeDom.Compiler;
 
 namespace BandAid.iOS
@@ -15,14 +13,53 @@ namespace BandAid.iOS
 	partial class StructureViewController
 	{
 		[Outlet]
-		[GeneratedCode ("iOS Designer", "1.0")]
-		UIBarButtonItem SettingsButton { get; set; }
+		MonoTouch.UIKit.UISlider biasSlider { get; set; }
 
+		[Outlet]
+		MonoTouch.UIKit.UILabel maxVoltageLabel { get; set; }
+
+		[Outlet]
+		MonoTouch.UIKit.UILabel minVoltageLabel { get; set; }
+
+		[Outlet]
+		MonoTouch.SpriteKit.SKView plotView { get; set; }
+
+		[Outlet]
+		MonoTouch.UIKit.UIBarButtonItem SettingsButton { get; set; }
+
+		[Outlet]
+		MonoTouch.UIKit.UILabel zeroVoltageLabel { get; set; }
+		
 		void ReleaseDesignerOutlets ()
 		{
+			if (biasSlider != null) {
+				biasSlider.Dispose ();
+				biasSlider = null;
+			}
+
+			if (maxVoltageLabel != null) {
+				maxVoltageLabel.Dispose ();
+				maxVoltageLabel = null;
+			}
+
+			if (minVoltageLabel != null) {
+				minVoltageLabel.Dispose ();
+				minVoltageLabel = null;
+			}
+
 			if (SettingsButton != null) {
 				SettingsButton.Dispose ();
 				SettingsButton = null;
+			}
+
+			if (zeroVoltageLabel != null) {
+				zeroVoltageLabel.Dispose ();
+				zeroVoltageLabel = null;
+			}
+
+			if (plotView != null) {
+				plotView.Dispose ();
+				plotView = null;
 			}
 		}
 	}

@@ -351,6 +351,74 @@ namespace Band
                 throw new NotImplementedException();
             }
         }
+
+        public override PlotDataSet GetChargeDensityDataset(Length offset)
+        {
+            var dataset = new PlotDataSet
+            {
+                Name = Name
+            };
+
+            for (var i = 0; i < EvalPoints.Count; i++)
+            {
+                var location = EvalPoints[i].Location + offset;
+                var charge = EvalPoints[i].ChargeDensity;
+
+                if (i == 0)
+                {
+                    dataset.DataPoints.Add(new Tuple<double, double>(
+                        location.Nanometers, 0.0));
+                }
+
+                dataset.DataPoints.Add(new Tuple<double, double>(
+                    location.Nanometers, charge.CoulombsPerSquareCentimeter));
+            }
+
+            return dataset;
+        }
+
+        public override List<PlotDataSet> GetEnergyDatasets(Length offset)
+        {
+            var cbDataset = new PlotDataSet
+            {
+                Name = String.Format("{0} - Conduction Band", Name)
+            };
+
+            var vbDataset = new PlotDataSet
+            {
+                Name = String.Format("{0} - Valance Band", Name)
+            };
+
+            var efiDataset = new PlotDataSet
+            {
+                Name = String.Format("{0} - Fermi Level", Name)
+            };
+
+            var wfDataset = new PlotDataSet
+            {
+                Name = String.Format("{0} - Work Function", Name)
+            };
+
+            foreach (var point in EvalPoints)
+            {
+                var location = point.Location + offset;
+                var cbEnergy = -EnergyFromVacuumToTopBand - point.Potential;
+                var vbEnergy = -EnergyFromVacuumToBottomBand - point.Potential;
+                var efiEnergy = -EnergyFromVacuumToEfi - point.Potential;
+                var wfEnergy = -WorkFunction - point.Potential;
+
+                cbDataset.DataPoints.Add(new Tuple<double, double>(
+                    location.Nanometers, cbEnergy.ElectronVolts));
+                vbDataset.DataPoints.Add(new Tuple<double, double>(
+                    location.Nanometers, vbEnergy.ElectronVolts));
+                efiDataset.DataPoints.Add(new Tuple<double, double>(
+                    location.Nanometers, efiEnergy.ElectronVolts));
+                wfDataset.DataPoints.Add(new Tuple<double, double>(
+                    location.Nanometers, wfEnergy.ElectronVolts));
+            }
+
+            return new List<PlotDataSet> { cbDataset, vbDataset, efiDataset, wfDataset };
+        }
 			
 		// *** NEW FUNCTIONS ***
 		/*

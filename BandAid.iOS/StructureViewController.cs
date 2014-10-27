@@ -4,7 +4,10 @@ using System.Drawing;
 
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
+using MonoTouch.SpriteKit;
 using Band;
+using System.ComponentModel;
+using Band.Units;
 
 namespace BandAid.iOS
 {
@@ -22,11 +25,61 @@ namespace BandAid.iOS
             base.ViewDidLoad();
 			
             Structure = new StructureViewModel();
-
+            Structure.PropertyChanged += Structure_PropertyChanged;
             ToolbarItems = GetBottomButtonItems(ToolbarItems);
             NavigationItem.RightBarButtonItems = RightBarButtonItems;
 
             View.BackgroundColor = UIColor.GroupTableViewBackgroundColor;
+
+            plotView.ShowsFPS = true;
+            plotView.ShowsNodeCount = true;
+            plotView.PresentScene(new StructurePlotScene(plotView.Bounds.Size, Structure));
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            base.ViewWillAppear(animated);
+
+            biasSlider.ValueChanged += biasSlider_ValueChanged;
+            chartSegments.ValueChanged += chartSegments_ValueChanged;
+        }
+
+        void chartSegments_ValueChanged (object sender, EventArgs e)
+        {
+            switch (chartSegments.SelectedSegment)
+            {
+                case 0:
+                    Structure.PlotType = PlotType.Energy;
+                    break;
+                case 1:
+                    Structure.PlotType = PlotType.Potential;
+                    break;
+                case 2:
+                    Structure.PlotType = PlotType.ElectricField;
+                    break;
+                case 3:
+                    Structure.PlotType = PlotType.ChargeDensity;
+                    break;
+            }
+        }
+
+        void Structure_PropertyChanged (object sender, PropertyChangedEventArgs e)
+        {
+            minVoltageLabel.Text = Structure.MinVoltage.Volts.ToString();
+            maxVoltageLabel.Text = Structure.MaxVoltage.Volts.ToString();
+            biasSlider.MinValue = (float)Structure.MinVoltage.Volts;
+            biasSlider.MaxValue = (float)Structure.MaxVoltage.Volts;
+        }
+
+        void biasSlider_ValueChanged (object sender, EventArgs e)
+        {
+            var roundingFactor = 1 / (float)Structure.StepSize.Volts;
+            var roundValue = biasSlider.Value * roundingFactor;
+            var roundedValue = Math.Round(roundValue, MidpointRounding.AwayFromZero);
+            var realValue = roundedValue / roundingFactor;
+
+            zeroVoltageLabel.Text = realValue.ToString();
+            Structure.CurrentVoltage = new ElectricPotential(realValue);
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
@@ -54,12 +107,22 @@ namespace BandAid.iOS
                 return new []
                 {
                     new UIBarButtonItem(UIBarButtonSystemItem.Action),
-                    NavigationItem.RightBarButtonItem
+                    NavigationItem.RightBarButtonItem,
+                    new UIBarButtonItem(UIBarButtonSystemItem.Play)
                 };
             }
         }
 
-        private static UIBarButtonItem[] GetBottomButtonItems(UIBarButtonItem[] items)
+        private readonly UISegmentedControl chartSegments = new UISegmentedControl(new[] {
+                "Energy",
+                "Potential",
+                "Electric Field",
+                "Charge Density"
+            }) {
+                SelectedSegment = 0
+            };
+
+        private UIBarButtonItem[] GetBottomButtonItems(UIBarButtonItem[] items)
         {
             var array = new UIBarButtonItem[items.Length + 1];
 
@@ -74,10 +137,7 @@ namespace BandAid.iOS
                 {
                     array[i] = new UIBarButtonItem
                     {
-                        CustomView = new UISegmentedControl(new[] { "Energy", "Potential", "Electric Field", "Charge Density" })
-                        {
-                            SelectedSegment = 0
-                        }
+                        CustomView = chartSegments
                     };
                 }
 

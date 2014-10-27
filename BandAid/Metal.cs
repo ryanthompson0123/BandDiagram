@@ -1,10 +1,11 @@
 ﻿using Band.Units;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Band
 {
-	public class Metal : Material
+    public class Metal : Material
 	{
         private Energy workFunctionValue;
 		public override Energy WorkFunction
@@ -82,5 +83,26 @@ namespace Band
 			});
 			EvalPoints.Sort();
 		}
+
+        public override List<PlotDataSet> GetEnergyDatasets(Length offset)
+        {
+            var dataset = new PlotDataSet
+            {
+                Name = Name
+            };
+
+            var startLocation = EvalPoints.First().Location + offset;
+            var endLocation = EvalPoints.Last().Location + offset;
+
+            var startEnergy = -EnergyFromVacuumToTopBand - EvalPoints.First().Potential;
+            var endEnergy = -EnergyFromVacuumToTopBand - EvalPoints.Last().Potential;
+
+            dataset.DataPoints.Add(new Tuple<double, double>(
+                 startLocation.Nanometers, startEnergy.ElectronVolts));
+            dataset.DataPoints.Add(new Tuple<double, double>(
+                endLocation.Nanometers, endEnergy.ElectronVolts));
+
+            return new List<PlotDataSet> { dataset };
+        }
 	}
 }
