@@ -51,8 +51,11 @@ namespace Band
             {
                 var location = point.Location + offset;
                 var potential = point.Potential;
-                dataset.DataPoints.Add(new Tuple<double, double>(
-                    location.Nanometers, potential.Volts));
+                dataset.DataPoints.Add(new PlotDataPoint
+                {
+                    X = location.Nanometers, 
+                    Y =potential.Volts
+                });
             }
 
             return dataset;
@@ -70,8 +73,11 @@ namespace Band
             foreach (var point in EvalPoints)
             {
                 var location = point.Location + offset;
-                dataset.DataPoints.Add(new Tuple<double, double>(
-                    location.Nanometers, point.ElectricField.MegavoltsPerCentimeter));
+                dataset.DataPoints.Add(new PlotDataPoint
+                {
+                    X = location.Nanometers, 
+                    Y = point.ElectricField.MegavoltsPerCentimeter
+                });
             }
 
             return dataset;
@@ -89,12 +95,21 @@ namespace Band
                 var location = point.Location + offset;
                 var charge = point.ChargeDensity;
 
-                dataset.DataPoints.Add(new Tuple<double, double>(
-                    location.Nanometers, 0.0));
-                dataset.DataPoints.Add(new Tuple<double, double>(
-                    location.Nanometers, charge.CoulombsPerSquareCentimeter));
-                dataset.DataPoints.Add(new Tuple<double, double>(
-                    location.Nanometers, 0.0));
+                dataset.DataPoints.Add(new PlotDataPoint
+                {
+                    X = location.Nanometers, 
+                    Y = 0.0
+                });
+                dataset.DataPoints.Add(new PlotDataPoint
+                {
+                    X = location.Nanometers, 
+                    Y = charge.CoulombsPerSquareCentimeter
+                });
+                dataset.DataPoints.Add(new PlotDataPoint
+                {
+                    X = location.Nanometers, 
+                    Y = 0.0
+                });
             }
 
             return dataset;

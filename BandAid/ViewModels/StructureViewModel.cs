@@ -20,7 +20,7 @@ namespace Band
 
         #endregion
 
-        private List<Plot> PlotSteps { get; set; }
+        public PlotAnimationGrouping PlotSteps { get; set; }
 
         private Structure referenceStructureValue;
         public Structure ReferenceStructure
@@ -33,13 +33,6 @@ namespace Band
             }
         }
 
-        private Plot plotValue;
-        public Plot Plot
-        {
-            get { return plotValue; }
-            private set { SetProperty(ref plotValue, value); }
-        }
-
         private ElectricPotential currentVoltageValue;
         public ElectricPotential CurrentVoltage
         {
@@ -47,7 +40,17 @@ namespace Band
             set
             {
                 SetProperty(ref currentVoltageValue, value);
-                Plot = PlotSteps[StepForPotential(value)];
+                CurrentStep = StepForPotential(value);
+            }
+        }
+
+        private int currentStepValue;
+        public int CurrentStep
+        {
+            get { return currentStepValue; }
+            set
+            {
+                SetProperty(ref currentStepValue, value);
             }
         }
 
@@ -109,6 +112,9 @@ namespace Band
             stepSizeValue = new ElectricPotential(0.25);
             plotTypeValue = PlotType.Energy;
 
+
+            currentStepValue = StepForPotential(CurrentVoltage);
+
             RecalculateAllSteps();
         }
 
@@ -118,13 +124,13 @@ namespace Band
 
             if (!ReferenceStructure.IsValid) return;
 
-            PlotSteps = Enumerable.Range(0, StepCount).Select(s =>
+            PlotSteps = PlotAnimationGrouping.Create(Enumerable.Range(0, StepCount).Select(s =>
             {
                 var structure = ReferenceStructure.DeepClone();
                 structure.Bias = PotentialForStep(s);
                 structure.Temperature = new Temperature(300.0);
                 return CreatePlot(structure);
-            }).ToList();
+            }).ToList());
         }
 
         private Plot CreatePlot(Structure structure)

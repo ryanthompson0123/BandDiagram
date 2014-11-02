@@ -400,7 +400,7 @@ namespace Band
             {
                 foreach (var ep in layer.EvalPoints)
                 {
-                    ep.Potential = ep.Potential = potential;
+                    ep.Potential = ep.Potential - potential;
                 }
             }
 

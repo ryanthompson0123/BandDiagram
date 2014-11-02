@@ -366,12 +366,18 @@ namespace Band
 
                 if (i == 0)
                 {
-                    dataset.DataPoints.Add(new Tuple<double, double>(
-                        location.Nanometers, 0.0));
+                    dataset.DataPoints.Add(new PlotDataPoint
+                    {
+                        X = location.Nanometers, 
+                        Y = 0.0
+                    });
                 }
 
-                dataset.DataPoints.Add(new Tuple<double, double>(
-                    location.Nanometers, charge.CoulombsPerSquareCentimeter));
+                dataset.DataPoints.Add(new PlotDataPoint
+                {
+                    X = location.Nanometers, 
+                    Y = charge.CoulombsPerSquareCentimeter
+                });
             }
 
             return dataset;
@@ -407,14 +413,25 @@ namespace Band
                 var efiEnergy = -EnergyFromVacuumToEfi - point.Potential;
                 var wfEnergy = -WorkFunction - point.Potential;
 
-                cbDataset.DataPoints.Add(new Tuple<double, double>(
-                    location.Nanometers, cbEnergy.ElectronVolts));
-                vbDataset.DataPoints.Add(new Tuple<double, double>(
-                    location.Nanometers, vbEnergy.ElectronVolts));
-                efiDataset.DataPoints.Add(new Tuple<double, double>(
-                    location.Nanometers, efiEnergy.ElectronVolts));
-                wfDataset.DataPoints.Add(new Tuple<double, double>(
-                    location.Nanometers, wfEnergy.ElectronVolts));
+                cbDataset.DataPoints.Add(new PlotDataPoint
+                {
+                    X =location.Nanometers, 
+                    Y = cbEnergy.ElectronVolts
+                });
+                vbDataset.DataPoints.Add(new PlotDataPoint
+                {
+                    X =location.Nanometers, 
+                    Y = vbEnergy.ElectronVolts
+                });
+                efiDataset.DataPoints.Add(new PlotDataPoint
+                {
+                    X = location.Nanometers, 
+                    Y = efiEnergy.ElectronVolts
+                });
+                wfDataset.DataPoints.Add(new PlotDataPoint
+                {
+                    X = location.Nanometers, Y = wfEnergy.ElectronVolts
+                });
             }
 
             return new List<PlotDataSet> { cbDataset, vbDataset, efiDataset, wfDataset };

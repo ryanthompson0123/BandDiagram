@@ -97,10 +97,16 @@ namespace Band
             var startEnergy = -EnergyFromVacuumToTopBand - EvalPoints.First().Potential;
             var endEnergy = -EnergyFromVacuumToTopBand - EvalPoints.Last().Potential;
 
-            dataset.DataPoints.Add(new Tuple<double, double>(
-                 startLocation.Nanometers, startEnergy.ElectronVolts));
-            dataset.DataPoints.Add(new Tuple<double, double>(
-                endLocation.Nanometers, endEnergy.ElectronVolts));
+            dataset.DataPoints.Add(new PlotDataPoint
+            {
+                X = startLocation.Nanometers, 
+                Y = startEnergy.ElectronVolts
+            });
+            dataset.DataPoints.Add(new PlotDataPoint
+            {
+                X = endLocation.Nanometers, 
+                Y = endEnergy.ElectronVolts
+            });
 
             return new List<PlotDataSet> { dataset };
         }

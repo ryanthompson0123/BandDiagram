@@ -58,12 +58,12 @@ namespace Band.Units
 
 		public static Energy operator +(Energy left, ElectricPotential right)
 		{
-            return new Energy(left.ElectronVolts + right.Volts);
+            return Energy.FromElectronVolts(left.ElectronVolts + right.Volts);
 		}
 
 		public static Energy operator -(Energy left, ElectricPotential right)
 		{
-			return new Energy(left.ElectronVolts - right.Volts);
+            return Energy.FromElectronVolts(left.ElectronVolts - right.Volts);
         }         
 
 		public static Energy operator *(double left, Energy right)

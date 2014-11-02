@@ -114,6 +114,7 @@
       <DependentUpon>SettingsViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="StructurePlotScene.cs" />
+    <Compile Include="PlotNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />
@@ -124,14 +125,6 @@
     <BundleResource Include="Resources\copy%402x.png" />
     <BundleResource Include="Resources\settings.png" />
     <BundleResource Include="Resources\settings%402x.png" />
-    <BundleResource Include="Resources\Build\Intermediates\BandAid.iOS.build\MonoTouch-iphonesimulator\BandAid.iOS.build\BandAid.iOS-all-non-framework-target-headers.hmap" />
-    <BundleResource Include="Resources\Build\Intermediates\BandAid.iOS.build\MonoTouch-iphonesimulator\BandAid.iOS.build\BandAid.iOS-all-target-headers.hmap" />
-    <BundleResource Include="Resources\Build\Intermediates\BandAid.iOS.build\MonoTouch-iphonesimulator\BandAid.iOS.build\BandAid.iOS-generated-files.hmap" />
-    <BundleResource Include="Resources\Build\Intermediates\BandAid.iOS.build\MonoTouch-iphonesimulator\BandAid.iOS.build\BandAid.iOS-own-target-headers.hmap" />
-    <BundleResource Include="Resources\Build\Intermediates\BandAid.iOS.build\MonoTouch-iphonesimulator\BandAid.iOS.build\BandAid.iOS-project-headers.hmap" />
-    <BundleResource Include="Resources\Build\Intermediates\BandAid.iOS.build\MonoTouch-iphonesimulator\BandAid.iOS.build\BandAid.iOS.hmap" />
-    <BundleResource Include="Resources\Build\Intermediates\BandAid.iOS.build\MonoTouch-iphonesimulator\BandAid.iOS.build\dgph" />
-    <BundleResource Include="Resources\Build\Intermediates\BandAid.iOS.build\MonoTouch-iphonesimulator\BandAid.iOS.build\Objects-normal\i386\BandAid.iOS.LinkFileList" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BandAid\BandAid.csproj">

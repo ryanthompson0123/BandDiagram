@@ -143,6 +143,18 @@ namespace BandAidTests
         }
 
         [TestCase]
+        public void TestStructureHasCorrectVoltageDropInDielectric()
+        {
+            var structure = CreateSiO2TestStructure();
+            structure.Bias = new ElectricPotential(-2);
+
+            var dielectric = (Dielectric)structure.Layers[1];
+            var vDrop = Math.Round(dielectric.VoltageDrop.Volts, 3);
+
+            Assert.AreEqual(-1.314, vDrop);
+        }
+
+        [TestCase]
         public void TestMIMStructureHasCorrectStackCapacitance()
         {
             var structure = CreateMIMTestStructure();
