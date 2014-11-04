@@ -24,6 +24,8 @@ namespace BandAid.iOS
 
         public PlotNode(PlotAnimationGrouping plotGrouping, SizeF size)
         {
+            if (plotGrouping == null || plotGrouping.Plots.Count == 0) return;
+
             Size = size;
             XAxisBounds = plotGrouping.XAxisBounds;
             YAxisBounds = plotGrouping.YAxisBounds;
@@ -38,6 +40,8 @@ namespace BandAid.iOS
 
         public void PlotStep(int step)
         {
+            if (PlotGrouping == null) return;
+
             if (DataSetNodes != null)
             {
                 RemoveChildren(DataSetNodes.ToArray());

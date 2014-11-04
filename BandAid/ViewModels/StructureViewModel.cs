@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using Xamarin.Forms;
 
 namespace Band
 {
@@ -137,21 +139,29 @@ namespace Band
             ReferenceStructure = CreateSiO2TestStructure();
         }
 
-        private void RecalculateAllSteps()
+        private async void RecalculateAllSteps()
         {
             if (!ReferenceStructure.IsValid) return;
 
-            Debug.WriteLine(String.Format("Beginning calculation of {0} steps", StepCount));
-            var stopwatch = Stopwatch.StartNew();
+            await Task.Run(() =>
+            {
+                Debug.WriteLine(String.Format("Beginning calculation of {0} steps", StepCount));
+                var stopwatch = Stopwatch.StartNew();
 
-            StructureSteps = Enumerable.Range(0, StepCount).Select(s => PotentialForStep(s))
-                .ToDictionary(p => p, p => 
+                var steps = Enumerable.Range(0, StepCount).Select(s => PotentialForStep(s))
+                .ToDictionary(p => p, p =>
                 {
                     return StructureSteps.ContainsKey(p) ? StructureSteps[p] : 
                         ReferenceStructure.DeepClone(p, new Temperature(300.0));
                 });
 
-            Debug.WriteLine(String.Format("Finished all calculations in {0} ms", stopwatch.ElapsedMilliseconds));
+                Debug.WriteLine(String.Format("Finished all calculations in {0} ms", stopwatch.ElapsedMilliseconds));
+
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    StructureSteps = steps;
+                });
+            });
         }
 
         private void RecalculateCurrentPlotSteps()

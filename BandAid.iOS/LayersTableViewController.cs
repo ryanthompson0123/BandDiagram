@@ -121,8 +121,7 @@ namespace BandAid.iOS
                 var refStruct = vc.Structure.ReferenceStructure;
                 var movedLayer = refStruct.Layers[sourceIndexPath.Row];
 
-                refStruct.RemoveLayer(movedLayer);
-                refStruct.InsertLayer(destinationIndexPath.Row, movedLayer);
+                refStruct.MoveLayer(movedLayer, destinationIndexPath.Row);
             }
             #endregion
         }

@@ -54,6 +54,17 @@ namespace Band
             OnPropertyChanged("Layers");
         }
 
+        public void MoveLayer(Material layer, int index)
+        {
+            if (index < 0 || layer == null) return;
+
+            Layers.Remove(layer);
+            Layers.Insert(index, layer);
+
+            Evaluate();
+            OnPropertyChanged("Layers");
+        }
+
         public void MoveLayerUp(int index)
         {
             if (index < 1) return;
