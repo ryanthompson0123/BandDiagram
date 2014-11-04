@@ -3,6 +3,7 @@ using MonoTouch.SpriteKit;
 using System.Drawing;
 using System.Linq;
 using Band;
+using MonoTouch.UIKit;
 
 namespace BandAid.iOS
 {
@@ -17,10 +18,14 @@ namespace BandAid.iOS
         public StructureViewModel Structure { get; set; }
 
         private PlotNode plotNode;
+        private SizeF size;
 
         public StructurePlotScene(SizeF size, StructureViewModel structure)
             : base(size)
         {
+            this.size = size;
+
+            BackgroundColor = UIColor.GroupTableViewBackgroundColor;
             MinX = 0.0;
             MaxX = 50.0;
 
@@ -32,7 +37,23 @@ namespace BandAid.iOS
                 {
                     plotNode.PlotStep(Structure.CurrentStep);
                 }
+
+                if (e.PropertyName == "PlotSteps")
+                {
+                    SetUpPlot();
+                }
             };
+
+            SetUpPlot();
+        }
+
+        private void SetUpPlot()
+        {
+            if (plotNode != null)
+            {
+                plotNode.RemoveFromParent();
+                plotNode = null;
+            }
 
             plotNode = new PlotNode(Structure.PlotSteps, size);
             plotNode.Position = new PointF(0, 0);

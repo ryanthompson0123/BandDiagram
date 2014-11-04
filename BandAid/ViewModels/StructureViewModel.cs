@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Band
 {
@@ -12,15 +13,14 @@ namespace Band
         Energy, Potential, ChargeDensity, ElectricField
     }
 
-    public class StructureViewModel : INotifyPropertyChanged
+    public class StructureViewModel : ObservableObject
     {
-        #region INotifyPropertyChanged implementation
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion
-
-        public PlotAnimationGrouping PlotSteps { get; set; }
+        private PlotAnimationGrouping plotStepsValue;
+        public PlotAnimationGrouping PlotSteps
+        {
+            get { return plotStepsValue; }
+            set { SetProperty(ref plotStepsValue, value); }
+        }
 
         private Structure referenceStructureValue;
         public Structure ReferenceStructure
@@ -29,7 +29,28 @@ namespace Band
             set
             {
                 SetProperty(ref referenceStructureValue, value);
+                value.PropertyChanged += (sender, e) => 
+                {
+                    if (e.PropertyName == "Layers")
+                    {
+                        StructureSteps = new Dictionary<ElectricPotential, Structure>();
+                        RecalculateAllSteps();
+                    }
+                };
+
+                StructureSteps = new Dictionary<ElectricPotential, Structure>();
                 RecalculateAllSteps();
+            }
+        }
+
+        private Dictionary<ElectricPotential, Structure> structureStepsValue;
+        public Dictionary<ElectricPotential, Structure> StructureSteps
+        {
+            get { return structureStepsValue; }
+            set
+            {
+                SetProperty(ref structureStepsValue, value);
+                RecalculateCurrentPlotSteps();
             }
         }
 
@@ -82,6 +103,7 @@ namespace Band
             get { return stepSizeValue; }
             set
             {
+                if (value.Volts == 0.0) return;
                 SetProperty(ref stepSizeValue, value);
                 RecalculateAllSteps();
             }
@@ -94,7 +116,7 @@ namespace Band
             set
             {
                 SetProperty(ref plotTypeValue, value);
-                RecalculateAllSteps();
+                RecalculateCurrentPlotSteps();
             }
         }
 
@@ -105,36 +127,46 @@ namespace Band
 
         public StructureViewModel()
         {
-            referenceStructureValue = CreateSiO2TestStructure();
             currentVoltageValue = new ElectricPotential(1.0);
             minVoltageValue = new ElectricPotential(-2.0);
             maxVoltageValue = new ElectricPotential(2.0);
             stepSizeValue = new ElectricPotential(0.25);
             plotTypeValue = PlotType.Energy;
 
-
             currentStepValue = StepForPotential(CurrentVoltage);
-
-            RecalculateAllSteps();
+            ReferenceStructure = CreateSiO2TestStructure();
         }
 
         private void RecalculateAllSteps()
         {
-            PlotSteps = null;
-
             if (!ReferenceStructure.IsValid) return;
 
-            PlotSteps = PlotAnimationGrouping.Create(Enumerable.Range(0, StepCount).Select(s =>
-            {
-                var structure = ReferenceStructure.DeepClone();
-                structure.Bias = PotentialForStep(s);
-                structure.Temperature = new Temperature(300.0);
-                return CreatePlot(structure);
-            }).ToList());
+            Debug.WriteLine(String.Format("Beginning calculation of {0} steps", StepCount));
+            var stopwatch = Stopwatch.StartNew();
+
+            StructureSteps = Enumerable.Range(0, StepCount).Select(s => PotentialForStep(s))
+                .ToDictionary(p => p, p => 
+                {
+                    return StructureSteps.ContainsKey(p) ? StructureSteps[p] : 
+                        ReferenceStructure.DeepClone(p, new Temperature(300.0));
+                });
+
+            Debug.WriteLine(String.Format("Finished all calculations in {0} ms", stopwatch.ElapsedMilliseconds));
+        }
+
+        private void RecalculateCurrentPlotSteps()
+        {
+            if (StructureSteps.Count == 0) return;
+
+            PlotSteps = PlotAnimationGrouping.Create(StructureSteps.Keys
+                .OrderBy(k => k.Volts)
+                .Select(k => CreatePlot(StructureSteps[k]))
+                .ToList());
         }
 
         private Plot CreatePlot(Structure structure)
         {
+            var stopwatch = Stopwatch.StartNew();
             var plot = Plot.Create(PlotType);
 
             Length thickness = Length.Zero;
@@ -162,6 +194,7 @@ namespace Band
                 thickness += layer.Thickness;
             }
 
+            Debug.WriteLine(String.Format("Created plot in {0} ms", stopwatch.ElapsedMilliseconds));
             return plot;
         }
 
@@ -203,24 +236,6 @@ namespace Band
             structure.AddLayer(topMetal);
 
             return structure;
-        }
-
-        bool SetProperty<T>(ref T storage, T value, 
-            [CallerMemberName] string propertyName = null)
-        {
-            if (Object.Equals(storage, value)) return false;
-
-            storage = value;
-            OnPropertyChanged(propertyName);
-            return true;
-        }
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
         }
     }
 }

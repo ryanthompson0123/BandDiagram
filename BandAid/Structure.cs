@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Band.Units;
+using System.Diagnostics;
 
 namespace Band
 {
-	public class Structure
+    public class Structure : ObservableObject
 	{
         private List<Material> layersValue;
         public List<Material> Layers
@@ -36,6 +37,8 @@ namespace Band
             layersValue.Insert(index, layer);
 
             Evaluate();
+
+            OnPropertyChanged("Layers");
         }
 
         public void AddLayer(Material layer)
@@ -48,6 +51,7 @@ namespace Band
             layersValue.Remove(layer);
 
             Evaluate();
+            OnPropertyChanged("Layers");
         }
 
         public void MoveLayerUp(int index)
@@ -59,6 +63,7 @@ namespace Band
             Layers.Insert(index - 1, m);
 
             Evaluate();
+            OnPropertyChanged("Layers");
         }
 
         public void MoveLayerDown(int index)
@@ -70,6 +75,7 @@ namespace Band
             Layers.Insert(index + 1, m);
 
             Evaluate();
+            OnPropertyChanged("Layers");
         }
 
         public Material TopLayer
@@ -203,8 +209,7 @@ namespace Band
             get { return biasValue; }
             set
             {
-                biasValue = value;
-
+                SetProperty(ref biasValue, value);
                 Evaluate();
             }
         }
@@ -215,8 +220,7 @@ namespace Band
             get { return temperatureValue; }
             set
             {
-                temperatureValue = value;
-
+                SetProperty(ref temperatureValue, value);
                 Evaluate();
             }
         }
@@ -245,11 +249,11 @@ namespace Band
             }
         }
 
-        public Structure DeepClone()
+        public Structure DeepClone(ElectricPotential bias, Temperature temperature)
         {
             var structure = new Structure();
-            structure.Bias = Bias;
-            structure.Temperature = Temperature;
+            structure.Bias = bias;
+            structure.Temperature = temperature;
 
             foreach (var layer in ((IEnumerable<Material>)Layers).Reverse())
             {
@@ -259,13 +263,19 @@ namespace Band
             return structure;
         }
 
-        private const int maximumIterations = 10000;
+        public Structure DeepClone()
+        {
+            return DeepClone(Bias, Temperature);
+        }
+
+        private const int maximumIterations = 1000;
 
         private void Evaluate()
         {
             // Don't do anything if the structure isn't valid
             if (!IsValid) return;
 
+            var stopwatch = Stopwatch.StartNew();
             var iterationNumber = 0;
 
             // Since we integrate left to right, we want to specify the voltage on the left
@@ -330,6 +340,9 @@ namespace Band
             {
                 EvaluateSemiconductor();
             }
+
+            Debug.WriteLine(String.Format("Evaluation finished after {0} iterations in {1} ms", 
+                iterationNumber, stopwatch.ElapsedMilliseconds));
         }
 
         private void EvaluateSemiconductor()
@@ -364,7 +377,7 @@ namespace Band
             semiconductor.EvalPoints.Add(point);
 
             for (var i = 1; ElectricPotential.Abs(semiconductor.SurfacePotential - stepSize * i)
-                > ElectricPotential.FromMillivolts(1) && i < 100000; i++)
+                > ElectricPotential.FromMillivolts(1) && i < 10000; i++)
             {
                 var potentialValue = semiconductor.SurfacePotential - stepSize * i;
                 var value = 1 / semiconductor.GetElectricField(potentialValue).VoltsPerMeter;

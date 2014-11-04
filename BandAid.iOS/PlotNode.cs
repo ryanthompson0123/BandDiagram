@@ -80,9 +80,9 @@ namespace BandAid.iOS
         {
             var border = new SKShapeNode();
             var pathToDraw = CGPath.FromRect(new RectangleF(new PointF(0, 0),
-                new SizeF(size.Width - 5, size.Height - 5)));
+                new SizeF(size.Width, size.Height)));
             border.Path = pathToDraw;
-            border.StrokeColor = UIColor.White;
+            border.StrokeColor = UIColor.Black;
             border.LineWidth = 2.0f;
             border.Position = new PointF(0, 0);
             AddChild(border);
