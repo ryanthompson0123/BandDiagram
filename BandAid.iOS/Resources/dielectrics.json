@@ -1,0 +1,212 @@
+[
+{
+"dielectricConstant": 9.0,
+"bandGap": 8.7,
+"electronAffinity": 1.35,
+"name": "Al2O3",
+"fillColor": "#0000ff"
+},
+{
+"dielectricConstant": 26.0,
+"bandGap": 5.5,
+"electronAffinity": 3.3,
+"name": "CeO2",
+"fillColor": "#ff0080"
+},
+{
+"dielectricConstant": 14.0,
+"bandGap": 4.8,
+"electronAffinity": 1.75,
+"name": "Dy2O3",
+"fillColor": "#408080"
+},
+{
+"dielectricConstant": 14.0,
+"bandGap": 4.8,
+"electronAffinity": 3.26,
+"name": "Dy2O3-2",
+"notes": "Chang, Juan, and Joseph Ya-min Lee, Fabrication and characterization of metal-ferroelectric (PbZr0.53Ti0.47O3)-insulator(Dy2O3)-semiconductor capacitors for nonvolatile memory applications, APPLIED PHYSICS LETTERS 88, 072917 (2006); [Chang, 2007 #639]",
+"fillColor": "#008080"
+},
+{
+"dielectricConstant": 4.2,
+"bandGap": 4.8,
+"electronAffinity": 3.5,
+"name": "Ga2O3",
+"notes": "Robertson et al., Band offsets of high K gate oxides on III-V semiconductors, J.App.Phy., 100, 014111 (2006)",
+"fillColor": "#14676b"
+},
+{
+"dielectricConstant": 4.8,
+"bandGap": 5.8,
+"electronAffinity": 3.5,
+"name": "Gd2O3",
+"notes": "Robertson et al., Band offsets of high K gate oxides on III-V semiconductors, J.App.Phy., 100, 014111 (2006)",
+"fillColor": "#2d8820"
+},
+{
+"dielectricConstant": 23.4,
+"bandGap": 5.7,
+"electronAffinity": 2.42,
+"name": "Hf0.9Al0.1O",
+"notes": "Tan et al., Hafnium Aluminum Oxide as Charge Storage & Blocking-Oxide Layers in SONOS-Type NVM for High-Speed Operation, IEEE TED V53(4) APRIL 2006
+[12] H. Y. Yu, et al., “Energy gap & band alignment for (HfO2)x(Al2O3)1−x on (100) Si,” APL,
+V81(2), p.376–378, Jul. 2002.
+k=kAl2O3 XAl2O3 + kHfO2 XHfO2
+Eg=EgAl2O3 XAl2O3 + EgHfO2 XHfO2
+eX=eXAl2O3 XAl2O3 + eXHfO2 XHfO2",
+"fillColor": "#cfca0e"
+},
+{
+"dielectricConstant": 25.0,
+"bandGap": 5.7,
+"electronAffinity": 2.65,
+"name": "HfO2",
+"fillColor": "#808040"
+},
+{
+"dielectricConstant": 25.0,
+"bandGap": 6.0,
+"electronAffinity": 1.85,
+"name": "La2O3",
+"fillColor": "#ff80c0"
+},
+{
+"dielectricConstant": 25.0,
+"bandGap": 6.0,
+"electronAffinity": 1.75,
+"name": "La2O3-2",
+"notes": "Cheng & Lee, APL v91, 192903 2007",
+"fillColor": "#8080ff"
+},
+{
+"dielectricConstant": 22.0,
+"bandGap": 5.6,
+"electronAffinity": 2.5,
+"name": "LaAlO3",
+"notes": "Robertson et al., Band offsets of high K gate oxides on III-V semiconductors, J.App.Phy., 100, 014111 (2006)
+MRS Bulletin Schlom & Haeni March 2002",
+"fillColor": "#872376"
+},
+{
+"dielectricConstant": 50.0,
+"bandGap": 4.35,
+"electronAffinity": 1.7,
+"name": "Nb2O5",
+"fillColor": "#800080"
+},
+{
+"dielectricConstant": 6.25,
+"bandGap": 3.4,
+"electronAffinity": 3.5,
+"name": "PbTiO3",
+"notes": "Robertson et al., Band offsets of high K gate oxides on III-V semiconductors, J.App.Phy., 100, 014111 (2006)",
+"fillColor": "#000000"
+},
+{
+"dielectricConstant": 500.0,
+"bandGap": 3.4,
+"electronAffinity": 2.15,
+"name": "PbZr(0.53)Ti(0.47)O3",
+"notes": "Juan, Hu, Chiu, and Joseph Ya-min Lee, The charge trapping effect of metal-ferroelectric „PbZr0.53Ti0.47O3-insulator „HfO2-silicon capacitors, JOURNAL OF APPLIED PHYSICS 98, 044103, 2005; [Juan, 2005 #638]
+Chang, Juan, and Joseph Ya-min Lee, Fabrication and characterization of metal-ferroelectric (PbZr0.53Ti0.47O3)-insulator(Dy2O3)-semiconductor capacitors for nonvolatile memory applications, APPLIED PHYSICS LETTERS 88, 072917 (2006); [Chang, 2007 #639]
+",
+"fillColor": "#8080c0"
+},
+{
+"dielectricConstant": 7.0,
+"bandGap": 5.1,
+"electronAffinity": 2.15,
+"name": "Si3N4-1",
+"fillColor": "#00ff00"
+},
+{
+"dielectricConstant": 7.0,
+"bandGap": 5.1,
+"electronAffinity": 2.05,
+"name": "Si3N4-2",
+"notes": "Tan et al., IEEE TRANSACTIONS ON ELECTRON DEVICES, VOL. 53, NO. 4, APRIL 2006",
+"fillColor": "#008000"
+},
+{
+"dielectricConstant": 7.0,
+"bandGap": 5.3,
+"electronAffinity": 2.05,
+"name": "Si3N4-3",
+"notes": "Zhang et al., IEEE TRANSACTIONS ON ELECTRON DEVICES, VOL. 55, NO. 9, SEPTEMBER 2008",
+"fillColor": "#008080"
+},
+{
+"dielectricConstant": 3.9,
+"bandGap": 8.9,
+"electronAffinity": 0.95,
+"name": "SiO2",
+"fillColor": "#804040"
+},
+{
+"dielectricConstant": 90.0,
+"bandGap": 3.3,
+"electronAffinity": 3.9,
+"name": "SrTiO3",
+"notes": "Eg & Elec Affin = Appl. Phys. Lett. 90, 143507 (2007)
+Dielectric constant = 87
+Dielectric constant = 80-190  (varies w/ Sr composition, CVD process & temp
+ECS 14th CVD & EuroCVD11 p.1109 Yoshida et al.
+Robertson et al., Band offsets of high K gate oxides on III-V semiconductors, J.App.Phy., 100, 014111 (2006)",
+"fillColor": "#c0c0c0"
+},
+{
+"dielectricConstant": 26.0,
+"bandGap": 4.5,
+"electronAffinity": 3.75,
+"name": "Ta2O5",
+"fillColor": "#008040"
+},
+{
+"dielectricConstant": 26.0,
+"bandGap": 4.2,
+"electronAffinity": 3.2,
+"name": "Ta2O5-2",
+"notes": "Cheng & Lee, APL v91, 192903 2007",
+"fillColor": "#8000ff"
+},
+{
+"dielectricConstant": 80.0,
+"bandGap": 3.5,
+"electronAffinity": 2.95,
+"name": "TiO2",
+"fillColor": "#0000ff"
+},
+{
+"dielectricConstant": 15.0,
+"bandGap": 5.6,
+"electronAffinity": 1.85,
+"name": "Y2O3",
+"fillColor": "#800040"
+},
+{
+"dielectricConstant": 8.75,
+"bandGap": 3.4,
+"electronAffinity": 4.6,
+"name": "ZnO",
+"notes": "Robertson et al., Band offsets of high K gate oxides on III-V semiconductors, J.App.Phy., 100, 014111 (2006)
+Semiconductor Materials by L. Berger, page 195  k=8.75 and 7.8 along the c axis
+Also Data in Science and Technology, R. Poeschke Ed, 1992",
+"fillColor": "#000000"
+},
+{
+"dielectricConstant": 8.75,
+"bandGap": 3.3,
+"electronAffinity": 4.35,
+"name": "ZnO-2",
+"notes": "Cagan et al., J. Phys. D: Appl. Phys. (IOP) 40 (2007) 2430–2434",
+"fillColor": "#000000"
+},
+{
+"dielectricConstant": 25.0,
+"bandGap": 5.8,
+"electronAffinity": 2.75,
+"name": "ZrO2",
+"fillColor": "#fbb7f5"
+}
+]

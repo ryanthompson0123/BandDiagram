@@ -5,6 +5,7 @@ using Band;
 using System.Drawing;
 using MonoTouch.CoreGraphics;
 using MonoTouch.UIKit;
+using MonoTouch.CoreAnimation;
 
 namespace BandAid.iOS
 {
@@ -20,7 +21,7 @@ namespace BandAid.iOS
 
         public SizeF Size { get; set; }
 
-        private List<SKShapeNode> DataSetNodes { get; set; }
+        private SKSpriteNode DataSetNode { get; set; }
 
         public PlotNode(PlotAnimationGrouping plotGrouping, SizeF size)
         {
@@ -42,28 +43,33 @@ namespace BandAid.iOS
         {
             if (PlotGrouping == null) return;
 
-            if (DataSetNodes != null)
+            if (DataSetNode != null)
             {
-                RemoveChildren(DataSetNodes.ToArray());
+                DataSetNode.RemoveFromParent();
+                DataSetNode = null;
             }
-
-            DataSetNodes = new List<SKShapeNode>();
 
             var plot = PlotGrouping.Plots[step];
 
+            UIGraphics.BeginImageContext(Size);
             foreach (var dataSet in plot.DataSets)
             {
-                var node = CreateDataSetNode(dataSet);
-                node.Position = new PointF(0, 0);
-                AddChild(node);
-
-                DataSetNodes.Add(node);
+                PlotDataSetNode(dataSet);
             }
+
+            var image = UIGraphics.GetImageFromCurrentImageContext();
+            UIGraphics.EndImageContext();
+
+            DataSetNode = new SKSpriteNode(SKTexture.FromImage(image));
+            DataSetNode.Position = new PointF(Size.Width/2, Size.Height/2);
+            AddChild(DataSetNode);
         }
 
-        private SKShapeNode CreateDataSetNode(PlotDataSet dataSet)
+        private void PlotDataSetNode(PlotDataSet dataSet)
         {
-            var line = new SKShapeNode();
+            var layer = new CAShapeLayer();
+            layer.Frame = new RectangleF(new PointF(0, 0), Size);
+
             var pathToDraw = new CGPath();
             var startCoord = GetCoord(dataSet.DataPoints[0]);
             pathToDraw.MoveToPoint(startCoord);
@@ -73,11 +79,13 @@ namespace BandAid.iOS
                 var coord = GetCoord(dataSet.DataPoints[i]);
                 pathToDraw.AddLineToPoint(coord);
             }
+            layer.Path = pathToDraw;
+            layer.StrokeColor = UIColor.Red.CGColor;
+            layer.FillColor = UIColor.Clear.CGColor;
+            layer.LineWidth = 2.0f;
+            layer.BackgroundColor = UIColor.Clear.CGColor;
 
-            line.Path = pathToDraw;
-            line.StrokeColor = UIColor.Red;
-            line.LineWidth = 2.0f;
-            return line;
+            layer.RenderInContext(UIGraphics.GetCurrentContext());
         }
 
         private void DrawBorder(SizeF size)
@@ -97,7 +105,7 @@ namespace BandAid.iOS
             return new PointF
             {
                 X = (float)(dataPoint.X - XAxisBounds.Min) * XRatio,
-                Y = (float)(dataPoint.Y - YAxisBounds.Min) * YRatio
+                Y = (float)(YAxisBounds.Max - dataPoint.Y) * YRatio
             };
         }
     }

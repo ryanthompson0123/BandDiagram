@@ -63,6 +63,16 @@ namespace BandAid.iOS
             TableView.DeselectRow(indexPath, true);
         }
 
+        public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
+        {
+            if (segue.Identifier == "AddSegue")
+            {
+                var destination = (MaterialTypeViewController)((UINavigationController)
+                    segue.DestinationViewController).ViewControllers[0];
+                destination.LayersController = this;
+            }
+        }
+
         partial void OnTrashTapped(UIBarButtonItem sender)
         {
             var indexPath = TableView.IndexPathForSelectedRow;
@@ -70,6 +80,15 @@ namespace BandAid.iOS
             var removedLayer = Structure.ReferenceStructure.Layers[indexPath.Row];
             Structure.ReferenceStructure.RemoveLayer(removedLayer);
             TableView.DeleteRows(new [] { indexPath }, UITableViewRowAnimation.Automatic);
+        }
+
+        public void OnLayerAdded(Material layer)
+        {
+            Structure.ReferenceStructure.AddLayer(layer);
+            TableView.InsertRows(new []
+            {
+                NSIndexPath.FromRowSection(0, 0)
+            }, UITableViewRowAnimation.Automatic);
         }
 
         class LayersTableSource : UITableViewSource

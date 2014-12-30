@@ -95,6 +95,9 @@
     <Reference Include="Xamarin.Forms.Xaml">
       <HintPath>..\packages\Xamarin.Forms.1.2.3.6257\lib\MonoTouch10\Xamarin.Forms.Xaml.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.7\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -125,6 +128,18 @@
     </Compile>
     <Compile Include="StructurePlotScene.cs" />
     <Compile Include="PlotNode.cs" />
+    <Compile Include="MaterialTypeViewController.cs" />
+    <Compile Include="MaterialTypeViewController.designer.cs">
+      <DependentUpon>MaterialTypeViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MaterialSelectViewController.cs" />
+    <Compile Include="MaterialSelectViewController.designer.cs">
+      <DependentUpon>MaterialSelectViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MaterialCell.cs" />
+    <Compile Include="MaterialCell.designer.cs">
+      <DependentUpon>MaterialCell.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />
@@ -136,6 +151,9 @@
     <BundleResource Include="Resources\copy%402x.png" />
     <BundleResource Include="Resources\settings.png" />
     <BundleResource Include="Resources\settings%402x.png" />
+    <BundleResource Include="Resources\dielectrics.json" />
+    <BundleResource Include="Resources\metals.json" />
+    <BundleResource Include="Resources\semiconductors.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BandAid\BandAid.csproj">

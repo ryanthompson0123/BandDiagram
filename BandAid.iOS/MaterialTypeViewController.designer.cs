@@ -9,14 +9,11 @@ using System.CodeDom.Compiler;
 
 namespace BandAid.iOS
 {
-	[Register ("LayersTableViewController")]
-	partial class LayersTableViewController
+	[Register ("MaterialTypeViewController")]
+	partial class MaterialTypeViewController
 	{
-		[Action ("OnAddTapped:")]
-		partial void OnAddTapped (MonoTouch.Foundation.NSObject sender);
-
-		[Action ("OnTrashTapped:")]
-		partial void OnTrashTapped (MonoTouch.UIKit.UIBarButtonItem sender);
+		[Action ("OnCancelTouched:")]
+		partial void OnCancelTouched (MonoTouch.Foundation.NSObject sender);
 		
 		void ReleaseDesignerOutlets ()
 		{

@@ -1,0 +1,242 @@
+[
+{
+"workFunction": 4.7,
+"extraCharge": 0.0,
+"name": "Ag",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#fa5666"
+},
+{
+"workFunction": 4.2,
+"extraCharge": 0.0,
+"name": "Al",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#808080"
+},
+{
+"workFunction": 4.28,
+"extraCharge": 0.0,
+"name": "Al-2",
+"fillColor": "#00ffff"
+},
+{
+"workFunction": 4.8,
+"extraCharge": 0.0,
+"name": "Au",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#ff8040"
+},
+{
+"workFunction": 5.1,
+"extraCharge": 0.0,
+"name": "Au-2",
+"fillColor": "#00ff00"
+},
+{
+"workFunction": 2.9,
+"extraCharge": 0.0,
+"name": "Ca",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#000000"
+},
+{
+"workFunction": 4.4,
+"extraCharge": 0.0,
+"name": "Cr",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#0000a0",
+},
+{
+"workFunction": 4.5,
+"extraCharge": 0.0,
+"name": "Cu",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#ff8080"
+},
+{
+"workFunction": 4.4,
+"extraCharge": 0.0,
+"name": "Fe",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#000000"
+},
+{
+"workFunction": 4.65,
+"extraCharge": 0.0,
+"name": "HfN",
+"notes": "Tan et al., Hafnium Aluminum Oxide as Charge Storage & Blocking-Oxide Layers in SONOS-Type NVM
+for High-Speed Operation, IEEE TED VOL. 53, NO. 4, APRIL 2006
+Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
+"fillColor": "#ff0000"
+},
+{
+"workFunction": 4.5,
+"extraCharge": 0.0,
+"name": "Hg",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#c0c0c0"
+},
+{
+"workFunction": 4.6,
+"extraCharge": 0.0,
+"name": "Ir",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#008000"
+},
+{
+"workFunction": 3.8,
+"extraCharge": 0.0,
+"name": "Mn",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#804000"
+},
+{
+"workFunction": 4.2,
+"extraCharge": 0.0,
+"name": "Mo",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#000000"
+},
+{
+"workFunction": 4.6,
+"extraCharge": 0.0,
+"name": "Mo-2",
+"fillColor": "#ec0000"
+},
+{
+"workFunction": 4.15,
+"extraCharge": 0.0,
+"name": "n+ PolySi",
+"notes": "Ricki's 1st Band Diagram Program",
+"fillColor": "#ff0000"
+},
+{
+"workFunction": 4.9,
+"extraCharge": 0.0,
+"name": "Ni",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#0000a0"
+},
+{
+"workFunction": 5.15,
+"extraCharge": 0.0,
+"name": "Ni-2",
+"fillColor": "#0080c0"
+},
+{
+"workFunction": 5.27,
+"extraCharge": 0.0,
+"name": "p+ PolySi",
+"notes": "Ricki's 1st Band Diagram Program",
+"fillColor": "#ff0000"
+},
+{
+"workFunction": 4.0,
+"extraCharge": 0.0,
+"name": "Pb",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#808080"
+},
+{
+"workFunction": 5.0,
+"extraCharge": 0.0,
+"name": "Pd",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#000000"
+},
+{
+"workFunction": 5.3,
+"extraCharge": 0.0,
+"name": "Pt",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#808080"
+},
+{
+"workFunction": 5.65,
+"extraCharge": 0.0,
+"name": "Pt-2",
+"fillColor": "#8080c0"
+},
+{
+"workFunction": 4.3,
+"extraCharge": 0.0,
+"name": "Sn",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#808080"
+},
+{
+"workFunction": 5.2,
+"extraCharge": 0.0,
+"name": "SrRuO3",
+"notes": "Appl. Phys. Lett. 90, 143507 (2007); Conducting Oxide",
+"fillColor": "#000040"
+},
+{
+"workFunction": 4.7,
+"extraCharge": 0.0,
+"name": "TaN",
+"notes": "Jaydeb Goswami & Allen McTeer (Micron Technology, Inc.), \"EOT, Workfunction, and Vfb Roll-off in HfO2/Metal Gate Stacks\" in proceedings of the 2009 IEEE WMED. ",
+"fillColor": "#000000"
+},
+{
+"workFunction": 4.65,
+"extraCharge": 0.0,
+"name": "TaN-2",
+"notes": "From:
+MRS Olsen et al., TaN workfunctions on HfO2 and HfSiOx 2004",
+"fillColor": "#0000a0"
+},
+{
+"workFunction": 4.4,
+"extraCharge": 0.0,
+"name": "TaSiN",
+"notes": "Jaydeb Goswami & Allen McTeer (Micron Technology, Inc.), \"EOT, Workfunction, and Vfb Roll-off in HfO2/Metal Gate Stacks\" in proceedings of the 2009 IEEE WMED. ",
+"fillColor": "#000000"
+},
+{
+"workFunction": 4.1,
+"extraCharge": 0.0,
+"name": "Ti",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#008000"
+},
+{
+"workFunction": 4.33,
+"extraCharge": 0.0,
+"name": "Ti-2",
+"fillColor": "#ffff00"
+},
+{
+"workFunction": 4.45,
+"extraCharge": 0.0,
+"name": "TiN",
+"fillColor": "#ff0000"
+},
+{
+"workFunction": 4.5,
+"extraCharge": 0.0,
+"name": "W",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#808000"
+},
+{
+"workFunction": 4.55,
+"extraCharge": 0.0,
+"name": "W-2",
+"fillColor": "#ff00ff"
+},
+{
+"workFunction": 4.3,
+"extraCharge": 0.0,
+"name": "Zn",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#008000"
+},
+{
+"workFunction": 3.8,
+"extraCharge": 0.0,
+"name": "Zr",
+"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+"fillColor": "#000000"
+}
+]

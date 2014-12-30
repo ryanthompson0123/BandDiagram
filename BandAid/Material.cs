@@ -5,6 +5,8 @@ using System.Linq;
 
 namespace Band
 {
+    public enum MaterialType { Metal, Dielectric, Semiconductor }
+
 	public abstract class Material
 	{
 		public string Name { get; set; }
