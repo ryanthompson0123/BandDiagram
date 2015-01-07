@@ -46,7 +46,9 @@ namespace Band
         {
             var dataset = new PlotDataSet
             {
-                Name = Name
+                Name = Name,
+                PlotColor = FillColor,
+                LineThickness = 2
             };
 
             foreach (var point in EvalPoints)
@@ -69,7 +71,9 @@ namespace Band
         {
             var dataset = new PlotDataSet
             {
-                Name = Name
+                Name = Name,
+                PlotColor = FillColor,
+                LineThickness = 2
             };
 
             foreach (var point in EvalPoints)
@@ -89,7 +93,9 @@ namespace Band
         {
             var dataset = new PlotDataSet
             {
-                Name = Name
+                Name = Name,
+                PlotColor = FillColor,
+                LineThickness = 2
             };
 
             foreach (var point in EvalPoints)

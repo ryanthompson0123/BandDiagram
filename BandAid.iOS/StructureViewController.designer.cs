@@ -29,6 +29,9 @@ namespace BandAid.iOS
 
 		[Outlet]
 		MonoTouch.UIKit.UILabel zeroVoltageLabel { get; set; }
+
+		[Action ("ToggleTouched:")]
+		partial void ToggleTouched (MonoTouch.Foundation.NSObject sender);
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -47,6 +50,11 @@ namespace BandAid.iOS
 				minVoltageLabel = null;
 			}
 
+			if (plotView != null) {
+				plotView.Dispose ();
+				plotView = null;
+			}
+
 			if (SettingsButton != null) {
 				SettingsButton.Dispose ();
 				SettingsButton = null;
@@ -55,11 +63,6 @@ namespace BandAid.iOS
 			if (zeroVoltageLabel != null) {
 				zeroVoltageLabel.Dispose ();
 				zeroVoltageLabel = null;
-			}
-
-			if (plotView != null) {
-				plotView.Dispose ();
-				plotView = null;
 			}
 		}
 	}

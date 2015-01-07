@@ -222,12 +222,14 @@ namespace Band
         {
             var topMetal = new Metal(Length.FromNanometers(4));
             topMetal.SetWorkFunction(Energy.FromElectronVolts(4.45));
+            topMetal.FillColor = "#ff0000";
             topMetal.Name = "TiN";
 
             var oxide = new Dielectric(Length.FromNanometers(2));
             oxide.DielectricConstant = 3.9;
             oxide.BandGap = Energy.FromElectronVolts(8.9);
             oxide.ElectronAffinity = Energy.FromElectronVolts(0.95);
+            oxide.FillColor = "#804040";
             oxide.Name = "SiO2";
 
             var semiconductor = new Semiconductor();
@@ -237,6 +239,7 @@ namespace Band
             semiconductor.IntrinsicCarrierConcentration = Concentration.FromPerCubicCentimeter(1.41E10);
             semiconductor.DopingType = DopingType.N;
             semiconductor.DopantConcentration = Concentration.FromPerCubicCentimeter(1E18);
+            semiconductor.FillColor = "#00ff00";
             semiconductor.Name = "Si";
 
             var structure = new Structure();

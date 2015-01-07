@@ -15,6 +15,8 @@ namespace BandAid.iOS
     {
         public StructureViewModel Structure { get; set; }
 
+        private StructureParameterListViewController parameterList;
+
         public StructureViewController(IntPtr handle)
             : base(handle)
         {
@@ -25,6 +27,10 @@ namespace BandAid.iOS
             base.ViewDidLoad();
 			
             Structure = new StructureViewModel();
+            parameterList = new StructureParameterListViewController(Structure);
+            parameterList.View.Frame = new RectangleF(-200f, 0f, 200f, View.Frame.Height);
+            //View.AddSubview(parameterList.View);
+
             Structure.PropertyChanged += Structure_PropertyChanged;
             ToolbarItems = GetBottomButtonItems(ToolbarItems);
             NavigationItem.RightBarButtonItems = RightBarButtonItems;
@@ -69,6 +75,11 @@ namespace BandAid.iOS
             maxVoltageLabel.Text = Structure.MaxVoltage.Volts.ToString();
             biasSlider.MinValue = (float)Structure.MinVoltage.Volts;
             biasSlider.MaxValue = (float)Structure.MaxVoltage.Volts;
+
+            if (e.PropertyName == "PlotSteps" || e.PropertyName == "CurrentVoltage")
+            {
+                parameterList.TableView.ReloadData();
+            }
         }
 
         void biasSlider_ValueChanged (object sender, EventArgs e)
@@ -80,6 +91,42 @@ namespace BandAid.iOS
 
             zeroVoltageLabel.Text = realValue.ToString();
             Structure.CurrentVoltage = new ElectricPotential(realValue);
+        }
+
+        bool toggleIsOpen;
+        bool firstTime = true;
+        async partial void ToggleTouched(NSObject sender)
+        {
+            if (toggleIsOpen)
+            {
+                await UIView.AnimateAsync(.3, () =>
+                {
+                    View.Frame = new RectangleF(0, 0, View.Frame.Width + 200, View.Frame.Height);
+                    parameterList.View.Frame = new RectangleF(-200, 0, 
+                        200, View.Frame.Height);
+                    View.LayoutIfNeeded();
+                });
+
+                toggleIsOpen = false;
+            }
+            else
+            {
+                if (firstTime)
+                {
+                    View.Superview.AddSubview(parameterList.View);
+                    firstTime = false;
+                }
+
+                await UIView.AnimateAsync(.3, () =>
+                {
+                    View.Frame = new RectangleF(200, 0, View.Frame.Width - 200, View.Frame.Height);
+                    parameterList.View.Frame = new RectangleF(0, 0, 
+                        200, View.Frame.Height);
+                    View.LayoutIfNeeded();
+                });
+
+                toggleIsOpen = true;
+            }
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)

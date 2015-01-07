@@ -290,7 +290,9 @@ namespace Band
         {
             var dataset = new PlotDataSet
             {
-                Name = Name
+                Name = Name,
+                LineThickness = 2,
+                PlotColor = FillColor
             };
 
             var lastEField = ElectricField.Zero;
@@ -324,7 +326,9 @@ namespace Band
         {
             var dataset = new PlotDataSet
             {
-                Name = Name
+                Name = Name,
+                LineThickness = 2,
+                PlotColor = FillColor
             };
 
             var location1 = EvalPoints.First().Location + offset;

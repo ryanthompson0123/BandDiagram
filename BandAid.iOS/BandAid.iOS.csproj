@@ -140,6 +140,8 @@
     <Compile Include="MaterialCell.designer.cs">
       <DependentUpon>MaterialCell.cs</DependentUpon>
     </Compile>
+    <Compile Include="UIColorExtensions.cs" />
+    <Compile Include="StructureParameterListViewController.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />

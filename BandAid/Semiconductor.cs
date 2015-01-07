@@ -356,7 +356,9 @@ namespace Band
         {
             var dataset = new PlotDataSet
             {
-                Name = Name
+                Name = Name,
+                PlotColor = FillColor,
+                LineThickness = 2
             };
 
             for (var i = 0; i < EvalPoints.Count; i++)
@@ -387,22 +389,30 @@ namespace Band
         {
             var cbDataset = new PlotDataSet
             {
-                Name = String.Format("{0} - Conduction Band", Name)
+                Name = String.Format("{0} - Conduction Band", Name),
+                LineThickness = 2,
+                PlotColor = FillColor
             };
 
             var vbDataset = new PlotDataSet
             {
-                Name = String.Format("{0} - Valance Band", Name)
+                Name = String.Format("{0} - Valance Band", Name),
+                LineThickness = 2,
+                PlotColor = FillColor
             };
 
             var efiDataset = new PlotDataSet
             {
-                Name = String.Format("{0} - Fermi Level", Name)
+                Name = String.Format("{0} - Fermi Level", Name),
+                LineThickness = 1,
+                PlotColor = FillColor
             };
 
             var wfDataset = new PlotDataSet
             {
-                Name = String.Format("{0} - Work Function", Name)
+                Name = String.Format("{0} - Work Function", Name),
+                LineThickness = 1,
+                PlotColor = "#000000"
             };
 
             foreach (var point in EvalPoints)
@@ -411,7 +421,7 @@ namespace Band
                 var cbEnergy = -EnergyFromVacuumToTopBand - point.Potential;
                 var vbEnergy = -EnergyFromVacuumToBottomBand - point.Potential;
                 var efiEnergy = -EnergyFromVacuumToEfi - point.Potential;
-                var wfEnergy = -WorkFunction - point.Potential;
+                var wfEnergy = -WorkFunction;
 
                 cbDataset.DataPoints.Add(new PlotDataPoint
                 {

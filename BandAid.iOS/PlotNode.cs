@@ -80,10 +80,11 @@ namespace BandAid.iOS
                 pathToDraw.AddLineToPoint(coord);
             }
             layer.Path = pathToDraw;
-            layer.StrokeColor = UIColor.Red.CGColor;
+
+            layer.StrokeColor = CustomUIColor.FromHexString(dataSet.PlotColor).CGColor;
             layer.FillColor = UIColor.Clear.CGColor;
-            layer.LineWidth = 2.0f;
-            layer.BackgroundColor = UIColor.Clear.CGColor;
+            layer.LineWidth = (float)dataSet.LineThickness;
+            //layer.BackgroundColor = UIColor.Clear.CGColor;
 
             layer.RenderInContext(UIGraphics.GetCurrentContext());
         }

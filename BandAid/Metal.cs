@@ -88,7 +88,9 @@ namespace Band
         {
             var dataset = new PlotDataSet
             {
-                Name = Name
+                Name = Name,
+                LineThickness = 2,
+                PlotColor = FillColor
             };
 
             var startLocation = EvalPoints.First().Location + offset;
