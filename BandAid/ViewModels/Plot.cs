@@ -84,10 +84,18 @@ namespace Band
         public PlotAxisBounds XAxisBounds { get; set; }
         public PlotAxisBounds YAxisBounds { get; set; }
 
+        public int MinorYAxisTicks { get; set; }
+        public int MinorXAxisTicks { get; set; }
+
+        public double MajorXAxisSpan { get; set; }
+        public double MajorYAxisSpan { get; set; }
+
         public List<Plot> Plots { get; set; }
 
         protected PlotAnimationGrouping()
         {
+            MinorXAxisTicks = 1;
+            MinorYAxisTicks = 1;
         }
 
         public static PlotAnimationGrouping Create(List<Plot> plots)
@@ -97,22 +105,45 @@ namespace Band
 
             var xBounds = new PlotAxisBounds
             {
-                Max = allXBounds.Max(b => b.Max),
-                Min = allXBounds.Min(b => b.Min)
+                Max = Math.Ceiling(allXBounds.Max(b => b.Max)),
+                Min = Math.Floor(allXBounds.Min(b => b.Min))
             };
 
             var yBounds = new PlotAxisBounds
             {
-                Max = allYBounds.Max(b => b.Max),
-                Min = allYBounds.Min(b => b.Min)
+                Max = Math.Ceiling(allYBounds.Max(b => b.Max)),
+                Min = Math.Floor(allYBounds.Min(b => b.Min))
             };
 
             return new PlotAnimationGrouping
             {
                 Plots = plots,
                 XAxisBounds = xBounds,
-                YAxisBounds = yBounds
+                YAxisBounds = yBounds,
+                MajorXAxisSpan = FigureTickValue(xBounds, 1.0),
+                MajorYAxisSpan = FigureTickValue(yBounds, 1.0)
             };
+        }
+
+        private static double FigureTickValue(PlotAxisBounds bounds, double value)
+        {
+            var thisOne = (bounds.Max - bounds.Min) / value;
+            var bigger = (bounds.Max - bounds.Min) / (value * 2);
+            var smaller = (bounds.Max - bounds.Min) / (value / 2);
+
+            if (thisOne < 10 && bigger < 10 && smaller < 10)
+            {
+                return FigureTickValue(bounds, value / 2);
+            }
+
+            if (thisOne > 10 && bigger > 10 && smaller > 10)
+            {
+                return FigureTickValue(bounds, value * 2);
+            }
+
+            var numbers = new[] { value, value * 2, value / 2 };
+
+            return numbers.OrderBy(v => Math.Abs((long)((bounds.Max - bounds.Min) / v) - 10)).First();
         }
     }
 

@@ -142,6 +142,7 @@
     </Compile>
     <Compile Include="UIColorExtensions.cs" />
     <Compile Include="StructureParameterListViewController.cs" />
+    <Compile Include="AxisNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />

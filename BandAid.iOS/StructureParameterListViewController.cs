@@ -23,7 +23,7 @@ namespace BandAid.iOS
         {
             base.ViewDidLoad();
 			
-            TableView.RegisterClassForCellReuse(typeof(UITableViewCell), "paramCell");
+            TableView.RegisterClassForCellReuse(typeof(UITableViewCell), new NSString("paramCell"));
             TableView.Source = new ParameterListSource(ViewModel);
             TableView.ContentInset = new UIEdgeInsets(64, 0, 0, 0);
         }

@@ -76,6 +76,16 @@ namespace Band
                 LineThickness = 2
             };
 
+            if (ParentStructure.Layers.IndexOf(this) > 0)
+            {
+                var previousMaterial = ParentStructure.Layers[ParentStructure.Layers.IndexOf(this) - 1];
+                dataset.DataPoints.Add(new PlotDataPoint
+                {
+                    X = offset.Nanometers,
+                    Y = previousMaterial.GetElectricFieldDataset(Length.Zero).DataPoints.Last().Y
+                });
+            }
+
             foreach (var point in EvalPoints)
             {
                 var location = point.Location + offset;
