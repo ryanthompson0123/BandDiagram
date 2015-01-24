@@ -15,6 +15,7 @@ namespace BandAid.iOS
         public double MinX { get; set; }
         public double MaxX { get; set; }
 
+        public float TopMargin { get; set; }
         public float LeftYAxisMargin { get; set; }
         public float RightYAxisMargin { get; set; }
 
@@ -27,14 +28,12 @@ namespace BandAid.iOS
         private AxisNode leftNode;
         private AxisNode bottomNode;
 
-        private SizeF size;
-
         public StructurePlotScene(SizeF size, StructureViewModel structure)
             : base(size)
         {
-            this.size = size;
-
+            TopMargin = 50f;
             LeftYAxisMargin = 100f;
+            RightYAxisMargin = 100f;
             XAxisMargin = 100f;
 
             BackgroundColor = UIColor.GroupTableViewBackgroundColor;
@@ -59,7 +58,7 @@ namespace BandAid.iOS
             SetUpPlot();
         }
 
-        private void SetUpPlot()
+        public void SetUpPlot()
         {
             if (plotNode != null)
             {
@@ -80,18 +79,18 @@ namespace BandAid.iOS
             }
 
             plotNode = new PlotNode(Structure.PlotSteps, new SizeF(
-                size.Width - LeftYAxisMargin - RightYAxisMargin,
-                size.Height - XAxisMargin));
+                Size.Width - LeftYAxisMargin - RightYAxisMargin,
+                Size.Height - XAxisMargin - TopMargin));
             plotNode.Position = new PointF(LeftYAxisMargin, XAxisMargin);
             plotNode.PlotStep(Structure.CurrentStep);
             AddChild(plotNode);
 
-            leftNode = new AxisNode(Structure.PlotSteps, Axis.Left, new SizeF(100f, size.Height - XAxisMargin));
+            leftNode = new AxisNode(Structure.PlotSteps, Axis.Left, new SizeF(100f, Size.Height - XAxisMargin - TopMargin));
             leftNode.Position = new PointF(0, XAxisMargin);
             AddChild(leftNode);
 
             bottomNode = new AxisNode(Structure.PlotSteps, Axis.Bottom, 
-                new SizeF(size.Width - LeftYAxisMargin - RightYAxisMargin, 100f));
+                new SizeF(Size.Width - LeftYAxisMargin - RightYAxisMargin, 100f));
             bottomNode.Position = new PointF(LeftYAxisMargin, 0);
             AddChild(bottomNode);
         }

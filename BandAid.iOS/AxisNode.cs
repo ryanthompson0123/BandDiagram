@@ -13,6 +13,47 @@ namespace BandAid.iOS
     {
         private readonly PlotAnimationGrouping plotGrouping;
         private readonly SizeF size;
+        private readonly Axis axis;
+
+        private SKLabelNode titleNode;
+
+        private string titleValue;
+        public string Title
+        {
+            get { return titleValue; }
+            set
+            {
+                titleValue = value;
+                if (titleNode != null)
+                {
+                    titleNode.RemoveFromParent();
+                    titleNode = null;
+                }
+
+                titleNode = new SKLabelNode("HelveticaNeue-Bold");
+                titleNode.FontSize = 20f;
+                titleNode.FontColor = UIColor.Black;
+
+                titleNode.Text = titleValue;
+
+                switch (axis)
+                {
+                    case Axis.Left:
+                        titleNode.ZRotation = (float)Math.PI / 2;
+                        titleNode.Position = new PointF(size.Width / 4, size.Height / 2);
+                        break;
+                    case Axis.Right:
+                        titleNode.ZRotation = (float)-Math.PI / 2;
+                        titleNode.Position = new PointF(3 * size.Width / 4, size.Height / 2);
+                        break;
+                    case Axis.Bottom:
+                        titleNode.Position = new PointF(size.Width / 2, size.Height / 4);
+                        break;
+                }
+
+                AddChild(titleNode);
+            }
+        }
 
         public AxisNode(PlotAnimationGrouping plotGrouping, Axis axis, SizeF size)
         {
@@ -20,14 +61,17 @@ namespace BandAid.iOS
 
             this.size = size;
             this.plotGrouping = plotGrouping;
+            this.axis = axis;
 
             switch (axis)
             {
                 case Axis.Left:
                     DrawLeftAxis();
+                    Title = plotGrouping.Plots[0].YAxisLabel;
                     break;
                 case Axis.Bottom:
                     DrawBottomAxis();
+                    Title = plotGrouping.Plots[0].XAxisLabel;
                     break;
                 default:
                     break;

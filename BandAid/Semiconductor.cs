@@ -378,7 +378,7 @@ namespace Band
                 dataset.DataPoints.Add(new PlotDataPoint
                 {
                     X = location.Nanometers, 
-                    Y = charge.CoulombsPerSquareCentimeter
+                    Y = charge.PointOneGigaCoulombsPerSquareCentimeter
                 });
             }
 

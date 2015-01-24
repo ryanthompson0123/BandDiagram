@@ -17,6 +17,8 @@ namespace BandAid.iOS
 
         private StructureParameterListViewController parameterList;
 
+        private StructurePlotScene plotScene;
+
         public StructureViewController(IntPtr handle)
             : base(handle)
         {
@@ -39,7 +41,8 @@ namespace BandAid.iOS
 
             plotView.ShowsFPS = true;
             plotView.ShowsNodeCount = true;
-            plotView.PresentScene(new StructurePlotScene(plotView.Bounds.Size, Structure));
+            plotScene = new StructurePlotScene(plotView.Bounds.Size, Structure);
+            plotView.PresentScene(plotScene);
         }
 
         public override void ViewWillAppear(bool animated)
@@ -71,8 +74,8 @@ namespace BandAid.iOS
 
         void Structure_PropertyChanged (object sender, PropertyChangedEventArgs e)
         {
-            minVoltageLabel.Text = Structure.MinVoltage.Volts.ToString();
-            maxVoltageLabel.Text = Structure.MaxVoltage.Volts.ToString();
+            //minVoltageLabel.Text = Structure.MinVoltage.Volts.ToString();
+            //maxVoltageLabel.Text = Structure.MaxVoltage.Volts.ToString();
             biasSlider.MinValue = (float)Structure.MinVoltage.Volts;
             biasSlider.MaxValue = (float)Structure.MaxVoltage.Volts;
 
@@ -89,7 +92,7 @@ namespace BandAid.iOS
             var roundedValue = Math.Round(roundValue, MidpointRounding.AwayFromZero);
             var realValue = roundedValue / roundingFactor;
 
-            zeroVoltageLabel.Text = realValue.ToString();
+            zeroVoltageLabel.Text = realValue.ToString() + " V";
             Structure.CurrentVoltage = new ElectricPotential(realValue);
         }
 
@@ -105,6 +108,8 @@ namespace BandAid.iOS
                     parameterList.View.Frame = new RectangleF(-200, 0, 
                         200, View.Frame.Height);
                     View.LayoutIfNeeded();
+                    //plotScene.Size = new SizeF(View.Frame.Width + 200, View.Frame.Height);
+                    plotScene.SetUpPlot();
                 });
 
                 toggleIsOpen = false;
@@ -123,6 +128,8 @@ namespace BandAid.iOS
                     parameterList.View.Frame = new RectangleF(0, 0, 
                         200, View.Frame.Height);
                     View.LayoutIfNeeded();
+                    //plotScene.Size = new SizeF(View.Frame.Width - 200, View.Frame.Height);
+                    plotScene.SetUpPlot();
                 });
 
                 toggleIsOpen = true;

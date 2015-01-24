@@ -16,6 +16,11 @@ namespace Band.Units
             get { return CoulombsPerSquareMeter / 1E4; }
         }
 
+        public double PointOneGigaCoulombsPerSquareCentimeter
+        {
+            get { return CoulombsPerSquareMeter / 1E13; }
+        }
+
         public double ElectronsPerSquareMeter
         {
             get { return CoulombsPerSquareMeter / ElectricCharge.Elementary.Coulombs; }
