@@ -361,7 +361,7 @@ namespace Band
                 LineThickness = 2
             };
 
-            for (var i = 0; i < EvalPoints.Count; i++)
+            for (var i = 1; i < EvalPoints.Count; i++)
             {
                 var location = EvalPoints[i].Location + offset;
                 var charge = EvalPoints[i].ChargeDensity;
@@ -378,7 +378,7 @@ namespace Band
                 dataset.DataPoints.Add(new PlotDataPoint
                 {
                     X = location.Nanometers, 
-                    Y = charge.PointOneGigaCoulombsPerSquareCentimeter
+                    Y = charge.MicroCoulombsPerSquareCentimeter
                 });
             }
 
