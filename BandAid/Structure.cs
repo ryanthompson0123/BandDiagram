@@ -352,8 +352,10 @@ namespace Band
                 EvaluateSemiconductor();
             }
 
+            /*
             Debug.WriteLine(String.Format("Evaluation finished after {0} iterations in {1} ms", 
                 iterationNumber, stopwatch.ElapsedMilliseconds));
+            */
         }
 
         private void EvaluateSemiconductor()

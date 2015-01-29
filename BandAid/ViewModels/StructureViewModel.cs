@@ -35,18 +35,18 @@ namespace Band
                 {
                     if (e.PropertyName == "Layers")
                     {
-                        StructureSteps = new Dictionary<ElectricPotential, Structure>();
+                        StructureSteps = new Dictionary<int, Structure>();
                         RecalculateAllSteps();
                     }
                 };
 
-                StructureSteps = new Dictionary<ElectricPotential, Structure>();
+                StructureSteps = new Dictionary<int, Structure>();
                 RecalculateAllSteps();
             }
         }
 
-        private Dictionary<ElectricPotential, Structure> structureStepsValue;
-        public Dictionary<ElectricPotential, Structure> StructureSteps
+        private Dictionary<int, Structure> structureStepsValue;
+        public Dictionary<int, Structure> StructureSteps
         {
             get { return structureStepsValue; }
             set
@@ -139,6 +139,14 @@ namespace Band
             ReferenceStructure = CreateSiO2TestStructure();
         }
 
+        public void Set(double maxVoltage, double minVoltage, double stepSize)
+        {
+            maxVoltageValue = new ElectricPotential(maxVoltage);
+            minVoltageValue = new ElectricPotential(minVoltage);
+            stepSizeValue = new ElectricPotential(stepSize);
+            RecalculateAllSteps();
+        }
+
         private async void RecalculateAllSteps()
         {
             if (!ReferenceStructure.IsValid) return;
@@ -148,11 +156,11 @@ namespace Band
                 Debug.WriteLine(String.Format("Beginning calculation of {0} steps", StepCount));
                 var stopwatch = Stopwatch.StartNew();
 
-                var steps = Enumerable.Range(0, StepCount).Select(s => PotentialForStep(s))
-                .ToDictionary(p => p, p =>
+                var steps = Enumerable.Range(0, StepCount).Select(s => PotentialForStep(s).RoundMillivolts)
+                    .ToDictionary(p => p, p =>
                 {
                     return StructureSteps.ContainsKey(p) ? StructureSteps[p] : 
-                        ReferenceStructure.DeepClone(p, new Temperature(300.0));
+                        ReferenceStructure.DeepClone(ElectricPotential.FromMillivolts((double)p), new Temperature(300.0));
                 });
 
                 Debug.WriteLine(String.Format("Finished all calculations in {0} ms", stopwatch.ElapsedMilliseconds));
@@ -169,7 +177,7 @@ namespace Band
             if (StructureSteps.Count == 0) return;
 
             PlotSteps = PlotAnimationGrouping.Create(StructureSteps.Keys
-                .OrderBy(k => k.Volts)
+                .OrderBy(k => k)
                 .Select(k => CreatePlot(StructureSteps[k]))
                 .ToList());
         }
@@ -204,7 +212,7 @@ namespace Band
                 thickness += layer.Thickness;
             }
 
-            Debug.WriteLine(String.Format("Created plot in {0} ms", stopwatch.ElapsedMilliseconds));
+            //Debug.WriteLine(String.Format("Created plot in {0} ms", stopwatch.ElapsedMilliseconds));
             return plot;
         }
 

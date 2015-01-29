@@ -27,6 +27,15 @@ namespace Band.Units
 			}
 		}
 
+        public int RoundMillivolts
+        {
+            get
+            {
+                var mvInt = (int)Millivolts;
+                return ((int)Math.Round(mvInt / 10.0)) * 10;
+            }
+        }
+
 		public static ElectricPotential Zero
 		{
 			get { return new ElectricPotential(0); }
@@ -129,12 +138,12 @@ namespace Band.Units
 
 		public static bool operator ==(ElectricPotential left, ElectricPotential right)
 		{
-			return left.Volts == right.Volts;
+            return Math.Abs(left.Volts - right.Volts) < 0.0001;
 		}
 
 		public static bool operator !=(ElectricPotential left, ElectricPotential right)
 		{
-			return left.Volts != right.Volts;
+            return Math.Abs(left.Volts - right.Volts) > 0.0001;
 		}
 
         public static implicit operator Energy(ElectricPotential p)

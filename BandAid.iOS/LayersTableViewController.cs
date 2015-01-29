@@ -24,6 +24,8 @@ namespace BandAid.iOS
             NavigationItem.RightBarButtonItems = RightBarButtonItems;
             TableView.Source = new LayersTableSource(this);
             TableView.SetEditing(true, false);
+
+            PreferredContentSize = new SizeF(360, 540);
         }
 
         private UIBarButtonItem[] RightBarButtonItems

@@ -39,19 +39,19 @@ namespace BandAid.iOS
 
             public override string TitleForHeader(UITableView tableView, int section)
             {
-                return viewModel.StructureSteps[viewModel.CurrentVoltage].Layers[section].Name;
+                return viewModel.StructureSteps[viewModel.CurrentVoltage.RoundMillivolts].Layers[section].Name;
             }
 
             public override int NumberOfSections(UITableView tableView)
             {
                 if (viewModel.StructureSteps.Count == 0) return 0;
 
-                return viewModel.StructureSteps[viewModel.CurrentVoltage].Layers.Count;
+                return viewModel.StructureSteps[viewModel.CurrentVoltage.RoundMillivolts].Layers.Count;
             }
 
             public override int RowsInSection(UITableView tableview, int section)
             {
-                var material = viewModel.StructureSteps[viewModel.CurrentVoltage].Layers[section];
+                var material = viewModel.StructureSteps[viewModel.CurrentVoltage.RoundMillivolts].Layers[section];
 
                 return material is Metal ? 0 : 2;
             }
@@ -59,7 +59,7 @@ namespace BandAid.iOS
             public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
             {
                 var cell = new UITableViewCell(UITableViewCellStyle.Value1, "paramCell");
-                var material = viewModel.StructureSteps[viewModel.CurrentVoltage].Layers[indexPath.Section];
+                var material = viewModel.StructureSteps[viewModel.CurrentVoltage.RoundMillivolts].Layers[indexPath.Section];
 
                 if (indexPath.Row == 0)
                 {

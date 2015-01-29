@@ -28,6 +28,8 @@ namespace BandAid.iOS
 			
             LoadMaterials();
             TableView.Source = new MaterialSource(this);
+
+            PreferredContentSize = new SizeF(360, 540);
         }
 
         private void LoadMaterials()

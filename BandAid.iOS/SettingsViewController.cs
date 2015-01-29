@@ -25,39 +25,96 @@ namespace BandAid.iOS
             minVoltageField.Text = Structure.MinVoltage.Volts.ToString();
             maxVoltageField.Text = Structure.MaxVoltage.Volts.ToString();
             stepSizeField.Text = Structure.StepSize.Volts.ToString();
+
+            TableView.Delegate = new SettingsViewDelegate(this);
         }
 
         public override void ViewDidAppear(bool animated)
         {
-            base.ViewDidAppear(animated);
+            base.ViewWillAppear(animated);
 
-            minVoltageField.EditingChanged += minVoltageField_ValueChanged;
-            maxVoltageField.EditingChanged += maxVoltageField_ValueChanged;
-            stepSizeField.EditingChanged += stepSizeField_ValueChanged;
+            minVoltageField.EditingChanged += minVoltageField_EditingChanged;
+            maxVoltageField.EditingChanged += maxVoltageField_EditingChanged;
+            stepSizeField.EditingChanged += stepSizeField_EditingChanged;
         }
 
         public override void ViewWillDisappear(bool animated)
         {
             base.ViewWillDisappear(animated);
 
-            minVoltageField.ValueChanged -= minVoltageField_ValueChanged;
-            maxVoltageField.ValueChanged -= maxVoltageField_ValueChanged;
-            stepSizeField.ValueChanged -= stepSizeField_ValueChanged;
+            if (somethingChanged)
+            {
+                Structure.Set(
+                    ParseOrDefault(maxVoltageField.Text, 2.0),
+                    ParseOrDefault(minVoltageField.Text, -2.0),
+                    ParseOrDefault(stepSizeField.Text, 0.25)
+                );
+            }
+
+            minVoltageField.EditingChanged -= minVoltageField_EditingChanged;
+            maxVoltageField.EditingChanged -= maxVoltageField_EditingChanged;
+            stepSizeField.EditingChanged -= stepSizeField_EditingChanged;
         }
 
-        private void minVoltageField_ValueChanged(object sender, EventArgs e)
+        private static double ParseOrDefault(string s, double fallback)
         {
-            Structure.MinVoltage = new ElectricPotential(Double.Parse(minVoltageField.Text));
+            double value;
+            if (Double.TryParse(s, out value))
+            {
+                return value;
+            }
+
+            return fallback;
         }
 
-        private void maxVoltageField_ValueChanged(object sender, EventArgs e)
+        private bool somethingChanged;
+
+        private void minVoltageField_EditingChanged(object sender, EventArgs e)
         {
-            Structure.MaxVoltage = new ElectricPotential(Double.Parse(maxVoltageField.Text));
+            somethingChanged = true;
         }
 
-        private void stepSizeField_ValueChanged(object sender, EventArgs e)
+        private void maxVoltageField_EditingChanged(object sender, EventArgs e)
         {
-            Structure.StepSize = new ElectricPotential(Double.Parse(stepSizeField.Text));
+            somethingChanged = true;
+        }
+
+        private void stepSizeField_EditingChanged(object sender, EventArgs e)
+        {
+            somethingChanged = true;
+        }
+
+        public void OnRowSelected(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    minVoltageField.BecomeFirstResponder();
+                    minVoltageField.SelectAll(this);
+                    break;
+                case 1:
+                    maxVoltageField.BecomeFirstResponder();
+                    maxVoltageField.SelectAll(this);
+                    break;
+                case 2:
+                    stepSizeField.BecomeFirstResponder();
+                    stepSizeField.SelectAll(this);
+                    break;
+            }
+        }
+
+        class SettingsViewDelegate : UITableViewDelegate
+        {
+            private readonly SettingsViewController viewController;
+            public SettingsViewDelegate(SettingsViewController viewController)
+            {
+                this.viewController = viewController;
+            }
+
+            public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
+            {
+                viewController.OnRowSelected(indexPath.Row);
+            }
         }
     }
 }

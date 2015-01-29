@@ -8,6 +8,7 @@ using MonoTouch.SpriteKit;
 using Band;
 using System.ComponentModel;
 using Band.Units;
+using System.Threading.Tasks;
 
 namespace BandAid.iOS
 {
@@ -154,15 +155,57 @@ namespace BandAid.iOS
             }
         }
 
+        private async void OnPlayClicked(object sender, EventArgs e)
+        {
+            chartSegments.UserInteractionEnabled = false;
+            biasSlider.UserInteractionEnabled = false;
+
+            var max = new ElectricPotential(biasSlider.MaxValue).RoundMillivolts;
+            var min = new ElectricPotential(biasSlider.MinValue).RoundMillivolts;
+            var step = Structure.StepSize.RoundMillivolts;
+            var delay = 2000 / ((max - min) / step);    // Whole animation should take 2s
+
+            await Task.Run(async () =>
+            {
+                for (var i = min; i <= max; i += step)
+                {
+                    if (i == min)
+                    {
+                        InvokeOnMainThread(() => 
+                        {
+                            biasSlider.SetValue((float)i / (float)1000.0, false);
+                            biasSlider_ValueChanged(this, EventArgs.Empty);
+                        });
+                    }
+                    else
+                    {
+                        InvokeOnMainThread(() => 
+                        {
+                            biasSlider.SetValue((float)i / (float)1000.0, true);
+                            biasSlider_ValueChanged(this, EventArgs.Empty);
+                        });
+                    }
+
+                    await Task.Delay(delay);
+                }
+            });
+
+            chartSegments.UserInteractionEnabled = true;
+            biasSlider.UserInteractionEnabled = true;
+        }
+
         private UIBarButtonItem[] RightBarButtonItems
         {
             get
             {
+                var playButton = new UIBarButtonItem(UIBarButtonSystemItem.Play);
+                playButton.Clicked += OnPlayClicked;
+
                 return new []
                 {
                     new UIBarButtonItem(UIBarButtonSystemItem.Action),
                     NavigationItem.RightBarButtonItem,
-                    new UIBarButtonItem(UIBarButtonSystemItem.Play)
+                    playButton
                 };
             }
         }
