@@ -56,6 +56,11 @@ namespace BandAid.iOS
                     SetUpPlot();
                 }
             };
+        }
+
+        public override void DidMoveToView(SKView view)
+        {
+            base.DidMoveToView(view);
 
             SetUpPlot();
         }
@@ -95,13 +100,27 @@ namespace BandAid.iOS
                 new SizeF(Size.Width - LeftYAxisMargin - RightYAxisMargin, 100f));
             bottomNode.Position = new PointF(LeftYAxisMargin, 0);
             AddChild(bottomNode);
+        }
+
+        private bool screenshotNextFrame = false;
+
+        public override void Update(double currentTime)
+        {
+            base.Update(currentTime);
+
+            if (screenshotNextFrame)
+            {
+                TakeScreenshot();
+                screenshotNextFrame = false;
+            }
 
             if (Structure.NeedsScreenshot)
             {
-                TakeScreenshot();
+                screenshotNextFrame = true;
                 Structure.NeedsScreenshot = false;
             }
         }
+
 
         public void TakeScreenshot()
         {
@@ -118,8 +137,8 @@ namespace BandAid.iOS
             var documents = NSFileManager.DefaultManager.GetUrls(
                 NSSearchPathDirectory.DocumentDirectory, 
                 NSSearchPathDomain.User)[0].Path;
-
-            var outfile = Path.Combine(documents, Structure.Name + ".png");
+            var outDir = Path.Combine(documents, "save");
+            var outfile = Path.Combine(outDir, Structure.Name + ".png");
 
             File.WriteAllBytes(outfile, bytes);
         }

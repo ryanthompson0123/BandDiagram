@@ -155,6 +155,20 @@ namespace Band
             ReferenceStructure = CreateSiO2TestStructure();
         }
 
+        public StructureViewModel(double currentVoltage, double minVoltage, double maxVoltage,
+            double stepSize, PlotType plotType, Structure refStructure, string name)
+        {
+            currentVoltageValue = new ElectricPotential(currentVoltage);
+            minVoltageValue = new ElectricPotential(minVoltage);
+            maxVoltageValue = new ElectricPotential(maxVoltage);
+            stepSizeValue = new ElectricPotential(stepSize);
+            nameValue = name;
+            plotTypeValue = plotType;
+
+            currentStepValue = StepForPotential(CurrentVoltage);
+            ReferenceStructure = refStructure;
+        }
+
         public void Set(double maxVoltage, double minVoltage, double stepSize)
         {
             maxVoltageValue = new ElectricPotential(maxVoltage);

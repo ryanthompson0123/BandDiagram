@@ -32,8 +32,12 @@ namespace BandAid.iOS
         {
             base.ViewDidLoad();
 			
-            Structure = new StructureViewModel();
-            Structure.Name = FigureOutNextName();
+            if (Structure == null)
+            {
+                Structure = new StructureViewModel();
+                Structure.Name = FigureOutNextName();
+            }
+
             Structure.SaveStructure += SaveStructure;
             parameterList = new StructureParameterListViewController(Structure);
             parameterList.View.Frame = new RectangleF(-200f, 0f, 200f, View.Frame.Height);
@@ -57,6 +61,13 @@ namespace BandAid.iOS
 
             biasSlider.ValueChanged += biasSlider_ValueChanged;
             chartSegments.ValueChanged += chartSegments_ValueChanged;
+        }
+
+        public override void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+
+            plotScene.TakeScreenshot();
         }
 
         void chartSegments_ValueChanged (object sender, EventArgs e)
@@ -270,8 +281,9 @@ namespace BandAid.iOS
         private string FigureOutNextName()
         {
             var nextName = "MyStructure";
+            var outDir = Path.Combine(DocumentsPath, "save");
 
-            var nextPath = Path.Combine(DocumentsPath, nextName + ".json");
+            var nextPath = Path.Combine(outDir, nextName + ".json");
             var nextNumber = 0;
             var tryAgain = File.Exists(nextPath);
 
@@ -279,7 +291,7 @@ namespace BandAid.iOS
             {
                 nextNumber++;
                 nextName = "MyStructure" + nextNumber;
-                nextPath = Path.Combine(DocumentsPath, nextName + ".json");
+                nextPath = Path.Combine(outDir, nextName + ".json");
                 tryAgain = File.Exists(nextPath);
             }
 
@@ -299,7 +311,8 @@ namespace BandAid.iOS
                                 new StructureConverter());
             obj["referenceStructure"] = JObject.Parse(structure);
 
-            var filename = Path.Combine(DocumentsPath, vm.Name + ".json");
+            var outDir = Path.Combine(DocumentsPath, "save");
+            var filename = Path.Combine(outDir, vm.Name + ".json");
 
             Console.WriteLine(filename);
             File.WriteAllText(filename, obj.ToString());

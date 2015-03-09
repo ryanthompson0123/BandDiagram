@@ -11,7 +11,7 @@ namespace Band
     {
         protected override Metal Deserialize(Type objectType, JObject jObject)
         {
-            var metal = new Metal(Length.Zero)
+            var metal = new Metal(StructureConverter.GetThickness(jObject))
             {
                 Name = (string)jObject["name"],
                 Notes = (string)jObject["notes"],
@@ -31,6 +31,7 @@ namespace Band
             obj["fillColor"] = value.FillColor;
             obj["thickness"] = value.Thickness.Nanometers;
             obj["workFunction"] = value.WorkFunction.ElectronVolts;
+            obj["materialType"] = "metal";
 
             return obj;
         }
@@ -40,7 +41,7 @@ namespace Band
     {
         protected override Dielectric Deserialize(Type objectType, JObject jObject)
         {
-            return new Dielectric(Length.Zero)
+            return new Dielectric(StructureConverter.GetThickness(jObject))
             {
                 Name = (string)jObject["name"],
                 Notes = (string)jObject["notes"],
@@ -63,13 +64,26 @@ namespace Band
             obj["dielectricConstant"] = value.DielectricConstant;
             obj["electronAffinity"] = value.ElectronAffinity.ElectronVolts;
             obj["thickness"] = value.Thickness.Nanometers;
-
+            obj["materialType"] = "dielectric";
             return obj;
         }
     }
 
     public class SemiconductorConverter : ExtendedJsonConverter<Semiconductor>
     {
+        private DopingType GetDopingType(JObject jObject)
+        {
+            switch ((string)jObject["dopingType"])
+            {
+                case "N":
+                    return DopingType.N;
+                case "P":
+                    return DopingType.P;
+                default:
+                    return DopingType.P;
+            }
+        }
+
         protected override Semiconductor Deserialize(Type objectType, JObject jObject)
         {
             return new Semiconductor
@@ -83,8 +97,9 @@ namespace Band
                     (double)jObject["intrinsicCarrierConcentration"]),
                 DopantConcentration = Concentration.FromPerCubicCentimeter(
                     (double)jObject["dopantConcentration"]),
-                ElectronAffinity = Energy.FromElectronVolts((
-                    double)jObject["electronAffinity"])
+                ElectronAffinity = Energy.FromElectronVolts(
+                    (double)jObject["electronAffinity"]),
+                DopingType = GetDopingType(jObject)
             };
         }
 
@@ -101,7 +116,8 @@ namespace Band
                 .PerCubicCentimeter;
             obj["dopantConcentration"] = value.DopantConcentration.PerCubicCentimeter;
             obj["electronAffinity"] = value.ElectronAffinity.ElectronVolts;
-            obj["thickness"] = value.Thickness.Nanometers;
+            obj["materialType"] = "semiconductor";
+            obj["dopingType"] = value.DopingType == DopingType.N ? "N" : "P";
 
             return obj;
         }
@@ -109,17 +125,43 @@ namespace Band
 
     public class StructureConverter : ExtendedJsonConverter<Structure>
     {
+        public static Length GetThickness(JObject jObject)
+        {
+            if (jObject["thickness"] == null) return Length.Zero;
+
+            return Length.FromNanometers((double)jObject["thickness"]);
+        }
+
         protected override Structure Deserialize(Type objectType, JObject jObject)
         {
             var layerList = new List<Material>();
 
-            foreach (var layer in jObject["layers"])
+            foreach (string layer in jObject["layers"])
             {
-                var dLayer = JsonConvert.DeserializeObject<Material>(layer.ToString(),
-                                 new SemiconductorConverter(), new MetalConverter(),
-                                 new DielectricConverter());
+                Material dLayer = null;
+                var layerObj = JObject.Parse(layer);
+                switch ((string)layerObj["materialType"])
+                {
+                    case "metal":
+                        dLayer = JsonConvert.DeserializeObject<Metal>(layer,
+                            new MetalConverter());
+                        break;
+                    case "dielectric":
+                        dLayer = JsonConvert.DeserializeObject<Dielectric>(layer,
+                            new DielectricConverter());
+                        break;
+                    case "semiconductor":
+                        dLayer = JsonConvert.DeserializeObject<Semiconductor>(layer,
+                            new SemiconductorConverter());
+                        break;
+                    default:
+                        break;
+                }
 
-                layerList.Add(dLayer);
+                if (dLayer != null)
+                {
+                    layerList.Add(dLayer);
+                }
             }
 
             var structure = new Structure(layerList);

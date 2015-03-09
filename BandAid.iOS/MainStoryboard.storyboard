@@ -30,20 +30,35 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="BXM-6p-2ui">
-                            <size key="itemSize" width="50" height="50"/>
+                            <size key="itemSize" width="334" height="251"/>
                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
                             <size key="footerReferenceSize" width="0.0" height="0.0"/>
                             <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                         </collectionViewFlowLayout>
                         <cells>
-                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="9va-Gn-3Go">
+                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="structureGridItem" id="9va-Gn-3Go" customClass="StructureCollectionViewCell">
                                 <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                    <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="334" height="251"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2fm-Ld-AUn">
+                                            <rect key="frame" x="0.0" y="0.0" width="334" height="207"/>
+                                        </imageView>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bhC-6C-zLJ">
+                                            <rect key="frame" x="8" y="209" width="318" height="34"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 </view>
+                                <connections>
+                                    <outlet property="imageView" destination="2fm-Ld-AUn" id="Evm-O8-w45"/>
+                                    <outlet property="titleLabel" destination="bhC-6C-zLJ" id="sfb-bP-Rzt"/>
+                                </connections>
                             </collectionViewCell>
                         </cells>
                         <connections>
@@ -55,10 +70,13 @@
                         <barButtonItem key="leftBarButtonItem" title="Help" id="Far-lU-Uw9"/>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="COj-Mx-hla">
                             <connections>
-                                <segue destination="En7-En-Z5w" kind="modal" id="0uh-hn-e5v"/>
+                                <action selector="AddTouched:" destination="JuH-7I-Laj" id="yll-1s-vZn"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <segue destination="En7-En-Z5w" kind="modal" identifier="showStructure" id="oWO-vz-4oz"/>
+                    </connections>
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Mo4-U7-dmw" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

@@ -144,6 +144,10 @@
     <Compile Include="UIColorExtensions.cs" />
     <Compile Include="StructureParameterListViewController.cs" />
     <Compile Include="AxisNode.cs" />
+    <Compile Include="StructureCollectionViewCell.cs" />
+    <Compile Include="StructureCollectionViewCell.designer.cs">
+      <DependentUpon>StructureCollectionViewCell.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />
