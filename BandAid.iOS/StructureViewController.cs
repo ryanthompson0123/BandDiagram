@@ -9,6 +9,9 @@ using Band;
 using System.ComponentModel;
 using Band.Units;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.IO;
 
 namespace BandAid.iOS
 {
@@ -30,6 +33,8 @@ namespace BandAid.iOS
             base.ViewDidLoad();
 			
             Structure = new StructureViewModel();
+            Structure.Name = FigureOutNextName();
+            Structure.SaveStructure += SaveStructure;
             parameterList = new StructureParameterListViewController(Structure);
             parameterList.View.Frame = new RectangleF(-200f, 0f, 200f, View.Frame.Height);
             //View.AddSubview(parameterList.View);
@@ -135,6 +140,11 @@ namespace BandAid.iOS
 
                 toggleIsOpen = true;
             }
+        }
+
+        async partial void StructuresTouched(NSObject sender)
+        {
+            await NavigationController.PresentingViewController.DismissViewControllerAsync(true);
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
@@ -245,6 +255,54 @@ namespace BandAid.iOS
             }
 
             return array;
+        }
+
+        private string DocumentsPath
+        {
+            get
+            {
+                return NSFileManager.DefaultManager.GetUrls(
+                    NSSearchPathDirectory.DocumentDirectory, 
+                    NSSearchPathDomain.User)[0].Path;
+            }
+        }
+
+        private string FigureOutNextName()
+        {
+            var nextName = "MyStructure";
+
+            var nextPath = Path.Combine(DocumentsPath, nextName + ".json");
+            var nextNumber = 0;
+            var tryAgain = File.Exists(nextPath);
+
+            while (tryAgain)
+            {
+                nextNumber++;
+                nextName = "MyStructure" + nextNumber;
+                nextPath = Path.Combine(DocumentsPath, nextName + ".json");
+                tryAgain = File.Exists(nextPath);
+            }
+
+            return nextName;
+        }
+
+        private void SaveStructure(StructureViewModel vm)
+        {
+            var obj = new JObject();
+            obj["name"] = vm.Name;
+            obj["minVoltage"] = vm.MinVoltage.Volts;
+            obj["maxVoltage"] = vm.MaxVoltage.Volts;
+            obj["stepSize"] = vm.StepSize.Volts;
+            obj["currentStep"] = vm.CurrentVoltage.Volts;
+
+            var structure = JsonConvert.SerializeObject(vm.ReferenceStructure,
+                                new StructureConverter());
+            obj["referenceStructure"] = JObject.Parse(structure);
+
+            var filename = Path.Combine(DocumentsPath, vm.Name + ".json");
+
+            Console.WriteLine(filename);
+            File.WriteAllText(filename, obj.ToString());
         }
     }
 }

@@ -17,6 +17,22 @@ namespace Band
 
     public class StructureViewModel : ObservableObject
     {
+        private string nameValue;
+        public string Name
+        {
+            get { return nameValue; }
+            set { SetProperty(ref nameValue, value); }
+        }
+
+        private bool needsScreenshotValue;
+        public bool NeedsScreenshot
+        {
+            get { return needsScreenshotValue; }
+            set { SetProperty(ref needsScreenshotValue, value); }
+        }
+
+        public Action<StructureViewModel> SaveStructure { get; set; }
+
         private PlotAnimationGrouping plotStepsValue;
         public PlotAnimationGrouping PlotSteps
         {
@@ -180,11 +196,17 @@ namespace Band
                 .OrderBy(k => k)
                 .Select(k => CreatePlot(StructureSteps[k]))
                 .ToList());
+
+            NeedsScreenshot = true;
+
+            if (SaveStructure != null)
+            {
+                SaveStructure.Invoke(this);
+            }
         }
 
         private Plot CreatePlot(Structure structure)
         {
-            var stopwatch = Stopwatch.StartNew();
             var plot = Plot.Create(PlotType);
 
             Length thickness = Length.Zero;
@@ -212,7 +234,6 @@ namespace Band
                 thickness += layer.Thickness;
             }
 
-            //Debug.WriteLine(String.Format("Created plot in {0} ms", stopwatch.ElapsedMilliseconds));
             return plot;
         }
 

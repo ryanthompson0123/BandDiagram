@@ -30,6 +30,9 @@ namespace BandAid.iOS
 		[Outlet]
 		MonoTouch.UIKit.UILabel zeroVoltageLabel { get; set; }
 
+		[Action ("StructuresTouched:")]
+		partial void StructuresTouched (MonoTouch.Foundation.NSObject sender);
+
 		[Action ("ToggleTouched:")]
 		partial void ToggleTouched (MonoTouch.Foundation.NSObject sender);
 		

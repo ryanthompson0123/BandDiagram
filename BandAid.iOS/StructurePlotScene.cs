@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Linq;
 using Band;
 using MonoTouch.UIKit;
+using MonoTouch.Foundation;
+using System.IO;
 
 namespace BandAid.iOS
 {
@@ -93,6 +95,33 @@ namespace BandAid.iOS
                 new SizeF(Size.Width - LeftYAxisMargin - RightYAxisMargin, 100f));
             bottomNode.Position = new PointF(LeftYAxisMargin, 0);
             AddChild(bottomNode);
+
+            if (Structure.NeedsScreenshot)
+            {
+                TakeScreenshot();
+                Structure.NeedsScreenshot = false;
+            }
+        }
+
+        public void TakeScreenshot()
+        {
+            UIGraphics.BeginImageContextWithOptions(View.Bounds.Size, false, 0);
+            View.DrawViewHierarchy(this.View.Bounds, true);
+            var image = UIGraphics.GetImageFromCurrentImageContext();
+            UIGraphics.EndImageContext();
+
+            var png = image.AsPNG();
+            var bytes = new byte[png.Length];
+
+            System.Runtime.InteropServices.Marshal.Copy(png.Bytes, bytes, 0, Convert.ToInt32(png.Length));
+
+            var documents = NSFileManager.DefaultManager.GetUrls(
+                NSSearchPathDirectory.DocumentDirectory, 
+                NSSearchPathDomain.User)[0].Path;
+
+            var outfile = Path.Combine(documents, Structure.Name + ".png");
+
+            File.WriteAllBytes(outfile, bytes);
         }
     }
 }
