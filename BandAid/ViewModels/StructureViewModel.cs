@@ -1,7 +1,5 @@
 ﻿using System;
 using Band.Units;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
@@ -24,14 +22,13 @@ namespace Band
             set { SetProperty(ref nameValue, value); }
         }
 
+
         private bool needsScreenshotValue;
         public bool NeedsScreenshot
         {
             get { return needsScreenshotValue; }
             set { SetProperty(ref needsScreenshotValue, value); }
         }
-
-        public Action<StructureViewModel> SaveStructure { get; set; }
 
         private PlotAnimationGrouping plotStepsValue;
         public PlotAnimationGrouping PlotSteps
@@ -212,11 +209,6 @@ namespace Band
                 .ToList());
 
             NeedsScreenshot = true;
-
-            if (SaveStructure != null)
-            {
-                SaveStructure.Invoke(this);
-            }
         }
 
         private Plot CreatePlot(Structure structure)

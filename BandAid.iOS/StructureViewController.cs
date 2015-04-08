@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Drawing;
 
 using MonoTouch.Foundation;
@@ -23,6 +22,8 @@ namespace BandAid.iOS
 
         private StructurePlotScene plotScene;
 
+        public UITextField TitleText { get; set; }
+
         public StructureViewController(IntPtr handle)
             : base(handle)
         {
@@ -37,15 +38,16 @@ namespace BandAid.iOS
                 Structure = new StructureViewModel();
                 Structure.Name = FigureOutNextName();
             }
-
-            Structure.SaveStructure += SaveStructure;
+                
             parameterList = new StructureParameterListViewController(Structure);
             parameterList.View.Frame = new RectangleF(-200f, 0f, 200f, View.Frame.Height);
-            //View.AddSubview(parameterList.View);
+
+            SetUpTitleText();
 
             Structure.PropertyChanged += Structure_PropertyChanged;
             ToolbarItems = GetBottomButtonItems(ToolbarItems);
             NavigationItem.RightBarButtonItems = RightBarButtonItems;
+            NavigationItem.TitleView = TitleText;
 
             View.BackgroundColor = UIColor.GroupTableViewBackgroundColor;
 
@@ -53,6 +55,31 @@ namespace BandAid.iOS
             plotView.ShowsNodeCount = true;
             plotScene = new StructurePlotScene(plotView.Bounds.Size, Structure);
             plotView.PresentScene(plotScene);
+        }
+
+        private void SetUpTitleText()
+        {
+            TitleText = new UITextField(new RectangleF(0, 0, 400, 44))
+            {
+                TextAlignment = UITextAlignment.Center,
+                BackgroundColor = UIColor.Clear,
+                Font = UIFont.BoldSystemFontOfSize(18.0f),
+                Text = Structure.Name,
+                ClearButtonMode = UITextFieldViewMode.WhileEditing
+            };
+
+            TitleText.Ended += (sender, e) =>
+            {
+                if (String.IsNullOrEmpty(TitleText.Text))
+                {
+                    TitleText.Text = Structure.Name;
+                }
+                else
+                {
+                    RenameStructure(Structure.Name, TitleText.Text);
+                    Structure.Name = TitleText.Text;
+                }
+            };
         }
 
         public override void ViewWillAppear(bool animated)
@@ -68,6 +95,18 @@ namespace BandAid.iOS
             base.ViewDidAppear(animated);
 
             plotScene.TakeScreenshot();
+        }
+
+        public override void TouchesBegan(NSSet touches, UIEvent evt)
+        {
+            var touch = (UITouch)evt.AllTouches.AnyObject;
+
+            if (!(touch.View is UITextField))
+            {
+                TitleText.EndEditing(true);
+            }
+
+            base.TouchesBegan(touches, evt);
         }
 
         void chartSegments_ValueChanged (object sender, EventArgs e)
@@ -100,6 +139,11 @@ namespace BandAid.iOS
             {
                 parameterList.TableView.ReloadData();
             }
+
+            if (e.PropertyName == "PlotSteps")
+            {
+                SaveStructure();
+            }
         }
 
         void biasSlider_ValueChanged (object sender, EventArgs e)
@@ -125,7 +169,7 @@ namespace BandAid.iOS
                     parameterList.View.Frame = new RectangleF(-200, 0, 
                         200, View.Frame.Height);
                     View.LayoutIfNeeded();
-                    //plotScene.Size = new SizeF(View.Frame.Width + 200, View.Frame.Height);
+
                     plotScene.SetUpPlot();
                 });
 
@@ -145,7 +189,7 @@ namespace BandAid.iOS
                     parameterList.View.Frame = new RectangleF(0, 0, 
                         200, View.Frame.Height);
                     View.LayoutIfNeeded();
-                    //plotScene.Size = new SizeF(View.Frame.Width - 200, View.Frame.Height);
+
                     plotScene.SetUpPlot();
                 });
 
@@ -298,24 +342,37 @@ namespace BandAid.iOS
             return nextName;
         }
 
-        private void SaveStructure(StructureViewModel vm)
+        private void SaveStructure()
         {
             var obj = new JObject();
-            obj["name"] = vm.Name;
-            obj["minVoltage"] = vm.MinVoltage.Volts;
-            obj["maxVoltage"] = vm.MaxVoltage.Volts;
-            obj["stepSize"] = vm.StepSize.Volts;
-            obj["currentStep"] = vm.CurrentVoltage.Volts;
+            obj["name"] = Structure.Name;
+            obj["minVoltage"] = Structure.MinVoltage.Volts;
+            obj["maxVoltage"] = Structure.MaxVoltage.Volts;
+            obj["stepSize"] = Structure.StepSize.Volts;
+            obj["currentStep"] = Structure.CurrentVoltage.Volts;
 
-            var structure = JsonConvert.SerializeObject(vm.ReferenceStructure,
+            var structure = JsonConvert.SerializeObject(Structure.ReferenceStructure,
                                 new StructureConverter());
             obj["referenceStructure"] = JObject.Parse(structure);
 
             var outDir = Path.Combine(DocumentsPath, "save");
-            var filename = Path.Combine(outDir, vm.Name + ".json");
+            var filename = Path.Combine(outDir, Structure.Name + ".json");
 
             Console.WriteLine(filename);
             File.WriteAllText(filename, obj.ToString());
+        }
+
+        private void RenameStructure(string oldName, string newName)
+        {
+            var outDir = Path.Combine(DocumentsPath, "save");
+            var oldFileName = Path.Combine(outDir, oldName + ".json");
+            var newFileName = Path.Combine(outDir, newName + ".json");
+
+            var oldScreenshotName = Path.Combine(outDir, oldName + ".png");
+            var newScreenshotName = Path.Combine(outDir, newName + ".png");
+
+            File.Move(oldFileName, newFileName);
+            File.Move(oldScreenshotName, newScreenshotName);
         }
     }
 }
