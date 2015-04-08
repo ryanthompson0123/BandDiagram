@@ -1,4 +1,3 @@
-BandAid
-=======
+# BandDiagram
 
-Boise State Energy Band Diagram Simulation Tool
+Readme goes here
