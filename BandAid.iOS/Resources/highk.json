@@ -1,0 +1,47 @@
+{
+  "name": "High-k Stack",
+  "bias": 0,
+  "temperature": 300,
+  "layers": [
+    {
+      "name": "TiN",
+      "notes": null,
+      "fillColor": "#ff0000",
+      "thickness": 4,
+      "workFunction": 4.45,
+      "materialType": "metal"
+    },
+    {
+      "name": "HfO2",
+      "notes": null,
+      "fillColor": "#808040",
+      "bandGap": 5.7,
+      "dielectricConstant": 25,
+      "electronAffinity": 2.65,
+      "thickness": 7,
+      "materialType": "dielectric"
+    },
+    {
+      "name": "SiO2",
+      "notes": null,
+      "fillColor": "#804040",
+      "bandGap": 8.9,
+      "dielectricConstant": 3.9,
+      "electronAffinity": 0.95,
+      "thickness": 2,
+      "materialType": "dielectric"
+    },
+    {
+      "name": "Si",
+      "notes": null,
+      "fillColor": "#00ff00",
+      "bandGap": 1.1252,
+      "dielectricConstant": 11.7,
+      "intrinsicCarrierConcentration": 14100000000,
+      "dopantConcentration": 1000000000000000000,
+      "electronAffinity": 4.05,
+      "materialType": "semiconductor",
+      "dopingType": "N"
+    }
+  ]
+}

@@ -10,7 +10,7 @@ namespace BandAid.iOS
 {
     public partial class LayersTableViewController : UITableViewController
     {
-        public StructureViewModel Structure { get; set; }
+        public TestBenchViewModel Structure { get; set; }
 
         public LayersTableViewController(IntPtr handle)
             : base(handle)

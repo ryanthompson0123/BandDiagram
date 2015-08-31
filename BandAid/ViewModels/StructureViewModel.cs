@@ -13,16 +13,8 @@ namespace Band
         Energy, Potential, ChargeDensity, ElectricField
     }
 
-    public class StructureViewModel : ObservableObject
+    public class TestBenchViewModel : ObservableObject
     {
-        private string nameValue;
-        public string Name
-        {
-            get { return nameValue; }
-            set { SetProperty(ref nameValue, value); }
-        }
-
-
         private bool needsScreenshotValue;
         public bool NeedsScreenshot
         {
@@ -37,27 +29,6 @@ namespace Band
             set { SetProperty(ref plotStepsValue, value); }
         }
 
-        private Structure referenceStructureValue;
-        public Structure ReferenceStructure
-        {
-            get { return referenceStructureValue; }
-            set
-            {
-                SetProperty(ref referenceStructureValue, value);
-                value.PropertyChanged += (sender, e) => 
-                {
-                    if (e.PropertyName == "Layers")
-                    {
-                        StructureSteps = new Dictionary<int, Structure>();
-                        RecalculateAllSteps();
-                    }
-                };
-
-                StructureSteps = new Dictionary<int, Structure>();
-                RecalculateAllSteps();
-            }
-        }
-
         private Dictionary<int, Structure> structureStepsValue;
         public Dictionary<int, Structure> StructureSteps
         {
@@ -66,61 +37,6 @@ namespace Band
             {
                 SetProperty(ref structureStepsValue, value);
                 RecalculateCurrentPlotSteps();
-            }
-        }
-
-        private ElectricPotential currentVoltageValue;
-        public ElectricPotential CurrentVoltage
-        {
-            get { return currentVoltageValue; }
-            set
-            {
-                SetProperty(ref currentVoltageValue, value);
-                CurrentStep = StepForPotential(value);
-            }
-        }
-
-        private int currentStepValue;
-        public int CurrentStep
-        {
-            get { return currentStepValue; }
-            set
-            {
-                SetProperty(ref currentStepValue, value);
-            }
-        }
-
-        private ElectricPotential minVoltageValue;
-        public ElectricPotential MinVoltage
-        {
-            get { return minVoltageValue; }
-            set
-            {
-                SetProperty(ref minVoltageValue, value);
-                RecalculateAllSteps();
-            }
-        }
-
-        private ElectricPotential maxVoltageValue;
-        public ElectricPotential MaxVoltage
-        {
-            get { return maxVoltageValue; }
-            set
-            {
-                SetProperty(ref maxVoltageValue, value);
-                RecalculateAllSteps();
-            }
-        }
-
-        private ElectricPotential stepSizeValue;
-        public ElectricPotential StepSize
-        {
-            get { return stepSizeValue; }
-            set
-            {
-                if (value.Volts == 0.0) return;
-                SetProperty(ref stepSizeValue, value);
-                RecalculateAllSteps();
             }
         }
 
@@ -135,12 +51,7 @@ namespace Band
             }
         }
 
-        public int StepCount
-        {
-            get { return (int)((MaxVoltage - MinVoltage) / StepSize) + 1; }
-        }
-
-        public StructureViewModel()
+        public TestBenchViewModel()
         {
             currentVoltageValue = new ElectricPotential(1.0);
             minVoltageValue = new ElectricPotential(-2.0);
@@ -152,7 +63,7 @@ namespace Band
             ReferenceStructure = CreateSiO2TestStructure();
         }
 
-        public StructureViewModel(double currentVoltage, double minVoltage, double maxVoltage,
+        public TestBenchViewModel(double currentVoltage, double minVoltage, double maxVoltage,
             double stepSize, PlotType plotType, Structure refStructure, string name)
         {
             currentVoltageValue = new ElectricPotential(currentVoltage);
@@ -243,15 +154,7 @@ namespace Band
             return plot;
         }
 
-        private ElectricPotential PotentialForStep(int step)
-        {
-            return MinVoltage + StepSize * step;
-        }
-
-        private int StepForPotential(ElectricPotential potential)
-        {
-            return (int)((potential - MinVoltage) / StepSize);
-        }
+        
 
         private static Structure CreateSiO2TestStructure()
         {

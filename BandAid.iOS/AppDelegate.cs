@@ -4,6 +4,7 @@ using System.Linq;
 
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
+using System.IO;
 
 namespace BandAid.iOS
 {
@@ -24,6 +25,8 @@ namespace BandAid.iOS
         public override void FinishedLaunching(UIApplication application)
         {
             Xamarin.Forms.Forms.Init();
+
+            FileManager.UnpackAssetsIfNotUnpacked();
         }
 		
         // This method is invoked when the application is about to move from active to inactive state.

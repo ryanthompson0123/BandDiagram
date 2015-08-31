@@ -1,0 +1,57 @@
+{
+  "name": "NVM Stack",
+  "bias": 0,
+  "temperature": 300,
+  "layers": [
+    {
+      "name": "TiN",
+      "notes": null,
+      "fillColor": "#ff0000",
+      "thickness": 4,
+      "workFunction": 4.45,
+      "materialType": "metal"
+    },
+    {
+      "name": "Al2O3",
+      "notes": null,
+      "fillColor": "#0000ff",
+      "bandGap": 8.7,
+      "dielectricConstant": 9,
+      "electronAffinity": 1.35,
+      "thickness": 10,
+      "materialType": "dielectric"
+    },
+    {
+      "name": "Ta2O5",
+      "notes": null,
+      "fillColor": "#008040",
+      "bandGap": 4.5,
+      "dielectricConstant": 26,
+      "electronAffinity": 3.75,
+      "thickness": 6,
+      "materialType": "dielectric"
+    },
+    {
+      "name": "SiO2",
+      "notes": null,
+      "fillColor": "#804040",
+      "bandGap": 8.9,
+      "dielectricConstant": 3.9,
+      "electronAffinity": 0.95,
+      "thickness": 2,
+      "materialType": "dielectric"
+    },
+    {
+      "name": "Si",
+      "notes": null,
+      "fillColor": "#00ff00",
+      "bandGap": 1.1252,
+      "dielectricConstant": 11.7,
+      "intrinsicCarrierConcentration": 14100000000,
+      "dopantConcentration": 1000000000000000000,
+      "electronAffinity": 4.05,
+      "materialType": "semiconductor",
+      "dopingType": "N"
+    }
+  ]
+}

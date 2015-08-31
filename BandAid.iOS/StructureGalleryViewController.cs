@@ -17,17 +17,6 @@ namespace BandAid.iOS
     {
         public List<string> Structures { get; set; }
 
-        public string SaveDirPath
-        {
-            get
-            {
-                var documents = NSFileManager.DefaultManager.GetUrls(
-                    NSSearchPathDirectory.DocumentDirectory, 
-                    NSSearchPathDomain.User)[0].Path;
-                return Path.Combine(documents, "save");
-            }
-        }
-
         public StructureGalleryViewController(IntPtr handle)
             : base(handle)
         {
@@ -51,22 +40,22 @@ namespace BandAid.iOS
 
         private void LoadItems()
         {
-            if (!Directory.Exists(SaveDirPath))
+            if (!Directory.Exists(StructuresPath))
             {
-                Directory.CreateDirectory(SaveDirPath);
+                Directory.CreateDirectory(StructuresPath);
             }
                 
-            Structures = Directory.EnumerateFiles(SaveDirPath)
+            Structures = Directory.EnumerateFiles(StructuresPath)
                 .Where(f => f.Contains("json"))
                 .Select(f => Path.GetFileNameWithoutExtension(f))
                 .ToList();
         }
 
-        private StructureViewModel targetStructure;
+        private TestBenchViewModel targetStructure;
 
         private void LoadStructure(string name)
         {
-            var structurePath = Path.Combine(SaveDirPath, name + ".json");
+            var structurePath = Path.Combine(StructuresPath, name + ".json");
             var data = File.ReadAllText(structurePath);
             var dataObj = JObject.Parse(data);
 
@@ -77,7 +66,7 @@ namespace BandAid.iOS
             var refStruct = JsonConvert.DeserializeObject<Structure>(
                 dataObj["referenceStructure"].ToString(), new StructureConverter());
 
-            targetStructure = new StructureViewModel(currentStep, minV, maxV,
+            targetStructure = new TestBenchViewModel(currentStep, minV, maxV,
                 step, PlotType.Energy, refStruct, name);
             PerformSegue("showStructure", this);
         }

@@ -11,7 +11,7 @@ namespace BandAid.iOS
 {
     public partial class SettingsViewController : UITableViewController
     {
-        public StructureViewModel Structure { get; set; }
+        public TestBenchViewModel Structure { get; set; }
 
         public SettingsViewController(IntPtr handle)
             : base(handle)

@@ -16,7 +16,7 @@ namespace BandAid.iOS
 {
     public partial class StructureViewController : UIViewController
     {
-        public StructureViewModel Structure { get; set; }
+        public TestBenchViewModel Structure { get; set; }
 
         private StructureParameterListViewController parameterList;
 
@@ -35,7 +35,7 @@ namespace BandAid.iOS
 			
             if (Structure == null)
             {
-                Structure = new StructureViewModel();
+                Structure = new TestBenchViewModel();
                 Structure.Name = FigureOutNextName();
             }
                 
@@ -344,22 +344,7 @@ namespace BandAid.iOS
 
         private void SaveStructure()
         {
-            var obj = new JObject();
-            obj["name"] = Structure.Name;
-            obj["minVoltage"] = Structure.MinVoltage.Volts;
-            obj["maxVoltage"] = Structure.MaxVoltage.Volts;
-            obj["stepSize"] = Structure.StepSize.Volts;
-            obj["currentStep"] = Structure.CurrentVoltage.Volts;
-
-            var structure = JsonConvert.SerializeObject(Structure.ReferenceStructure,
-                                new StructureConverter());
-            obj["referenceStructure"] = JObject.Parse(structure);
-
-            var outDir = Path.Combine(DocumentsPath, "save");
-            var filename = Path.Combine(outDir, Structure.Name + ".json");
-
-            Console.WriteLine(filename);
-            File.WriteAllText(filename, obj.ToString());
+            
         }
 
         private void RenameStructure(string oldName, string newName)

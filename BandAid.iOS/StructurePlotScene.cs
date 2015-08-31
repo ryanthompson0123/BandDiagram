@@ -24,13 +24,13 @@ namespace BandAid.iOS
         public float XAxisMargin { get; set; }
 
         public bool IsRightAxisVisible { get; set; }
-        public StructureViewModel Structure { get; set; }
+        public TestBenchViewModel Structure { get; set; }
 
         private PlotNode plotNode;
         private AxisNode leftNode;
         private AxisNode bottomNode;
 
-        public StructurePlotScene(SizeF size, StructureViewModel structure)
+        public StructurePlotScene(SizeF size, TestBenchViewModel structure)
             : base(size)
         {
             TopMargin = 50f;

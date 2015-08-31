@@ -127,20 +127,7 @@ namespace BandAid.iOS
             }
         }
 
-        private bool MaterialsAreCopiedLocal()
-        {
-            return File.Exists(MetalsPath);
-        }
-
-        private void CopyMaterialsToLocal()
-        {
-            var metalsBundleUrl = NSBundle.MainBundle.PathForResource("metals", "json");
-            var dielectricsBundleUrl = NSBundle.MainBundle.PathForResource("dielectrics", "json");
-            var semiconductorsBundleUrl = NSBundle.MainBundle.PathForResource("semiconductors", "json");
-                   File.Copy(metalsBundleUrl, MetalsPath);
-            File.Copy(dielectricsBundleUrl, DielectricsPath);
-            File.Copy(semiconductorsBundleUrl, SemiconductorsPath);
-        }
+        
 
         private static string DocumentsPath
         {

@@ -11,9 +11,9 @@ namespace BandAid.iOS
 {
     public class StructureParameterListViewController : UITableViewController
     {
-        public StructureViewModel ViewModel { get; set; }
+        public TestBenchViewModel ViewModel { get; set; }
 
-        public StructureParameterListViewController(StructureViewModel viewModel)
+        public StructureParameterListViewController(TestBenchViewModel viewModel)
             : base(UITableViewStyle.Grouped)
         {
             ViewModel = viewModel;
@@ -30,9 +30,9 @@ namespace BandAid.iOS
 
         class ParameterListSource : UITableViewSource
         {
-            private readonly StructureViewModel viewModel;
+            private readonly TestBenchViewModel viewModel;
 
-            public ParameterListSource(StructureViewModel viewModel)
+            public ParameterListSource(TestBenchViewModel viewModel)
             {
                 this.viewModel = viewModel;
             }
