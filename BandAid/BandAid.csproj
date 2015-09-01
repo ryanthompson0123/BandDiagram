@@ -55,10 +55,13 @@
     <Compile Include="Units\Concentration.cs" />
     <Compile Include="Units\Volume.cs" />
     <Compile Include="Units\ChargeConcentration.cs" />
+    <Compile Include="ViewModels\PlotViewModel.cs" />
     <Compile Include="ViewModels\StructureGalleryItemViewModel.cs" />
     <Compile Include="ViewModels\StructureGalleryViewModel.cs" />
-    <Compile Include="ViewModels\StructureViewModel.cs" />
-    <Compile Include="ViewModels\Plot.cs" />
+    <Compile Include="ViewModels\StructureParameterListViewModel.cs" />
+    <Compile Include="ViewModels\StructureParameterItemViewModel.cs" />
+    <Compile Include="ViewModels\TestBenchViewModel.cs" />
+    <Compile Include="Models\Plot.cs" />
     <Compile Include="ObservableObject.cs" />
     <Compile Include="JsonConverters.cs" />
   </ItemGroup>

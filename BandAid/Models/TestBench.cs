@@ -40,6 +40,9 @@ namespace Band
             }
         }
 
+        [JsonIgnore]
+        public Dictionary<int, Structure> Steps { get; set; }
+
         private ElectricPotential currentVoltageValue;
         public ElectricPotential CurrentVoltage
         {
@@ -64,6 +67,12 @@ namespace Band
                 SetProperty(ref currentStepValue, value);
                 CurrentVoltage = PotentialForStep(value);
             }
+        }
+
+        [JsonIgnore]
+        public Structure CurrentStructure
+        {
+            get { return Steps[CurrentStep]; }
         }
 
         private ElectricPotential minVoltageValue;
@@ -106,6 +115,18 @@ namespace Band
             get { return (int)((MaxVoltage - MinVoltage) / StepSize) + 1; }
         }
 
+        public TestBench()
+        {
+            Steps = new Dictionary<int, Structure>();
+            CurrentVoltage = new ElectricPotential(1.0);
+            MinVoltage = new ElectricPotential(-2.0);
+            MaxVoltage = new ElectricPotential(2.0);
+            StepSize = new ElectricPotential(0.25);
+
+            CurrentStep = StepForPotential(CurrentVoltage);
+            Structure = Structure.Default;
+        }
+
         public void SetNeedsCompute()
         {
             NeedsCompute = true;
@@ -115,7 +136,7 @@ namespace Band
         {
             if (NeedsCompute)
             {
-                await Task.Run(() => Compute(),); 
+                await Task.Run(() => Compute()); 
             }
         }
 
@@ -127,18 +148,13 @@ namespace Band
             var steps = Enumerable.Range(0, StepCount).Select(s => PotentialForStep(s).RoundMillivolts)
                 .ToDictionary(p => p, p =>
                 {
-                    return StructureSteps.ContainsKey(p) ? StructureSteps[p] :
-                            ReferenceStructure.DeepClone(ElectricPotential.FromMillivolts((double)p), new Temperature(300.0));
+                    return Steps.ContainsKey(p) ? Steps[p] :
+                            Structure.DeepClone(ElectricPotential.FromMillivolts(p), new Temperature(300.0));
                 });
 
-            Debug.WriteLine(String.Format("Finished all calculations in {0} ms", stopwatch.ElapsedMilliseconds));
+            Debug.WriteLine(string.Format("Finished all calculations in {0} ms", stopwatch.ElapsedMilliseconds));
 
-            Device.BeginInvokeOnMainThread(() =>
-            {
-                StructureSteps = steps;
-            });
-
-
+            Steps = steps;
 
             NeedsCompute = false;
         }
