@@ -2,9 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
+using Band.Units;
 
 namespace Band
 {
+    public enum PlotType
+    {
+        Energy, Potential, ChargeDensity, ElectricField
+    }
+
     public class Plot
     {
         public string Name { get; set; }
@@ -33,6 +39,38 @@ namespace Band
                     Min = allPoints.Min(p => p.Y)
                 };
             };
+        }
+
+        public static Plot Create(Structure structure, PlotType plotType)
+        {
+            var plot = Create(plotType);
+
+            Length thickness = Length.Zero;
+            foreach (var layer in structure.Layers)
+            {
+                switch (plotType)
+                {
+                    case PlotType.Energy:
+                        foreach (var dataset in layer.GetEnergyDatasets(thickness))
+                        {
+                            plot.DataSets.Add(dataset);
+                        }
+                        break;
+                    case PlotType.ElectricField:
+                        plot.DataSets.Add(layer.GetElectricFieldDataset(thickness));
+                        break;
+                    case PlotType.ChargeDensity:
+                        plot.DataSets.Add(layer.GetChargeDensityDataset(thickness));
+                        break;
+                    case PlotType.Potential:
+                        plot.DataSets.Add(layer.GetPotentialDataset(thickness));
+                        break;
+                }
+
+                thickness += layer.Thickness;
+            }
+
+            return plot;
         }
 
         public static Plot Create(PlotType plotType)

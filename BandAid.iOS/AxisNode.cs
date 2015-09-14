@@ -7,14 +7,11 @@ using MonoTouch.UIKit;
 
 namespace BandAid.iOS
 {
-    public enum Axis { Right, Left, Bottom }
-    
     public sealed class AxisNode : SKNode
     {
-        private readonly PlotAnimationGrouping plotGrouping;
-        private readonly SizeF size;
-        private readonly Axis axis;
-
+        public AxisViewModel ViewModel { get; private set; }
+        public SizeF Size { get; private set; }
+        
         private SKLabelNode titleNode;
 
         private string titleValue;
@@ -36,18 +33,18 @@ namespace BandAid.iOS
 
                 titleNode.Text = titleValue;
 
-                switch (axis)
+                switch (ViewModel.AxisType)
                 {
-                    case Axis.Left:
+                    case AxisType.PrimaryY:
                         titleNode.ZRotation = (float)Math.PI / 2;
-                        titleNode.Position = new PointF(size.Width / 4, size.Height / 2);
+                        titleNode.Position = new PointF(Size.Width / 4, Size.Height / 2);
                         break;
-                    case Axis.Right:
+                    case AxisType.SecondaryY:
                         titleNode.ZRotation = (float)-Math.PI / 2;
-                        titleNode.Position = new PointF(3 * size.Width / 4, size.Height / 2);
+                        titleNode.Position = new PointF(3 * Size.Width / 4, Size.Height / 2);
                         break;
-                    case Axis.Bottom:
-                        titleNode.Position = new PointF(size.Width / 2, size.Height / 4);
+                    case AxisType.X:
+                        titleNode.Position = new PointF(Size.Width / 2, Size.Height / 4);
                         break;
                 }
 
@@ -55,25 +52,20 @@ namespace BandAid.iOS
             }
         }
 
-        public AxisNode(PlotAnimationGrouping plotGrouping, Axis axis, SizeF size)
+        public AxisNode(AxisViewModel viewModel, SizeF size)
         {
-            if (plotGrouping == null || plotGrouping.Plots.Count == 0) return;
+            ViewModel = viewModel;
+            Size = size;
 
-            this.size = size;
-            this.plotGrouping = plotGrouping;
-            this.axis = axis;
+            Title = ViewModel.TitleText;
 
-            switch (axis)
+            switch (ViewModel.AxisType)
             {
-                case Axis.Left:
+                case AxisType.PrimaryY:
                     DrawLeftAxis();
-                    Title = plotGrouping.Plots[0].YAxisLabel;
                     break;
-                case Axis.Bottom:
+                case AxisType.X:
                     DrawBottomAxis();
-                    Title = plotGrouping.Plots[0].XAxisLabel;
-                    break;
-                default:
                     break;
             }
         }
@@ -82,19 +74,19 @@ namespace BandAid.iOS
         {
             var axis = new SKShapeNode();
             var pathToDraw = new CGPath();
-            pathToDraw.MoveToPoint(new PointF(size.Width - 8f, size.Height));
-            pathToDraw.AddLineToPoint(new PointF(size.Width - 8f, 0));
+            pathToDraw.MoveToPoint(new PointF(Size.Width - 8f, Size.Height));
+            pathToDraw.AddLineToPoint(new PointF(Size.Width - 8f, 0));
 
-            for (var i = plotGrouping.YAxisBounds.Max; i >= plotGrouping.YAxisBounds.Min;
-                i = i - plotGrouping.MajorYAxisSpan)
+            for (var i = ViewModel.AxisBounds.Max; i >= ViewModel.AxisBounds.Min;
+                i = i - ViewModel.MajorAxisSpan)
             {
                 var yCoord = GetYCoord(i);
-                pathToDraw.MoveToPoint(new PointF(size.Width - 12f, yCoord));
-                pathToDraw.AddLineToPoint(new PointF(size.Width - 8f, yCoord));
+                pathToDraw.MoveToPoint(new PointF(Size.Width - 12f, yCoord));
+                pathToDraw.AddLineToPoint(new PointF(Size.Width - 8f, yCoord));
 
                 var labelNode = new SKLabelNode();
-                labelNode.Text = String.Format("{0:0.0}", i);
-                labelNode.Position = new PointF(size.Width - 32f, yCoord - 8f);
+                labelNode.Text = string.Format("{0:0.0}", i);
+                labelNode.Position = new PointF(Size.Width - 32f, yCoord - 8f);
                 labelNode.FontColor = UIColor.Black;
                 labelNode.FontSize = 16f;
                 AddChild(labelNode);
@@ -111,19 +103,19 @@ namespace BandAid.iOS
         {
             var axis = new SKShapeNode();
             var pathToDraw = new CGPath();
-            pathToDraw.MoveToPoint(new PointF(size.Width, size.Height - 8f));
-            pathToDraw.AddLineToPoint(new PointF(0, size.Height - 8f));
+            pathToDraw.MoveToPoint(new PointF(Size.Width, Size.Height - 8f));
+            pathToDraw.AddLineToPoint(new PointF(0, Size.Height - 8f));
 
-            for (var i = plotGrouping.XAxisBounds.Max; i >= plotGrouping.XAxisBounds.Min;
-                i = i - plotGrouping.MajorXAxisSpan)
+            for (var i = ViewModel.AxisBounds.Max; i >= ViewModel.AxisBounds.Min;
+                i = i - ViewModel.MajorAxisSpan)
             {
                 var xCoord = GetXCoord(i);
-                pathToDraw.MoveToPoint(new PointF(xCoord, size.Height - 12f));
-                pathToDraw.AddLineToPoint(new PointF(xCoord, size.Height - 8f));
+                pathToDraw.MoveToPoint(new PointF(xCoord, Size.Height - 12f));
+                pathToDraw.AddLineToPoint(new PointF(xCoord, Size.Height - 8f));
 
                 var labelNode = new SKLabelNode();
-                labelNode.Text = String.Format("{0:0.0}", i);
-                labelNode.Position = new PointF(xCoord - 8f, size.Height - 32f);
+                labelNode.Text = string.Format("{0:0.0}", i);
+                labelNode.Position = new PointF(xCoord - 8f, Size.Height - 32f);
                 labelNode.FontColor = UIColor.Black;
                 labelNode.FontSize = 16f;
                 AddChild(labelNode);
@@ -136,20 +128,22 @@ namespace BandAid.iOS
             AddChild(axis);
         }
 
+        private float GetDistance(double value)
+        {
+            return (float)(ViewModel.AxisBounds.Max - value)
+                / (float)(ViewModel.AxisBounds.Max - ViewModel.AxisBounds.Min);
+        }
+
         private float GetYCoord(double value)
         {
-            var distanceDown = (plotGrouping.YAxisBounds.Max - value) 
-                / (plotGrouping.YAxisBounds.Max - plotGrouping.YAxisBounds.Min);
 
-            return size.Height - ((float)distanceDown * size.Height);
+            return Size.Height - (GetDistance(value) * Size.Height);
         }
 
         private float GetXCoord(double value)
         {
-            var distanceOver = (plotGrouping.XAxisBounds.Max - value)
-                / (plotGrouping.XAxisBounds.Max - plotGrouping.XAxisBounds.Min);
 
-            return size.Width - ((float)distanceOver * size.Width);
+            return Size.Width - (GetDistance(value) * Size.Width);
         }
     }
 }

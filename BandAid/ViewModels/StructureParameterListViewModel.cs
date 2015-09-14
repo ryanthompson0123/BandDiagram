@@ -27,6 +27,11 @@ namespace Band
             }
         }
 
+        public StructureParameterListViewModel(Structure structure)
+        {
+            Structure = structure;
+        }
+
         private void UpdateItems()
         {
             Parameters = Structure.Layers.Select(l => new StructureParameterItemViewModel(l)).ToList();

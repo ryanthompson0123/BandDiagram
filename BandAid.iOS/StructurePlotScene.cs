@@ -6,6 +6,8 @@ using Band;
 using MonoTouch.UIKit;
 using MonoTouch.Foundation;
 using System.IO;
+using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace BandAid.iOS
 {
@@ -20,17 +22,59 @@ namespace BandAid.iOS
         public float TopMargin { get; set; }
         public float LeftYAxisMargin { get; set; }
         public float RightYAxisMargin { get; set; }
-
         public float XAxisMargin { get; set; }
-
         public bool IsRightAxisVisible { get; set; }
-        public TestBenchViewModel Structure { get; set; }
 
-        private PlotNode plotNode;
-        private AxisNode leftNode;
-        private AxisNode bottomNode;
+        private List<PlotNode> plotNodes;
+        private PlotNode currentPlotNode;
+        private AxisNode primaryYAxisNode;
+        private AxisNode xAxisNode;
 
-        public StructurePlotScene(SizeF size, TestBenchViewModel structure)
+        private StructureSceneViewModel viewModelValue;
+        public StructureSceneViewModel ViewModel
+        {
+            get { return viewModelValue; }
+            set
+            {
+                if (viewModelValue != null)
+                {
+                    viewModelValue.PropertyChanged -= ViewModel_PropertyChanged;
+                }
+
+                viewModelValue = value;
+
+                if (viewModelValue != null)
+                {
+                    viewModelValue.PropertyChanged += ViewModel_PropertyChanged;
+                }
+            }
+        }
+
+        public SizeF PlotSize
+        {
+            get
+            {
+                return new SizeF(Size.Width - LeftYAxisMargin - RightYAxisMargin,
+                    Size.Height - XAxisMargin - TopMargin);
+            }
+        }
+
+        public PointF PlotPosition
+        {
+            get {  return new PointF(LeftYAxisMargin, XAxisMargin); }
+        }
+
+        public SizeF PrimaryYAxisSize
+        {
+            get {  return new SizeF(100f, Size.Height - XAxisMargin - TopMargin); }
+        }
+
+        public SizeF XAxisSize
+        {
+            get { return new SizeF(Size.Width - LeftYAxisMargin - RightYAxisMargin, 100f); }
+        }
+
+        public StructurePlotScene(SizeF size)
             : base(size)
         {
             TopMargin = 50f;
@@ -41,21 +85,6 @@ namespace BandAid.iOS
             BackgroundColor = UIColor.GroupTableViewBackgroundColor;
             MinX = 0.0;
             MaxX = 50.0;
-
-            Structure = structure;
-
-            Structure.PropertyChanged += (sender, e) => 
-            {
-                if (e.PropertyName == "CurrentStep")
-                {
-                    plotNode.PlotStep(Structure.CurrentStep);
-                }
-
-                if (e.PropertyName == "PlotSteps")
-                {
-                    SetUpPlot();
-                }
-            };
         }
 
         public override void DidMoveToView(SKView view)
@@ -65,41 +94,73 @@ namespace BandAid.iOS
             SetUpPlot();
         }
 
-        public void SetUpPlot()
+        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (plotNode != null)
+            switch (e.PropertyName)
             {
-                plotNode.RemoveFromParent();
-                plotNode = null;
+                case "CurrentStep":
+                    DisplayStep(ViewModel.CurrentStep);
+                    break;
+                case "Plots":
+                    SetUpPlot();
+                    break;
+            }
+        }
+
+        private void DisplayStep(int step)
+        {
+            if (plotNodes == null || plotNodes.Count < step) return;
+
+            if (currentPlotNode != null)
+            {
+                currentPlotNode.RemoveFromParent();
             }
 
-            if (leftNode != null)
+            currentPlotNode = plotNodes[step];
+            AddChild(currentPlotNode);
+        }
+
+        private void SetUpPlot()
+        {
+            if (ViewModel.Plots == null) return;
+
+            plotNodes = ViewModel.Plots.Select(p => CreatePlotNode(p)).ToList();
+
+            SetUpPrimaryYAxis();
+            SetUpXAxis();
+            DisplayStep(ViewModel.CurrentStep);
+        }
+
+        private void SetUpPrimaryYAxis()
+        {
+            if (primaryYAxisNode != null)
             {
-                leftNode.RemoveFromParent();
-                leftNode = null;
+                primaryYAxisNode.RemoveFromParent();
             }
 
-            if (bottomNode != null)
+            primaryYAxisNode = new AxisNode(ViewModel.PrimaryYAxis, PrimaryYAxisSize);
+            primaryYAxisNode.Position = new PointF(0, XAxisMargin);
+            AddChild(primaryYAxisNode);
+        }
+
+        private void SetUpXAxis()
+        {
+            if (xAxisNode != null)
             {
-                bottomNode.RemoveFromParent();
-                bottomNode = null;
+                xAxisNode.RemoveFromParent();
             }
 
-            plotNode = new PlotNode(Structure.PlotSteps, new SizeF(
-                Size.Width - LeftYAxisMargin - RightYAxisMargin,
-                Size.Height - XAxisMargin - TopMargin));
-            plotNode.Position = new PointF(LeftYAxisMargin, XAxisMargin);
-            plotNode.PlotStep(Structure.CurrentStep);
-            AddChild(plotNode);
+            xAxisNode = new AxisNode(ViewModel.XAxis, XAxisSize);
+            xAxisNode.Position = new PointF(LeftYAxisMargin, 0);
+            AddChild(xAxisNode);
+        }
 
-            leftNode = new AxisNode(Structure.PlotSteps, Axis.Left, new SizeF(100f, Size.Height - XAxisMargin - TopMargin));
-            leftNode.Position = new PointF(0, XAxisMargin);
-            AddChild(leftNode);
-
-            bottomNode = new AxisNode(Structure.PlotSteps, Axis.Bottom, 
-                new SizeF(Size.Width - LeftYAxisMargin - RightYAxisMargin, 100f));
-            bottomNode.Position = new PointF(LeftYAxisMargin, 0);
-            AddChild(bottomNode);
+        private PlotNode CreatePlotNode(PlotViewModel viewModel)
+        {
+            return new PlotNode(viewModel, PlotSize)
+            {
+                Position = PlotPosition
+            };
         }
 
         private bool screenshotNextFrame = false;
@@ -114,13 +175,12 @@ namespace BandAid.iOS
                 screenshotNextFrame = false;
             }
 
-            if (Structure.NeedsScreenshot)
+            if (ViewModel.NeedsScreenshot)
             {
                 screenshotNextFrame = true;
-                Structure.NeedsScreenshot = false;
+                ViewModel.NeedsScreenshot = false;
             }
         }
-
 
         public void TakeScreenshot()
         {
@@ -138,7 +198,7 @@ namespace BandAid.iOS
                 NSSearchPathDirectory.DocumentDirectory, 
                 NSSearchPathDomain.User)[0].Path;
             var outDir = Path.Combine(documents, "save");
-            var outfile = Path.Combine(outDir, Structure.Name + ".png");
+            var outfile = Path.Combine(outDir, ViewModel.Name + ".png");
 
             File.WriteAllBytes(outfile, bytes);
         }

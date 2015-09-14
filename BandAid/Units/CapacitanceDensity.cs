@@ -124,6 +124,11 @@ namespace Band.Units
         {
             return FaradsPerSquareMeter.GetHashCode();
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0} F/cm\xB2");
+        }
     }
 }
 

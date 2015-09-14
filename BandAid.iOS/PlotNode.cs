@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using MonoTouch.SpriteKit;
+﻿using MonoTouch.SpriteKit;
 using Band;
 using System.Drawing;
 using MonoTouch.CoreGraphics;
@@ -11,48 +9,34 @@ namespace BandAid.iOS
 {
     public class PlotNode : SKNode
     {
-        public PlotAnimationGrouping PlotGrouping { get; set; }
+        public PlotViewModel ViewModel { get; private set; }
+        public SizeF Size { get; private set; }
 
-        public PlotAxisBounds XAxisBounds { get; set; }
-        public PlotAxisBounds YAxisBounds { get; set; }
-
-        public float XRatio { get; set; }
-        public float YRatio { get; set; }
-
-        public SizeF Size { get; set; }
-
-        private SKSpriteNode DataSetNode { get; set; }
-
-        public PlotNode(PlotAnimationGrouping plotGrouping, SizeF size)
+        public float XRatio
         {
-            if (plotGrouping == null || plotGrouping.Plots.Count == 0) return;
-
-            Size = size;
-            XAxisBounds = plotGrouping.XAxisBounds;
-            YAxisBounds = plotGrouping.YAxisBounds;
-
-            XRatio = size.Width / (float)(XAxisBounds.Max - XAxisBounds.Min);
-            YRatio = size.Height / (float)(YAxisBounds.Max - YAxisBounds.Min);
-
-            DrawBorder(size);
-
-            PlotGrouping = plotGrouping;
+            get { return Size.Width / (float)(ViewModel.XAxisBounds.Max - ViewModel.XAxisBounds.Min); }
         }
 
-        public void PlotStep(int step)
+        public float YRatio
         {
-            if (PlotGrouping == null) return;
+            get { return Size.Height / (float)(ViewModel.YAxisBounds.Max - ViewModel.YAxisBounds.Min); }
+        }
 
-            if (DataSetNode != null)
-            {
-                DataSetNode.RemoveFromParent();
-                DataSetNode = null;
-            }
+        public PlotNode(PlotViewModel viewModel, SizeF size)
+        {
+            ViewModel = viewModel;
+            Size = size;
+            
+            DrawBorder();
+            DrawPlot();
+        }
 
-            var plot = PlotGrouping.Plots[step];
+        public void DrawPlot()
+        {
+            if (ViewModel == null || ViewModel.DataSets == null) return;
 
             UIGraphics.BeginImageContext(Size);
-            foreach (var dataSet in plot.DataSets)
+            foreach (var dataSet in ViewModel.DataSets)
             {
                 PlotDataSetNode(dataSet);
             }
@@ -60,9 +44,9 @@ namespace BandAid.iOS
             var image = UIGraphics.GetImageFromCurrentImageContext();
             UIGraphics.EndImageContext();
 
-            DataSetNode = new SKSpriteNode(SKTexture.FromImage(image));
-            DataSetNode.Position = new PointF(Size.Width/2, Size.Height/2);
-            AddChild(DataSetNode);
+            var dataSetNode = new SKSpriteNode(SKTexture.FromImage(image));
+            dataSetNode.Position = new PointF(Size.Width/2, Size.Height/2);
+            AddChild(dataSetNode);
         }
 
         private void PlotDataSetNode(PlotDataSet dataSet)
@@ -89,11 +73,10 @@ namespace BandAid.iOS
             layer.RenderInContext(UIGraphics.GetCurrentContext());
         }
 
-        private void DrawBorder(SizeF size)
+        private void DrawBorder()
         {
             var border = new SKShapeNode();
-            var pathToDraw = CGPath.FromRect(new RectangleF(new PointF(0, 0),
-                new SizeF(size.Width, size.Height)));
+            var pathToDraw = CGPath.FromRect(new RectangleF(new PointF(0, 0), Size));
             border.Path = pathToDraw;
             border.StrokeColor = UIColor.Black;
             border.LineWidth = 2.0f;
@@ -105,8 +88,8 @@ namespace BandAid.iOS
         {
             return new PointF
             {
-                X = (float)(dataPoint.X - XAxisBounds.Min) * XRatio,
-                Y = (float)(YAxisBounds.Max - dataPoint.Y) * YRatio
+                X = (float)(dataPoint.X - ViewModel.XAxisBounds.Min) * XRatio,
+                Y = (float)(ViewModel.YAxisBounds.Max - dataPoint.Y) * YRatio
             };
         }
     }

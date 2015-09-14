@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xamarin.Forms;
 
 namespace Band
 {
@@ -44,6 +45,7 @@ namespace Band
         public Dictionary<int, Structure> Steps { get; set; }
 
         private ElectricPotential currentVoltageValue;
+        [JsonIgnore]
         public ElectricPotential CurrentVoltage
         {
             get { return currentVoltageValue; }
@@ -127,6 +129,17 @@ namespace Band
             Structure = Structure.Default;
         }
 
+        public static async Task<TestBench> CreateDefaultAsync()
+        {
+            var nextName = await FigureOutNextNameAsync();
+            var fileManager = DependencyService.Get<IFileManager>();
+
+            var testBench = await fileManager.LoadDefaultTestBenchAsync();
+            testBench.Name = nextName;
+
+            return testBench;
+        }
+
         public void SetNeedsCompute()
         {
             NeedsCompute = true;
@@ -167,6 +180,24 @@ namespace Band
         private int StepForPotential(ElectricPotential potential)
         {
             return (int)((potential - MinVoltage) / StepSize);
+        }
+
+        private static async Task<string> FigureOutNextNameAsync()
+        {
+            var fileManager = DependencyService.Get<IFileManager>();
+
+            var nextName = "MyStructure";
+            var nextNumber = 0;
+            var tryAgain = await fileManager.CheckTestBenchExistsAsync(nextName);
+
+            while (tryAgain)
+            {
+                nextNumber++;
+                nextName = "MyStructure" + nextNumber;
+                tryAgain = await fileManager.CheckTestBenchExistsAsync(nextName);
+            }
+
+            return nextName;
         }
     }
 }

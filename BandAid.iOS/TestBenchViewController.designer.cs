@@ -9,8 +9,8 @@ using System.CodeDom.Compiler;
 
 namespace BandAid.iOS
 {
-	[Register ("StructureViewController")]
-	partial class StructureViewController
+	[Register ("TestBenchViewController")]
+	partial class TestBenchViewController
 	{
 		[Outlet]
 		MonoTouch.UIKit.UISlider biasSlider { get; set; }

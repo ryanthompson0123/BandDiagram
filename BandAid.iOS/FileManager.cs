@@ -1,17 +1,20 @@
 ﻿using MonoTouch.Foundation;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Band;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using BandAid.iOS;
+using System.Threading.Tasks;
+
+[assembly: Xamarin.Forms.Dependency(typeof(FileManager))]
 
 namespace BandAid.iOS
 {
-    public static class FileManager
+    public class FileManager : IFileManager
     {
-        public static bool NeedsInitialLibrary
+        private const string DefaultTestBenchName = "High - k Stack";
+
+        public bool NeedsInitialLibrary
         {
             get
             {
@@ -19,7 +22,7 @@ namespace BandAid.iOS
             }
         }
 
-        public static string DocumentsPath
+        public string DocumentsPath
         {
             get
             {
@@ -28,7 +31,7 @@ namespace BandAid.iOS
             }
         }
 
-        public static string MaterialsPath
+        public string MaterialsPath
         {
             get
             {
@@ -36,44 +39,66 @@ namespace BandAid.iOS
             }
         }
 
-        public static string StructuresPath
+        public string TestBenchPath
         {
             get
             {
-                return Path.Combine(DocumentsPath, "structures");
+                return Path.Combine(DocumentsPath, "testBench");
             }
         }
 
-        public static void UnpackAssetsIfNotUnpacked()
+        public Task UnpackAssetsIfNotUnpackedAsync()
         {
             if (NeedsInitialLibrary)
             {
                 GenerateMaterialsLibrary();
-                GenerateDefaultStructures();
+                GenerateDefaultTestBenches();
             }
+
+            return Task.FromResult(true);
         }
 
-        public static void SaveStructure(TestBenchViewModel structure)
+        public Task SaveTestBenchAsync(TestBench testBench)
         {
-            var obj = new JObject();
-            obj["name"] = structure.Name;
-            obj["minVoltage"] = structure.MinVoltage.Volts;
-            obj["maxVoltage"] = structure.MaxVoltage.Volts;
-            obj["stepSize"] = structure.StepSize.Volts;
-            obj["currentStep"] = structure.CurrentVoltage.Volts;
+            var outJson = JsonConvert.SerializeObject(testBench, new StructureConverter());
 
-            var structureJson = JsonConvert.SerializeObject(structure.ReferenceStructure,
-                                new StructureConverter());
-            obj["referenceStructure"] = JObject.Parse(structureJson);
-
-            var outDir = Path.Combine(DocumentsPath, "save");
-            var filename = Path.Combine(outDir, structure.Name + ".json");
+            var filename = Path.Combine(TestBenchPath, testBench.Name + ".json");
 
             Console.WriteLine(filename);
-            File.WriteAllText(filename, obj.ToString());
+            File.WriteAllText(filename, outJson);
+
+            return Task.FromResult(true);
         }
 
-        private static void GenerateMaterialsLibrary()
+        public Task<TestBench> LoadTestBenchAsync(string name)
+        {
+            var filename = Path.Combine(TestBenchPath, name + ".json");
+            var inJson = File.ReadAllText(filename);
+
+            var bench = JsonConvert.DeserializeObject<TestBench>(inJson, new StructureConverter());
+            return Task.FromResult(bench);
+        }
+
+        public Task<TestBench> LoadDefaultTestBenchAsync()
+        {
+            return LoadTestBenchAsync(DefaultTestBenchName);
+        }
+
+        public Task MoveTestBenchAsync(TestBench testBench, string oldName)
+        {
+            var oldFileName = Path.Combine(TestBenchPath, oldName + ".json");
+            var newFileName = Path.Combine(TestBenchPath, testBench.Name + ".json");
+
+            var oldScreenshotName = Path.Combine(TestBenchPath, oldName + ".png");
+            var newScreenshotName = Path.Combine(TestBenchPath, testBench.Name + ".png");
+
+            File.Move(oldFileName, newFileName);
+            File.Move(oldScreenshotName, newScreenshotName);
+
+            return Task.FromResult(true);
+        }
+
+        private void GenerateMaterialsLibrary()
         {
             var metalsBundleUrl = NSBundle.MainBundle.PathForResource("metals", "json");
             var dielectricsBundleUrl = NSBundle.MainBundle.PathForResource("dielectrics", "json");
@@ -89,18 +114,18 @@ namespace BandAid.iOS
             File.Copy(semiconductorsBundleUrl, Path.Combine(MaterialsPath, "semiconductors.json"), true);
         }
 
-        private static void GenerateDefaultStructures()
+        private void GenerateDefaultTestBenches()
         {
             var highkBundleUrl = NSBundle.MainBundle.PathForResource("highk", "json");
             var nvmBundleUrl = NSBundle.MainBundle.PathForResource("nvm", "json");
 
-            if (!Directory.Exists(StructuresPath))
+            if (!Directory.Exists(TestBenchPath))
             {
-                Directory.CreateDirectory(StructuresPath);
+                Directory.CreateDirectory(TestBenchPath);
             }
 
-            File.Copy(highkBundleUrl, Path.Combine(StructuresPath, "High-k Stack.json"), true);
-            File.Copy(nvmBundleUrl, Path.Combine(StructuresPath, "NVM Stack.json"), true);
+            File.Copy(highkBundleUrl, Path.Combine(TestBenchPath, DefaultTestBenchName), true);
+            File.Copy(nvmBundleUrl, Path.Combine(TestBenchPath, "NVM Stack.json"), true);
         }
     }
 }

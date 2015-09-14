@@ -165,6 +165,11 @@ namespace Band.Units
 		{
 			return Volts.GetHashCode();
 		}
-	}
+
+        public override string ToString()
+        {
+            return string.Format("{0} V", Volts);
+        }
+    }
 }
 

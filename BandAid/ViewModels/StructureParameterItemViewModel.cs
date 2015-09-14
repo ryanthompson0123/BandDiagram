@@ -9,21 +9,21 @@ namespace Band
     public class StructureParameterItemViewModel : ObservableObject
     {
         private string titleValue;
-        public string Title
+        public string TitleText
         {
             get { return titleValue; }
             set { SetProperty(ref titleValue, value); }
         }
 
         private string capacitanceValue;
-        public string Capacitance
+        public string CapacitanceText
         {
             get { return capacitanceValue; }
             set { SetProperty(ref capacitanceValue, value); }
         }
 
         private string voltageDropValue;
-        public string VoltageDrop
+        public string VoltageDropText
         {
             get { return voltageDropValue; }
             set { SetProperty(ref voltageDropValue, value); }
@@ -31,7 +31,7 @@ namespace Band
 
         public StructureParameterItemViewModel(Material layer)
         {
-            Title = layer.Name;
+            TitleText = layer.Name;
 
             if (layer is Metal) return;
 
@@ -39,15 +39,15 @@ namespace Band
             {
                 var dielectric = (Dielectric)layer;
 
-                Capacitance = dielectric.OxideCapacitance.FaradsPerSquareCentimeter.ToString();
-                VoltageDrop = dielectric.VoltageDrop.Volts.ToString();
+                CapacitanceText = dielectric.OxideCapacitance.FaradsPerSquareCentimeter.ToString();
+                VoltageDropText = dielectric.VoltageDrop.Volts.ToString();
             }
             else
             {
                 var semiconductor = (Semiconductor)layer;
 
-                Capacitance = semiconductor.CapacitanceDensity.FaradsPerSquareCentimeter.ToString();
-                VoltageDrop = semiconductor.EvalPoints[0].Potential.Volts.ToString();
+                CapacitanceText = semiconductor.CapacitanceDensity.FaradsPerSquareCentimeter.ToString();
+                VoltageDropText = semiconductor.EvalPoints[0].Potential.Volts.ToString();
             }
         }
     }

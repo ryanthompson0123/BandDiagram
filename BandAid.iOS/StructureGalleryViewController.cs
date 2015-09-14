@@ -83,9 +83,9 @@ namespace BandAid.iOS
             if (targetStructure != null)
             {
                 var dest = (UINavigationController)segue.DestinationViewController;
-                var structCtl = (StructureViewController)dest.ViewControllers[0];
+                var structCtl = (TestBenchViewController)dest.ViewControllers[0];
 
-                structCtl.Structure = targetStructure;
+                structCtl.ViewModel = targetStructure;
                 targetStructure = null;
             }
         }

@@ -119,9 +119,9 @@
     <Compile Include="StructureGalleryViewController.designer.cs">
       <DependentUpon>StructureGalleryViewController.cs</DependentUpon>
     </Compile>
-    <Compile Include="StructureViewController.cs" />
-    <Compile Include="StructureViewController.designer.cs">
-      <DependentUpon>StructureViewController.cs</DependentUpon>
+    <Compile Include="TestBenchViewController.cs" />
+    <Compile Include="TestBenchViewController.designer.cs">
+      <DependentUpon>TestBenchViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="LayersTableViewController.cs" />
     <Compile Include="LayersTableViewController.designer.cs">
