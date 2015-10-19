@@ -22,5 +22,10 @@ namespace Band
         Task<TestBench> LoadDefaultTestBenchAsync();
 
         Task<bool> CheckTestBenchExistsAsync(string name);
+
+        Task<IEnumerable<string>> EnumerateTestBenchesAsync();
+        Task<string> GetMaterialDataAsync(MaterialType materialType);
+
+        string GetScreenshotPath(string testBenchName);
     }
 }

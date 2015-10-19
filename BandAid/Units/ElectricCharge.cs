@@ -11,21 +11,9 @@ namespace Band.Units
 			Coulombs = coulombs;
 		}
 
-		public static ElectricCharge Zero
-		{
-			get
-			{
-				return new ElectricCharge(0);
-			}
-		}
+        public static ElectricCharge Zero = new ElectricCharge(0);
 
-		public static ElectricCharge Elementary
-		{
-			get
-			{
-				return new ElectricCharge(1.602176487E-19);
-			}
-		}
+        public static ElectricCharge Elementary = new ElectricCharge(1.602176487E-19);
 
 		public static ElectricCharge operator -(ElectricCharge right)
 		{
@@ -99,12 +87,23 @@ namespace Band.Units
 
 		public static bool operator ==(ElectricCharge left, ElectricCharge right)
 		{
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
 			return left.Coulombs == right.Coulombs;
 		}
 
 		public static bool operator !=(ElectricCharge left, ElectricCharge right)
 		{
-			return left.Coulombs != right.Coulombs;
+            return !(left == right);
 		}
 
 		public override bool Equals(object obj)

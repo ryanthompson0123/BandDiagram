@@ -1,7 +1,10 @@
 ﻿using System;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Band.Units
 {
+    [JsonConverter(typeof(Energy.Converter))]
 	public class Energy : IComparable<Energy>
 	{
         public readonly double Joules;
@@ -118,12 +121,23 @@ namespace Band.Units
 
 		public static bool operator ==(Energy left, Energy right)
 		{
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
 			return left.Joules == right.Joules;
 		}
 
 		public static bool operator !=(Energy left, Energy right)
 		{
-			return left.Joules != right.Joules;
+            return !(left == right);
 		}
 
         public static implicit operator ElectricPotential(Energy e)
@@ -145,5 +159,18 @@ namespace Band.Units
 		{
 			return Joules.GetHashCode();
 		}
+
+        public class Converter : ExtendedJsonConverter<Energy>
+        {
+            protected override Energy Deserialize(Type objectType, JToken jToken)
+            {
+                return Energy.FromElectronVolts(jToken.ToObject<double>());
+            }
+
+            protected override JToken Serialize(Energy value)
+            {
+                return JToken.FromObject(value.ElectronVolts);
+            }
+        }
 	}
 }

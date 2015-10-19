@@ -1,7 +1,10 @@
 ﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Band.Units
 {
+    [JsonConverter(typeof(Concentration.Converter))]
 	public class Concentration : IComparable<Concentration>
 	{
 		public readonly double PerCubicMeter;
@@ -16,13 +19,7 @@ namespace Band.Units
             get { return PerCubicMeter * 1E6; }
         }
 
-		public static Concentration Zero
-		{
-			get
-			{
-				return new Concentration(0);
-			}
-		}
+        public static Concentration Zero = new Concentration(0);
 
 		public static Concentration FromPerCubicCentimeter(double perCubicCentimeter)
 		{
@@ -101,12 +98,23 @@ namespace Band.Units
 
 		public static bool operator ==(Concentration left, Concentration right)
 		{
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
 			return left.PerCubicMeter == right.PerCubicMeter;
 		}
 
 		public static bool operator !=(Concentration left, Concentration right)
 		{
-			return left.PerCubicMeter != right.PerCubicMeter;
+            return !(left == right);
 		}
 
 		public override bool Equals(object obj)
@@ -123,5 +131,18 @@ namespace Band.Units
 		{
 			return PerCubicMeter.GetHashCode();
 		}
+
+        public class Converter : ExtendedJsonConverter<Concentration>
+        {
+            protected override Concentration Deserialize(Type objectType, JToken jToken)
+            {
+                return Concentration.FromPerCubicCentimeter(jToken.ToObject<double>());
+            }
+
+            protected override JToken Serialize(Concentration value)
+            {
+                return JToken.FromObject(value.PerCubicCentimeter);
+            }
+        }
 	}
 }

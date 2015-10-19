@@ -24,21 +24,9 @@ namespace Band.Units
 			return new Permittivity(faradsPerCentimeter * 1E2);
 		}
 
-		public static Permittivity Zero
-		{
-			get
-			{
-				return new Permittivity(0);
-			}
-		}
+        public static Permittivity Zero = new Permittivity(0);
 
-		public static Permittivity OfFreeSpace
-		{
-			get
-			{
-				return new Permittivity(8.8541878176E-12 );
-			}
-		}
+        public static Permittivity OfFreeSpace = new Permittivity(8.8541878176E-12 );
 
 		public static Permittivity operator -(Permittivity right)
 		{
@@ -122,12 +110,23 @@ namespace Band.Units
 
 		public static bool operator ==(Permittivity left, Permittivity right)
 		{
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
 			return left.FaradsPerMeter == right.FaradsPerMeter;
 		}
 
 		public static bool operator !=(Permittivity left, Permittivity right)
 		{
-			return left.FaradsPerMeter != right.FaradsPerMeter;
+            return !(left == right);
 		}
 
 		public override bool Equals(object obj)

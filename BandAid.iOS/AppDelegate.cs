@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using Foundation;
+using UIKit;
 using System.IO;
 
 namespace BandAid.iOS
@@ -26,7 +26,7 @@ namespace BandAid.iOS
         {
             Xamarin.Forms.Forms.Init();
 
-            FileManager.UnpackAssetsIfNotUnpacked();
+            new FileManager().UnpackAssetsIfNotUnpacked();
         }
 		
         // This method is invoked when the application is about to move from active to inactive state.

@@ -1,9 +1,8 @@
-﻿
 using System;
-using System.Drawing;
+using CoreGraphics;
 
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using Foundation;
+using UIKit;
 using Band;
 using System.Collections.Generic;
 using System.IO;
@@ -14,8 +13,7 @@ namespace BandAid.iOS
 {
     public partial class MaterialSelectViewController : UITableViewController
     {
-        public MaterialType MaterialType { get; set; }
-        public List<Material> Materials { get; set; }
+        public MaterialSelectViewModel ViewModel { get; set; }
 
         public MaterialSelectViewController(IntPtr handle)
             : base(handle)
@@ -26,108 +24,65 @@ namespace BandAid.iOS
         {
             base.ViewDidLoad();
 			
-            LoadMaterials();
             TableView.Source = new MaterialSource(this);
 
-            PreferredContentSize = new SizeF(360, 540);
+            PreferredContentSize = new CGSize(360, 540);
         }
 
-        private void LoadMaterials()
+        public void OnRowSelected(int row)
         {
-            if (!MaterialsAreCopiedLocal())
+            var material = ViewModel.Materials[row].Material;
+
+            if (material.MaterialType == MaterialType.Semiconductor)
             {
-                CopyMaterialsToLocal();
-            }
-
-            Materials = new List<Material>();
-
-            switch (MaterialType)
-            {
-                case MaterialType.Dielectric:
-                    var dielectrics = File.ReadAllText(DielectricsPath);
-                    Materials.AddRange(JsonConvert.DeserializeObject<List<Dielectric>>(dielectrics, new DielectricConverter()));
-                    break;
-                case MaterialType.Metal:
-                    var metals = File.ReadAllText(MetalsPath);
-                    Materials.AddRange(JsonConvert.DeserializeObject<List<Metal>>(metals, new MetalConverter()));
-                    break;
-                case MaterialType.Semiconductor:
-                    var semiconductors = File.ReadAllText(SemiconductorsPath);
-                    Materials.AddRange(JsonConvert.DeserializeObject<List<Semiconductor>>(semiconductors, new SemiconductorConverter()));
-                    break;
-            }
-        }
-
-        public LayersTableViewController LayersController { get; set; }
-
-        public async void OnRowSelected(int row)
-        {
-            if (MaterialType == MaterialType.Semiconductor)
-            {
-                var alert = UIAlertController.Create("BandAid", "Select Doping Type", UIAlertControllerStyle.Alert);
-                alert.AddAction(UIAlertAction.Create("N Type", UIAlertActionStyle.Default, async action =>
-                {
-                    ((Semiconductor)Materials[row]).DopingType = DopingType.N;
-                    await DismissViewControllerAsync(true);
-                    LayersController.OnLayerAdded(Materials[row]);
-                }));
-                alert.AddAction(UIAlertAction.Create("P Type", UIAlertActionStyle.Default, async action =>
-                {
-                    ((Semiconductor)Materials[row]).DopingType = DopingType.P;
-                    await DismissViewControllerAsync(true);
-                    LayersController.OnLayerAdded(Materials[row]);
-                }));
-
-                await PresentViewControllerAsync(alert, true);
+                OnSemiconductorSelected((Semiconductor)material);
             }
             else
             {
-                var alert = UIAlertController.Create("BandAid", "Enter Thickness (nm)", UIAlertControllerStyle.Alert);
-                alert.AddTextField(textField =>
-                {
-                    textField.KeyboardType = UIKeyboardType.DecimalPad;
-                });
-                alert.AddAction(UIAlertAction.Create("Ok", UIAlertActionStyle.Default, async action =>
-                {
-                    var thickness = Length.FromNanometers(Double.Parse(alert.TextFields[0].Text));
-                    Material material;
-                    if (MaterialType == MaterialType.Dielectric)
-                    {
-                        var selectedD = (Dielectric)Materials[row];
-                        var newD = new Dielectric(thickness)
-                        {
-                            BandGap = selectedD.BandGap,
-                            ElectronAffinity = selectedD.ElectronAffinity,
-                            DielectricConstant = selectedD.DielectricConstant,
-                            Name = selectedD.Name,
-                            Notes = selectedD.Notes,
-                            FillColor = selectedD.FillColor
-                        };
-                        material = newD;
-                    }
-                    else
-                    {
-                        var selectedM = (Metal)Materials[row];
-                        var newM = new Metal(thickness)
-                        {
-                            Name = selectedM.Name,
-                            Notes = selectedM.Notes,
-                            FillColor = selectedM.FillColor
-                        };
-
-                        newM.SetWorkFunction(selectedM.WorkFunction);
-                        material = newM;
-                    }
-
-                    await DismissViewControllerAsync(true);
-                    LayersController.OnLayerAdded(material);
-                }));
-
-                await PresentViewControllerAsync(alert, true);
+                OnMaterialSelected(material);
             }
         }
 
-        
+        private async void OnSemiconductorSelected(Semiconductor semiconductor)
+        {
+            var alert = UIAlertController.Create("Select Doping Type", "", UIAlertControllerStyle.Alert);
+            alert.AddAction(UIAlertAction.Create("N Type", UIAlertActionStyle.Default, action =>
+            {
+                ViewModel.SelectedMaterial = semiconductor.DeepClone(DopingType.N);
+                PerformSegue("unwindToStructure", this);
+            }));
+            alert.AddAction(UIAlertAction.Create("P Type", UIAlertActionStyle.Default, action =>
+            {
+                ViewModel.SelectedMaterial = semiconductor.DeepClone(DopingType.P);
+                PerformSegue("unwindToStructure", this);
+            }));
+
+            await PresentViewControllerAsync(alert, true);
+        }
+
+        private async void OnMaterialSelected(Material material)
+        {
+            var alert = UIAlertController.Create("Enter Thickness (nm)", "", UIAlertControllerStyle.Alert);
+            alert.AddTextField(textField =>
+            {
+                textField.KeyboardType = UIKeyboardType.DecimalPad;
+            });
+
+            alert.AddAction(UIAlertAction.Create("Ok", UIAlertActionStyle.Default, action =>
+            {
+                double thickness;
+                if (!double.TryParse(alert.TextFields[0].Text, out thickness))
+                {
+                    OnMaterialSelected(material);
+                    return;
+                }
+
+                ViewModel.SelectedMaterial = material.WithThickness(Length.FromNanometers(thickness));
+                PerformSegue("unwindToStructure", this);
+            }));
+
+            await PresentViewControllerAsync(alert, true);
+        }
 
         private static string DocumentsPath
         {
@@ -155,20 +110,18 @@ namespace BandAid.iOS
 
         class MaterialSource : UITableViewSource
         {
+            private readonly MaterialSelectViewModel viewModel;
             private readonly MaterialSelectViewController viewController;
-            private readonly string[] dielectricLabels = { "Dielectric Constant", "Band Gap", "Electron Affinity" };
-            private readonly string[] metalLabels = { "Work Function" };
-            private readonly string[] semiconductorLabels = { "Dielectric Constant", "Band Gap", "Electron Affinity", 
-                "Intrinsic Carrier Concentration", "Dopant Concentration" };
 
             public MaterialSource(MaterialSelectViewController viewController)
             {
                 this.viewController = viewController;
+                viewModel = viewController.ViewModel;
             }
 
-            public override float GetHeightForRow(UITableView tableView, NSIndexPath indexPath)
+            public override nfloat GetHeightForRow(UITableView tableView, NSIndexPath indexPath)
             {
-                switch (viewController.MaterialType)
+                switch (viewModel.MaterialType)
                 {
                     case MaterialType.Dielectric:
                         return 44.0f + (14.0f * 2.0f);
@@ -185,41 +138,20 @@ namespace BandAid.iOS
             {
                 var cell = (MaterialCell)tableView.DequeueReusableCell("MaterialCell");
 
-                switch (viewController.MaterialType)
-                {
-                    case MaterialType.Dielectric:
-                        var dielectric = (Dielectric)viewController.Materials[indexPath.Row];
-                        cell.TitleLabel.Text = dielectric.Name;
-                        cell.LeftColumnLabel.Text = String.Join("\n", dielectricLabels);
-                        cell.RightColumnLabel.Text = String.Format("{0}\n{1}\n{2}", dielectric.DielectricConstant,
-                            dielectric.BandGap.ElectronVolts, dielectric.ElectronAffinity.ElectronVolts);
-                        break;
-                    case MaterialType.Metal:
-                        var metal = (Metal)viewController.Materials[indexPath.Row];
-                        cell.TitleLabel.Text = metal.Name;
-                        cell.LeftColumnLabel.Text = metalLabels[0];
-                        cell.RightColumnLabel.Text = String.Format("{0}", metal.WorkFunction.ElectronVolts);
-                        break;
-                    case MaterialType.Semiconductor:
-                        var semiconductor = (Semiconductor)viewController.Materials[indexPath.Row];
-                        cell.TitleLabel.Text = semiconductor.Name;
-                        cell.LeftColumnLabel.Text = String.Join("\n", semiconductorLabels);
-                        cell.RightColumnLabel.Text = String.Format("{0}\n{1}\n{2}\n{3}\n{4}",
-                            semiconductor.DielectricConstant, semiconductor.BandGap.ElectronVolts,
-                            semiconductor.ElectronAffinity.ElectronVolts, 
-                            semiconductor.IntrinsicCarrierConcentration.PerCubicCentimeter,
-                            semiconductor.DopantConcentration.PerCubicCentimeter);
-                        break;
-                }
+                var materialVm = viewModel.Materials[indexPath.Row];
+
+                cell.TitleLabel.Text = materialVm.TitleText;
+                cell.LeftColumnLabel.Text = materialVm.LeftText;
+                cell.RightColumnLabel.Text = materialVm.RightText;
 
                 return cell;
             }
 
-            public override int RowsInSection(UITableView tableview, int section)
+            public override nint RowsInSection(UITableView tableview, nint section)
             {
-                if (viewController.Materials == null) return 0;
+                if (viewModel.Materials == null) return 0;
 
-                return viewController.Materials.Count;
+                return viewModel.Materials.Count;
             }
 
             public override void RowSelected(UITableView tableView, NSIndexPath indexPath)

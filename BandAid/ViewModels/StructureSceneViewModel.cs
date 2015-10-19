@@ -1,11 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.ComponentModel;
 
 namespace Band
 {
     public class StructureSceneViewModel : ObservableObject
     {
         private PlotAnimationGrouping plotGroup;
+
+        private TestBench testBenchValue;
+        public TestBench TestBench
+        {
+            get { return testBenchValue; }
+            set
+            {
+                SetProperty(ref testBenchValue, value);
+
+                TestBench.PropertyChanged += TestBench_PropertyChanged;
+            }
+        }
 
         private PlotType plotTypeValue;
         public PlotType PlotType
@@ -14,17 +27,6 @@ namespace Band
             set
             {
                 SetProperty(ref plotTypeValue, value);
-                UpdatePlot();
-            }
-        }
-
-        private Dictionary<int, Structure> stepsValue;
-        public Dictionary<int, Structure> Steps
-        {
-            get { return stepsValue; }
-            set
-            {
-                SetProperty(ref stepsValue, value);
                 UpdatePlot();
             }
         }
@@ -50,11 +52,11 @@ namespace Band
             set { SetProperty(ref xAxisValue, value); }
         }
 
-        private int currentStepValue;
-        public int CurrentStep
+        private int currentPlotIndexValue;
+        public int CurrentPlotIndex
         {
-            get { return currentStepValue; }
-            set { SetProperty(ref currentStepValue, value); }
+            get { return currentPlotIndexValue; }
+            set { SetProperty(ref currentPlotIndexValue, value); }
         }
 
         private bool needsScreenshotValue;
@@ -64,19 +66,47 @@ namespace Band
             set { SetProperty(ref needsScreenshotValue, value); }
         }
 
+        private string structureNameValue;
+        public string StructureName
+        {
+            get { return structureNameValue; }
+            set { SetProperty(ref structureNameValue, value); }
+        }
+
+        public StructureSceneViewModel(TestBench testBench)
+        {
+            TestBench = testBench;
+            CurrentPlotIndex = testBench.CurrentIndex;
+            UpdatePlot();
+        }
+
+        private void TestBench_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "Steps":
+                    UpdatePlot();
+                    break;
+                case "CurrentIndex":
+                    CurrentPlotIndex = TestBench.CurrentIndex;
+                    break;
+            }
+        }
+
         private void UpdatePlot()
         {
-           plotGroup = PlotAnimationGrouping.Create(Steps.Keys
-                .OrderBy(k => k)
-                .Select(k => CreatePlot(Steps[k]))
+            if (TestBench.Steps.Count == 0) return;
+
+            plotGroup = PlotAnimationGrouping.Create(TestBench.Steps
+                .Select(s => CreatePlot(s))
                 .ToList());
+            
+            PrimaryYAxis = new AxisViewModel(plotGroup, AxisType.PrimaryY);
+            XAxis = new AxisViewModel(plotGroup, AxisType.X);
 
             Plots = plotGroup.Plots
                 .Select(p => new PlotViewModel(plotGroup, p))
                 .ToList();
-
-            PrimaryYAxis = new AxisViewModel(plotGroup, AxisType.PrimaryY);
-            XAxis = new AxisViewModel(plotGroup, AxisType.X);
         }
 
         private Plot CreatePlot(Structure structure)

@@ -2,41 +2,90 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Converters;
+using System.Runtime.Serialization;
 
 namespace Band
 {
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum MaterialType { Metal, Dielectric, Semiconductor }
 
+    [JsonObject(MemberSerialization.OptIn)]
+    [JsonConverter(typeof(Material.Converter))]
 	public abstract class Material
 	{
-		public string Name { get; set; }
-		public string Notes { get; set; }
-        public virtual Length Thickness { get; protected set; }
+        [JsonProperty]
+		public string Name { get; private set; }
 
-		public string FillColor { get; set; }
+        [JsonProperty]		
+        public string Notes { get; private set; }
+
+        [JsonProperty]
+		public string FillColor { get; private set; }
+
+        [JsonProperty]
+        public Length Thickness { get; private set; }
+
+        [JsonProperty]
+        public virtual Energy WorkFunction { get; private set; }
+
 		public List<EvalPoint> EvalPoints { get; set; }
 
-		public abstract Energy EnergyFromVacuumToTopBand { get; }
-		public abstract Energy EnergyFromVacuumToBottomBand { get; }
-		public abstract Energy EnergyFromVacuumToEfi { get; }
-        public abstract Energy WorkFunction { get; }
+        public abstract Energy EnergyFromVacuumToTopBand { get; }
+        public abstract Energy EnergyFromVacuumToBottomBand { get; }
+        public abstract Energy EnergyFromVacuumToEfi { get; }
 
         public Structure ParentStructure { get; set; }
+
+        public MaterialType MaterialType
+        {
+            get
+            {
+                if (this is Dielectric)
+                {
+                    return MaterialType.Dielectric;
+                }
+
+                if (this is Metal)
+                {
+                    return MaterialType.Metal;
+                }
+
+                return MaterialType.Semiconductor;
+            }
+        }
 
 		protected Material()
 		{
 			EvalPoints = new List<EvalPoint>();
 		}
 
-        protected void InitClone(Material material)
+        [OnDeserialized]
+        public void OnDeserialized(StreamingContext context)
+        {
+            EvalPoints = new List<EvalPoint>();
+            Prepare();
+        }
+
+        protected void InitClone(Material material, Length thickness)
         {
             material.Name = Name;
             material.Notes = Notes;
             material.FillColor = FillColor;
+            material.Thickness = thickness;
+            material.WorkFunction = WorkFunction;
+
             material.EvalPoints = EvalPoints.Select(ep => ep.DeepClone()).ToList();
         }
 
-        public abstract Material DeepClone();
+        public Material DeepClone()
+        {
+            return WithThickness(Thickness);
+        }
+
+        public abstract Material WithThickness(Length thickness);
 
 		public abstract ElectricField GetElectricField(Length location);
 		public abstract ElectricPotential GetPotential(Length location);
@@ -131,6 +180,26 @@ namespace Band
             }
 
             return dataset;
+        }
+
+        public class Converter : JsonCreationConverter<Material>
+        {
+            protected override Material Create(Type objectType, JObject jObject)
+            {
+                var materialType = (string)jObject["materialType"];
+
+                switch (materialType)
+                {
+                    case "metal":
+                        return new Metal();
+                    case "dielectric":
+                        return new Dielectric();
+                    case "semiconductor":
+                        return new Semiconductor();
+                    default:
+                        return null;
+                }
+            }
         }
 	}
 }

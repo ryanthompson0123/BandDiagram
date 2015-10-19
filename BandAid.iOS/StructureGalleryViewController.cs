@@ -1,21 +1,21 @@
-﻿
 using System;
 using System.Linq;
 
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using Foundation;
+using UIKit;
 using System.IO;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Band;
 using Band.Units;
 using Newtonsoft.Json;
+using System.ComponentModel;
 
 namespace BandAid.iOS
 {
     public partial class StructureGalleryViewController : UICollectionViewController
     {
-        public List<string> Structures { get; set; }
+        public StructureGalleryViewModel ViewModel { get; set; }
 
         public StructureGalleryViewController(IntPtr handle)
             : base(handle)
@@ -26,84 +26,74 @@ namespace BandAid.iOS
         {
             base.ViewDidLoad();
 
-            Structures = new List<string>();
-            CollectionView.Source = new StructureSource(this);
+            ViewModel = new StructureGalleryViewModel();
+            CollectionView.Source = new StructureSource(ViewModel);
         }
 
-        public override void ViewDidAppear(bool animated)
+        public override void ViewWillAppear(bool animated)
         {
-            base.ViewDidAppear(animated);
+            base.ViewWillAppear(animated);
 
-            LoadItems();
-            CollectionView.ReloadData();
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
-        private void LoadItems()
+        void ViewModel_PropertyChanged (object sender, PropertyChangedEventArgs e)
         {
-            if (!Directory.Exists(StructuresPath))
+            switch (e.PropertyName)
             {
-                Directory.CreateDirectory(StructuresPath);
+                case "Items":
+                    CollectionView.ReloadData();
+                    break;
             }
-                
-            Structures = Directory.EnumerateFiles(StructuresPath)
-                .Where(f => f.Contains("json"))
-                .Select(f => Path.GetFileNameWithoutExtension(f))
-                .ToList();
         }
 
-        private TestBenchViewModel targetStructure;
-
-        private void LoadStructure(string name)
+        public override void ViewDidDisappear(bool animated)
         {
-            var structurePath = Path.Combine(StructuresPath, name + ".json");
-            var data = File.ReadAllText(structurePath);
-            var dataObj = JObject.Parse(data);
+            base.ViewDidDisappear(animated);
 
-            var minV = (double)dataObj["minVoltage"];
-            var maxV = (double)dataObj["maxVoltage"];
-            var step = (double)dataObj["stepSize"];
-            var currentStep = (double)dataObj["currentStep"];
-            var refStruct = JsonConvert.DeserializeObject<Structure>(
-                dataObj["referenceStructure"].ToString(), new StructureConverter());
-
-            targetStructure = new TestBenchViewModel(currentStep, minV, maxV,
-                step, PlotType.Energy, refStruct, name);
-            PerformSegue("showStructure", this);
+            ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
         }
 
-        partial void AddTouched(NSObject sender)
-        {
-            PerformSegue("showStructure", this);
-        }
-
-        public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
+        public async override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
         {
             base.PrepareForSegue(segue, sender);
 
-            if (targetStructure != null)
-            {
-                var dest = (UINavigationController)segue.DestinationViewController;
-                var structCtl = (TestBenchViewController)dest.ViewControllers[0];
+            var dest = (UINavigationController)segue.DestinationViewController;
+            var tbController = (TestBenchViewController)dest.ViewControllers[0];
 
-                structCtl.ViewModel = targetStructure;
-                targetStructure = null;
+            if (segue.Identifier == "newTestBench")
+            {
+                tbController.ViewModel = new TestBenchViewModel(await TestBench.CreateDefaultAsync());
             }
+
+            if (segue.Identifier == "editTestBench")
+            {
+                var name = ViewModel.Items[CollectionView.GetIndexPathsForSelectedItems()[0].Row].TitleText;
+                var testBench = await TestBench.CreateAsync(name);
+                tbController.ViewModel = new TestBenchViewModel(testBench);
+            }
+        }
+
+        [Action("UnwindToGallery:")]
+        public void UnwindToGallery(UIStoryboardSegue segue)
+        {
         }
 
         class StructureSource : UICollectionViewSource
         {
-            private readonly StructureGalleryViewController viewController;
-            public StructureSource(StructureGalleryViewController viewController)
+            private readonly StructureGalleryViewModel viewModel;
+
+            public StructureSource(StructureGalleryViewModel viewModel)
             {
-                this.viewController = viewController;
+                this.viewModel = viewModel;
             }
 
-            public override int GetItemsCount(UICollectionView collectionView, int section)
+            public override nint GetItemsCount(UICollectionView collectionView, nint section)
             {
-                return viewController.Structures.Count;
+                return viewModel.Items.Count;
             }
 
-            public override int NumberOfSections(UICollectionView collectionView)
+            public override nint NumberOfSections(UICollectionView collectionView)
             {
                 return 1;
             }
@@ -114,29 +104,20 @@ namespace BandAid.iOS
                 var cell = (StructureCollectionViewCell)collectionView.DequeueReusableCell(
                                StructureCollectionViewCell.Key, indexPath);
 
-                cell.Title = viewController.Structures[indexPath.Row];
-                cell.Image = GetImage(indexPath);
+                var item = viewModel.Items[indexPath.Row];
+
+                cell.Title = item.TitleText;
+                cell.Image = GetImage(item.ImageFile);
 
                 return cell;
             }
 
-            public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
+            private UIImage GetImage(string path)
             {
-                viewController.LoadStructure(viewController.Structures[indexPath.Row]);
-            }
+                var imageData = NSData.FromFile(path);
 
-            private UIImage GetImage(NSIndexPath indexPath)
-            {
-                var structureName = viewController.Structures[indexPath.Row];
+                if (imageData == null) return null;
 
-                var documents = NSFileManager.DefaultManager.GetUrls(
-                    NSSearchPathDirectory.DocumentDirectory, 
-                    NSSearchPathDomain.User)[0].Path;
-                var saveDirPath = Path.Combine(documents, "save");
-                var imagePath = Path.Combine(saveDirPath, structureName + ".png");
-
-                Console.WriteLine(imagePath);
-                var imageData = NSData.FromFile(imagePath);
                 return new UIImage(imageData);
             }
         }

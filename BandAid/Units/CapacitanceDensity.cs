@@ -22,13 +22,7 @@ namespace Band.Units
             return new CapacitanceDensity(faradsPerSquareCentimeter * 1E4);
         }
 
-        public static CapacitanceDensity Zero
-        {
-            get
-            {
-                return new CapacitanceDensity(0);
-            }
-        }
+        public static CapacitanceDensity Zero = new CapacitanceDensity(0);
 
         public static CapacitanceDensity operator -(CapacitanceDensity right)
         {
@@ -102,12 +96,23 @@ namespace Band.Units
 
         public static bool operator ==(CapacitanceDensity left, CapacitanceDensity right)
         {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
             return left.FaradsPerSquareMeter == right.FaradsPerSquareMeter;
         }
 
         public static bool operator !=(CapacitanceDensity left, CapacitanceDensity right)
         {
-            return left.FaradsPerSquareMeter != right.FaradsPerSquareMeter;
+            return !(left == right);
         }
 
         public override bool Equals(object obj)

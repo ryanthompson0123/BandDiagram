@@ -1,7 +1,10 @@
 ﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Band.Units
 {
+    [JsonConverter(typeof(ChargeDensity.Converter))]
     public class ChargeDensity : IComparable<ChargeDensity>
     {
         public readonly double CoulombsPerSquareMeter;
@@ -31,13 +34,7 @@ namespace Band.Units
             get { return CoulombsPerSquareMeter / ElectricCharge.Elementary.Coulombs; }
         }
 
-        public static ChargeDensity Zero
-        {
-            get
-            {
-                return new ChargeDensity(0);
-            }
-        }
+        public static ChargeDensity Zero = new ChargeDensity(0);
 
         public static ChargeDensity FromCoulombsPerSquareCentimeter(double coulombsPerSquareCentimeter)
         {
@@ -116,12 +113,24 @@ namespace Band.Units
 
         public static bool operator ==(ChargeDensity left, ChargeDensity right)
         {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
             return left.CoulombsPerSquareMeter == right.CoulombsPerSquareMeter;
+
         }
 
         public static bool operator !=(ChargeDensity left, ChargeDensity right)
         {
-            return left.CoulombsPerSquareMeter != right.CoulombsPerSquareMeter;
+            return !(left == right);
         }
 
         public override bool Equals(object obj)
@@ -137,6 +146,24 @@ namespace Band.Units
         public override int GetHashCode()
         {
             return CoulombsPerSquareMeter.GetHashCode();
+        }
+
+        public class Converter : ExtendedJsonConverter<ChargeDensity>
+        {
+            protected override ChargeDensity Deserialize(Type objectType, JToken jToken)
+            {
+                return new ChargeDensity(jToken.ToObject<double>());
+            }
+
+            protected override JToken Serialize(ChargeDensity value)
+            {
+                if (value == null)
+                {
+                    return JToken.FromObject(ChargeDensity.Zero);
+                }
+
+                return JToken.FromObject(value.CoulombsPerSquareMeter);
+            }
         }
     }
 }

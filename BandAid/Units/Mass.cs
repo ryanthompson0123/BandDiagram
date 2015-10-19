@@ -1,7 +1,10 @@
 ﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Band.Units
 {
+    [JsonConverter(typeof(Mass.Converter))]
 	public class Mass : IComparable<Mass>
 	{
 		public readonly double Kilograms;
@@ -11,13 +14,7 @@ namespace Band.Units
 			Kilograms = kilograms;
 		}
 
-		public static Mass Zero
-		{
-			get
-			{
-				return new Mass(0);
-			}
-		}
+        public static Mass Zero = new Mass(0);
 
 		public double Grams
 		{
@@ -94,12 +91,23 @@ namespace Band.Units
 
 		public static bool operator ==(Mass left, Mass right)
 		{
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
 			return left.Kilograms == right.Kilograms;
 		}
 
 		public static bool operator !=(Mass left, Mass right)
 		{
-			return left.Kilograms != right.Kilograms;
+            return !(left == right);
 		}
 
 		public override bool Equals(object obj)
@@ -116,6 +124,19 @@ namespace Band.Units
 		{
 			return Kilograms.GetHashCode();
 		}
+
+        public class Converter : ExtendedJsonConverter<Mass>
+        {
+            protected override Mass Deserialize(Type objectType, JToken jToken)
+            {
+                return new Mass(jToken.ToObject<double>());
+            }
+
+            protected override JToken Serialize(Mass value)
+            {
+                return JToken.FromObject(value.Kilograms);
+            }
+        }
 	}
 }
 

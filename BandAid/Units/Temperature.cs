@@ -1,7 +1,10 @@
 ﻿using System;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Band.Units
 {
+    [JsonConverter(typeof(Temperature.Converter))]
 	public class Temperature : IComparable<Temperature>
 	{
 		public readonly double Kelvin;
@@ -11,15 +14,9 @@ namespace Band.Units
 			Kelvin = kelvin;
 		}
 
-		public static Temperature AbsoluteZero
-		{
-			get { return new Temperature(0); }
-		}
+        public static Temperature AbsoluteZero = new Temperature(0);
 
-		public static Temperature Room
-		{
-			get { return new Temperature(300); }
-		}
+        public static Temperature Room = new Temperature(300);
 
 		public double Celsius
 		{
@@ -116,12 +113,23 @@ namespace Band.Units
 
 		public static bool operator ==(Temperature left, Temperature right)
 		{
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
 			return left.Kelvin == right.Kelvin;
 		}
 
 		public static bool operator !=(Temperature left, Temperature right)
 		{
-			return left.Kelvin != right.Kelvin;
+            return !(left == right);
 		}
 
 		public override bool Equals(object obj)
@@ -138,5 +146,18 @@ namespace Band.Units
 		{
 			return Kelvin.GetHashCode();
 		}
+
+        public class Converter : ExtendedJsonConverter<Temperature>
+        {
+            protected override Temperature Deserialize(Type objectType, JToken jToken)
+            {
+                return new Temperature(jToken.ToObject<double>());
+            }
+
+            protected override JToken Serialize(Temperature value)
+            {
+                return JToken.FromObject(value.Kelvin);
+            }
+        }
 	}
 }

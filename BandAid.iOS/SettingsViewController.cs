@@ -1,17 +1,18 @@
-﻿
-using System;
-using System.Drawing;
 
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using System;
+using CoreGraphics;
+
+using Foundation;
+using UIKit;
 using Band;
 using Band.Units;
+using System.ComponentModel;
 
 namespace BandAid.iOS
 {
     public partial class SettingsViewController : UITableViewController
     {
-        public TestBenchViewModel Structure { get; set; }
+        public SettingsViewModel ViewModel { get; set; }
 
         public SettingsViewController(IntPtr handle)
             : base(handle)
@@ -21,67 +22,57 @@ namespace BandAid.iOS
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-			
-            minVoltageField.Text = Structure.MinVoltage.Volts.ToString();
-            maxVoltageField.Text = Structure.MaxVoltage.Volts.ToString();
-            stepSizeField.Text = Structure.StepSize.Volts.ToString();
+
+            minVoltageField.Text = ViewModel.MinVoltageText;
+            maxVoltageField.Text = ViewModel.MaxVoltageText;
+            stepSizeField.Text = ViewModel.StepSizeText;
 
             TableView.Delegate = new SettingsViewDelegate(this);
         }
 
-        public override void ViewDidAppear(bool animated)
+        public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
 
-            minVoltageField.EditingChanged += minVoltageField_EditingChanged;
-            maxVoltageField.EditingChanged += maxVoltageField_EditingChanged;
-            stepSizeField.EditingChanged += stepSizeField_EditingChanged;
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
-        public override void ViewWillDisappear(bool animated)
+        public override void ViewDidDisappear(bool animated)
         {
-            base.ViewWillDisappear(animated);
+            base.ViewDidDisappear(animated);
 
-            if (somethingChanged)
+            ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+        }
+
+        private void ViewModel_PropertyChanged (object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
             {
-                Structure.Set(
-                    ParseOrDefault(maxVoltageField.Text, 2.0),
-                    ParseOrDefault(minVoltageField.Text, -2.0),
-                    ParseOrDefault(stepSizeField.Text, 0.25)
-                );
+                case "StepSizeText":
+                    stepSizeField.Text = ViewModel.StepSizeText;
+                    break;
+                case "MaxVoltageText":
+                    maxVoltageField.Text = ViewModel.MaxVoltageText;
+                    break;
+                case "MinVoltageText":
+                    minVoltageField.Text = ViewModel.MinVoltageText;
+                    break;
             }
-
-            minVoltageField.EditingChanged -= minVoltageField_EditingChanged;
-            maxVoltageField.EditingChanged -= maxVoltageField_EditingChanged;
-            stepSizeField.EditingChanged -= stepSizeField_EditingChanged;
         }
 
-        private static double ParseOrDefault(string s, double fallback)
+        partial void OnMaxVoltageEditingChanged(NSObject sender)
         {
-            double value;
-            if (Double.TryParse(s, out value))
-            {
-                return value;
-            }
-
-            return fallback;
+            ViewModel.MaxVoltageText = maxVoltageField.Text;
         }
 
-        private bool somethingChanged;
-
-        private void minVoltageField_EditingChanged(object sender, EventArgs e)
+        partial void OnMinVoltageEditingChanged(NSObject sender)
         {
-            somethingChanged = true;
+            ViewModel.MinVoltageText = minVoltageField.Text;
         }
 
-        private void maxVoltageField_EditingChanged(object sender, EventArgs e)
+        partial void OnStepSizeEditingChanged(NSObject sender)
         {
-            somethingChanged = true;
-        }
-
-        private void stepSizeField_EditingChanged(object sender, EventArgs e)
-        {
-            somethingChanged = true;
+            ViewModel.StepSizeText = stepSizeField.Text;
         }
 
         public void OnRowSelected(int index)

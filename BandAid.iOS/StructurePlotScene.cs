@@ -1,11 +1,10 @@
-﻿using System;
-using MonoTouch.SpriteKit;
-using System.Drawing;
+using System;
+using SpriteKit;
+using CoreGraphics;
 using System.Linq;
 using Band;
-using MonoTouch.UIKit;
-using MonoTouch.Foundation;
-using System.IO;
+using UIKit;
+using Foundation;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -50,31 +49,31 @@ namespace BandAid.iOS
             }
         }
 
-        public SizeF PlotSize
+        public CGSize PlotSize
         {
             get
             {
-                return new SizeF(Size.Width - LeftYAxisMargin - RightYAxisMargin,
+                return new CGSize(Size.Width - LeftYAxisMargin - RightYAxisMargin,
                     Size.Height - XAxisMargin - TopMargin);
             }
         }
 
-        public PointF PlotPosition
+        public CGPoint PlotPosition
         {
-            get {  return new PointF(LeftYAxisMargin, XAxisMargin); }
+            get {  return new CGPoint(LeftYAxisMargin, XAxisMargin); }
         }
 
-        public SizeF PrimaryYAxisSize
+        public CGSize PrimaryYAxisSize
         {
-            get {  return new SizeF(100f, Size.Height - XAxisMargin - TopMargin); }
+            get {  return new CGSize(100f, Size.Height - XAxisMargin - TopMargin); }
         }
 
-        public SizeF XAxisSize
+        public CGSize XAxisSize
         {
-            get { return new SizeF(Size.Width - LeftYAxisMargin - RightYAxisMargin, 100f); }
+            get { return new CGSize(Size.Width - LeftYAxisMargin - RightYAxisMargin, 100f); }
         }
 
-        public StructurePlotScene(SizeF size)
+        public StructurePlotScene(CGSize size)
             : base(size)
         {
             TopMargin = 50f;
@@ -98,8 +97,8 @@ namespace BandAid.iOS
         {
             switch (e.PropertyName)
             {
-                case "CurrentStep":
-                    DisplayStep(ViewModel.CurrentStep);
+                case "CurrentPlotIndex":
+                    DisplayStep(ViewModel.CurrentPlotIndex);
                     break;
                 case "Plots":
                     SetUpPlot();
@@ -120,15 +119,21 @@ namespace BandAid.iOS
             AddChild(currentPlotNode);
         }
 
-        private void SetUpPlot()
+        public void SetUpPlot()
         {
+            UpdateSize();
             if (ViewModel.Plots == null) return;
 
             plotNodes = ViewModel.Plots.Select(p => CreatePlotNode(p)).ToList();
 
             SetUpPrimaryYAxis();
             SetUpXAxis();
-            DisplayStep(ViewModel.CurrentStep);
+            DisplayStep(ViewModel.CurrentPlotIndex);
+        }
+
+        private void UpdateSize()
+        {
+            Size = View.Bounds.Size;    
         }
 
         private void SetUpPrimaryYAxis()
@@ -139,7 +144,7 @@ namespace BandAid.iOS
             }
 
             primaryYAxisNode = new AxisNode(ViewModel.PrimaryYAxis, PrimaryYAxisSize);
-            primaryYAxisNode.Position = new PointF(0, XAxisMargin);
+            primaryYAxisNode.Position = new CGPoint(0, XAxisMargin);
             AddChild(primaryYAxisNode);
         }
 
@@ -151,7 +156,7 @@ namespace BandAid.iOS
             }
 
             xAxisNode = new AxisNode(ViewModel.XAxis, XAxisSize);
-            xAxisNode.Position = new PointF(LeftYAxisMargin, 0);
+            xAxisNode.Position = new CGPoint(LeftYAxisMargin, 0);
             AddChild(xAxisNode);
         }
 
@@ -163,7 +168,7 @@ namespace BandAid.iOS
             };
         }
 
-        private bool screenshotNextFrame = false;
+        private bool screenshotNextFrame;
 
         public override void Update(double currentTime)
         {
@@ -185,7 +190,7 @@ namespace BandAid.iOS
         public void TakeScreenshot()
         {
             UIGraphics.BeginImageContextWithOptions(View.Bounds.Size, false, 0);
-            View.DrawViewHierarchy(this.View.Bounds, true);
+            View.DrawViewHierarchy(View.Bounds, true);
             var image = UIGraphics.GetImageFromCurrentImageContext();
             UIGraphics.EndImageContext();
 
@@ -194,13 +199,7 @@ namespace BandAid.iOS
 
             System.Runtime.InteropServices.Marshal.Copy(png.Bytes, bytes, 0, Convert.ToInt32(png.Length));
 
-            var documents = NSFileManager.DefaultManager.GetUrls(
-                NSSearchPathDirectory.DocumentDirectory, 
-                NSSearchPathDomain.User)[0].Path;
-            var outDir = Path.Combine(documents, "save");
-            var outfile = Path.Combine(outDir, ViewModel.Name + ".png");
-
-            File.WriteAllBytes(outfile, bytes);
+            new FileManager().SaveTestBenchScreenshot(ViewModel.StructureName, bytes);
         }
     }
 }

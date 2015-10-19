@@ -1,28 +1,29 @@
-﻿using MonoTouch.SpriteKit;
+using SpriteKit;
 using Band;
-using System.Drawing;
-using MonoTouch.CoreGraphics;
-using MonoTouch.UIKit;
-using MonoTouch.CoreAnimation;
+using CoreGraphics;
+using CoreGraphics;
+using UIKit;
+using CoreAnimation;
+using System;
 
 namespace BandAid.iOS
 {
     public class PlotNode : SKNode
     {
         public PlotViewModel ViewModel { get; private set; }
-        public SizeF Size { get; private set; }
+        public CGSize Size { get; private set; }
 
-        public float XRatio
+        public nfloat XRatio
         {
-            get { return Size.Width / (float)(ViewModel.XAxisBounds.Max - ViewModel.XAxisBounds.Min); }
+            get { return Size.Width / (nfloat)(ViewModel.XAxisBounds.Max - ViewModel.XAxisBounds.Min); }
         }
 
-        public float YRatio
+        public nfloat YRatio
         {
-            get { return Size.Height / (float)(ViewModel.YAxisBounds.Max - ViewModel.YAxisBounds.Min); }
+            get { return Size.Height / (nfloat)(ViewModel.YAxisBounds.Max - ViewModel.YAxisBounds.Min); }
         }
 
-        public PlotNode(PlotViewModel viewModel, SizeF size)
+        public PlotNode(PlotViewModel viewModel, CGSize size)
         {
             ViewModel = viewModel;
             Size = size;
@@ -45,14 +46,14 @@ namespace BandAid.iOS
             UIGraphics.EndImageContext();
 
             var dataSetNode = new SKSpriteNode(SKTexture.FromImage(image));
-            dataSetNode.Position = new PointF(Size.Width/2, Size.Height/2);
+            dataSetNode.Position = new CGPoint(Size.Width/2, Size.Height/2);
             AddChild(dataSetNode);
         }
 
         private void PlotDataSetNode(PlotDataSet dataSet)
         {
             var layer = new CAShapeLayer();
-            layer.Frame = new RectangleF(new PointF(0, 0), Size);
+            layer.Frame = new CGRect(new CGPoint(0, 0), Size);
 
             var pathToDraw = new CGPath();
             var startCoord = GetCoord(dataSet.DataPoints[0]);
@@ -76,17 +77,17 @@ namespace BandAid.iOS
         private void DrawBorder()
         {
             var border = new SKShapeNode();
-            var pathToDraw = CGPath.FromRect(new RectangleF(new PointF(0, 0), Size));
+            var pathToDraw = CGPath.FromRect(new CGRect(new CGPoint(0, 0), Size));
             border.Path = pathToDraw;
             border.StrokeColor = UIColor.Black;
             border.LineWidth = 2.0f;
-            border.Position = new PointF(0, 0);
+            border.Position = new CGPoint(0, 0);
             AddChild(border);
         }
 
-        private PointF GetCoord(PlotDataPoint dataPoint)
+        private CGPoint GetCoord(PlotDataPoint dataPoint)
         {
-            return new PointF
+            return new CGPoint
             {
                 X = (float)(dataPoint.X - ViewModel.XAxisBounds.Min) * XRatio,
                 Y = (float)(ViewModel.YAxisBounds.Max - dataPoint.Y) * YRatio

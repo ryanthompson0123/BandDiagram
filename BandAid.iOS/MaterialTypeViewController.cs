@@ -1,16 +1,14 @@
-﻿
 using System;
-using System.Drawing;
+using CoreGraphics;
 
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using Foundation;
+using UIKit;
+using Band;
 
 namespace BandAid.iOS
 {
     public partial class MaterialTypeViewController : UITableViewController
     {
-        public LayersTableViewController LayersController { get; set; }
-
         public MaterialTypeViewController(IntPtr handle)
             : base(handle)
         {
@@ -20,7 +18,7 @@ namespace BandAid.iOS
         {
             base.ViewDidLoad();
 
-            PreferredContentSize = new SizeF(360, 540);
+            PreferredContentSize = new CGSize(360, 540);
         }
 
         async partial void OnCancelTouched(NSObject sender)
@@ -31,20 +29,22 @@ namespace BandAid.iOS
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
         {
             var destination = (MaterialSelectViewController)segue.DestinationViewController;
-            destination.LayersController = LayersController;
 
+            MaterialType materialType = default(MaterialType);
             switch (segue.Identifier)
             {
                 case "MetalSegue":
-                    destination.MaterialType = Band.MaterialType.Metal;
+                    materialType = MaterialType.Metal;
                     break;
                 case "DielectricSegue":
-                    destination.MaterialType = Band.MaterialType.Dielectric;
+                    materialType = MaterialType.Dielectric;
                     break;
                 case "SemiconductorSegue":
-                    destination.MaterialType = Band.MaterialType.Semiconductor;
+                    materialType = MaterialType.Semiconductor;
                     break;
             }
+
+            destination.ViewModel = new MaterialSelectViewModel(materialType);
         }
     }
 }

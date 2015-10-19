@@ -1,0 +1,55 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+
+namespace Band
+{
+    public class StructureViewModel : ObservableObject
+    {
+        private ObservableCollection<LayerViewModel> layersValue;
+        public ObservableCollection<LayerViewModel> Layers
+        {
+            get { return layersValue; }
+            set { SetProperty(ref layersValue, value); }
+        }
+
+        private Structure structure;
+
+        public StructureViewModel(Structure structure)
+        {
+            this.structure = structure;
+
+            Layers = new ObservableCollection<LayerViewModel>(
+                structure.Layers.Select(l => new LayerViewModel(l)));
+        }
+
+        public void MoveLayer(LayerViewModel viewModel, int position)
+        {
+            structure.MoveLayer(viewModel.Material, position);
+            Layers.Move(Layers.IndexOf(viewModel), position);
+        }
+
+        public void DeleteLayer(LayerViewModel viewModel)
+        {
+            structure.RemoveLayer(viewModel.Material);
+            Layers.Remove(viewModel);
+        }
+
+        public void DuplicateLayer(LayerViewModel viewModel)
+        {
+            var duplicateMaterial = viewModel.Material.DeepClone();
+            var newIndex = Layers.IndexOf(viewModel);
+            var newViewModel = new LayerViewModel(duplicateMaterial);
+
+            structure.InsertLayer(newIndex + 1, duplicateMaterial);
+            Layers.Insert(newIndex + 1, newViewModel);
+        }
+
+        public void AddLayer(LayerViewModel viewModel)
+        {
+            structure.AddLayer(viewModel.Material);
+            Layers.Add(viewModel);
+        }
+    }
+}
+

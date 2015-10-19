@@ -1,5 +1,6 @@
 [
 {
+		"materialType": "semiconductor",
 "dielectricConstant": 8.5,
 "bandGap": 6.28,
 "electronAffinity": 1.9,
@@ -10,6 +11,7 @@
 "fillColor": "#8000ff"
 },
 {
+		"materialType": "semiconductor",
 "dielectricConstant": 13.1,
 "bandGap": 1.42,
 "electronAffinity": 4.07,
@@ -19,6 +21,7 @@
 "fillColor": "#ff8080"
 },
 {
+		"materialType": "semiconductor",
 "dielectricConstant": 8.9,
 "bandGap": 3.425,
 "electronAffinity": 4.1,
@@ -29,6 +32,7 @@
 "fillColor": "#0000ff"
 },
 {
+		"materialType": "semiconductor",
 "dielectricConstant": 16.0,
 "bandGap": 0.67,
 "electronAffinity": 4.0,
@@ -38,6 +42,7 @@
 "fillColor": "#ff8040"
 },
 {
+		"materialType": "semiconductor",
 "dielectricConstant": 15.3,
 "bandGap": 1.97,
 "electronAffinity": 5.8,
@@ -49,6 +54,7 @@ Electron Affinity from Wladek W. Walukiewicz at Lawrence Berkeley National Lab",
 "fillColor": "#000080"
 },
 {
+		"materialType": "semiconductor",
 "dielectricConstant": 11.7,
 "bandGap": 1.12524,
 "electronAffinity": 4.05,

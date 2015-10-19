@@ -21,13 +21,7 @@ namespace Band.Units
             return new Capacitance(microFarads * 1E-6);
         }
 
-        public static Capacitance Zero
-        {
-            get
-            {
-                return new Capacitance(0);
-            }
-        }
+        public static Capacitance Zero = new Capacitance(0);
 
         public static Capacitance operator -(Capacitance right)
         {
@@ -96,12 +90,23 @@ namespace Band.Units
 
         public static bool operator ==(Capacitance left, Capacitance right)
         {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
             return left.Farads == right.Farads;
         }
 
         public static bool operator !=(Capacitance left, Capacitance right)
         {
-            return left.Farads != right.Farads;
+            return !(left == right);
         }
 
         public override bool Equals(object obj)

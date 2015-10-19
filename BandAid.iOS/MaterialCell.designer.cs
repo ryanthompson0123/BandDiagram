@@ -4,7 +4,7 @@
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-using MonoTouch.Foundation;
+using Foundation;
 using System.CodeDom.Compiler;
 
 namespace BandAid.iOS
@@ -13,13 +13,13 @@ namespace BandAid.iOS
 	partial class MaterialCell
 	{
 		[Outlet]
-		MonoTouch.UIKit.UILabel leftColumnLabel { get; set; }
+		UIKit.UILabel leftColumnLabel { get; set; }
 
 		[Outlet]
-		MonoTouch.UIKit.UILabel rightColumnLabel { get; set; }
+		UIKit.UILabel rightColumnLabel { get; set; }
 
 		[Outlet]
-		MonoTouch.UIKit.UILabel titleLabel { get; set; }
+		UIKit.UILabel titleLabel { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{

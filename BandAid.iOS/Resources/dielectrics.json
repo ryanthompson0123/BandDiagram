@@ -1,19 +1,22 @@
 [
+	{
+		"materialType": "dielectric",
+		"dielectricConstant": 9.0,
+		"bandGap": 8.7,
+		"electronAffinity": 1.35,
+		"name": "Al2O3",
+		"fillColor": "#0000ff"
+	},
+	{
+		"materialType": "dielectric",
+	"dielectricConstant": 26.0,
+	"bandGap": 5.5,
+	"electronAffinity": 3.3,
+	"name": "CeO2",
+	"fillColor": "#ff0080"
+	},
 {
-"dielectricConstant": 9.0,
-"bandGap": 8.7,
-"electronAffinity": 1.35,
-"name": "Al2O3",
-"fillColor": "#0000ff"
-},
-{
-"dielectricConstant": 26.0,
-"bandGap": 5.5,
-"electronAffinity": 3.3,
-"name": "CeO2",
-"fillColor": "#ff0080"
-},
-{
+		"materialType": "dielectric",
 "dielectricConstant": 14.0,
 "bandGap": 4.8,
 "electronAffinity": 1.75,
@@ -21,6 +24,7 @@
 "fillColor": "#408080"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 14.0,
 "bandGap": 4.8,
 "electronAffinity": 3.26,
@@ -29,6 +33,7 @@
 "fillColor": "#008080"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 4.2,
 "bandGap": 4.8,
 "electronAffinity": 3.5,
@@ -37,6 +42,7 @@
 "fillColor": "#14676b"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 4.8,
 "bandGap": 5.8,
 "electronAffinity": 3.5,
@@ -45,6 +51,7 @@
 "fillColor": "#2d8820"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 23.4,
 "bandGap": 5.7,
 "electronAffinity": 2.42,
@@ -58,6 +65,7 @@ eX=eXAl2O3 XAl2O3 + eXHfO2 XHfO2",
 "fillColor": "#cfca0e"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 25.0,
 "bandGap": 5.7,
 "electronAffinity": 2.65,
@@ -65,6 +73,7 @@ eX=eXAl2O3 XAl2O3 + eXHfO2 XHfO2",
 "fillColor": "#808040"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 25.0,
 "bandGap": 6.0,
 "electronAffinity": 1.85,
@@ -72,6 +81,7 @@ eX=eXAl2O3 XAl2O3 + eXHfO2 XHfO2",
 "fillColor": "#ff80c0"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 25.0,
 "bandGap": 6.0,
 "electronAffinity": 1.75,
@@ -80,6 +90,7 @@ eX=eXAl2O3 XAl2O3 + eXHfO2 XHfO2",
 "fillColor": "#8080ff"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 22.0,
 "bandGap": 5.6,
 "electronAffinity": 2.5,
@@ -89,6 +100,7 @@ MRS Bulletin Schlom & Haeni March 2002",
 "fillColor": "#872376"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 50.0,
 "bandGap": 4.35,
 "electronAffinity": 1.7,
@@ -96,6 +108,7 @@ MRS Bulletin Schlom & Haeni March 2002",
 "fillColor": "#800080"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 6.25,
 "bandGap": 3.4,
 "electronAffinity": 3.5,
@@ -104,6 +117,7 @@ MRS Bulletin Schlom & Haeni March 2002",
 "fillColor": "#000000"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 500.0,
 "bandGap": 3.4,
 "electronAffinity": 2.15,
@@ -114,6 +128,7 @@ Chang, Juan, and Joseph Ya-min Lee, Fabrication and characterization of metal-fe
 "fillColor": "#8080c0"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 7.0,
 "bandGap": 5.1,
 "electronAffinity": 2.15,
@@ -121,6 +136,7 @@ Chang, Juan, and Joseph Ya-min Lee, Fabrication and characterization of metal-fe
 "fillColor": "#00ff00"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 7.0,
 "bandGap": 5.1,
 "electronAffinity": 2.05,
@@ -129,6 +145,7 @@ Chang, Juan, and Joseph Ya-min Lee, Fabrication and characterization of metal-fe
 "fillColor": "#008000"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 7.0,
 "bandGap": 5.3,
 "electronAffinity": 2.05,
@@ -137,6 +154,7 @@ Chang, Juan, and Joseph Ya-min Lee, Fabrication and characterization of metal-fe
 "fillColor": "#008080"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 3.9,
 "bandGap": 8.9,
 "electronAffinity": 0.95,
@@ -144,6 +162,7 @@ Chang, Juan, and Joseph Ya-min Lee, Fabrication and characterization of metal-fe
 "fillColor": "#804040"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 90.0,
 "bandGap": 3.3,
 "electronAffinity": 3.9,
@@ -156,6 +175,7 @@ Robertson et al., Band offsets of high K gate oxides on III-V semiconductors, J.
 "fillColor": "#c0c0c0"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 26.0,
 "bandGap": 4.5,
 "electronAffinity": 3.75,
@@ -163,6 +183,7 @@ Robertson et al., Band offsets of high K gate oxides on III-V semiconductors, J.
 "fillColor": "#008040"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 26.0,
 "bandGap": 4.2,
 "electronAffinity": 3.2,
@@ -171,6 +192,7 @@ Robertson et al., Band offsets of high K gate oxides on III-V semiconductors, J.
 "fillColor": "#8000ff"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 80.0,
 "bandGap": 3.5,
 "electronAffinity": 2.95,
@@ -178,6 +200,7 @@ Robertson et al., Band offsets of high K gate oxides on III-V semiconductors, J.
 "fillColor": "#0000ff"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 15.0,
 "bandGap": 5.6,
 "electronAffinity": 1.85,
@@ -185,6 +208,7 @@ Robertson et al., Band offsets of high K gate oxides on III-V semiconductors, J.
 "fillColor": "#800040"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 8.75,
 "bandGap": 3.4,
 "electronAffinity": 4.6,
@@ -195,6 +219,7 @@ Also Data in Science and Technology, R. Poeschke Ed, 1992",
 "fillColor": "#000000"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 8.75,
 "bandGap": 3.3,
 "electronAffinity": 4.35,
@@ -203,6 +228,7 @@ Also Data in Science and Technology, R. Poeschke Ed, 1992",
 "fillColor": "#000000"
 },
 {
+		"materialType": "dielectric",
 "dielectricConstant": 25.0,
 "bandGap": 5.8,
 "electronAffinity": 2.75,

@@ -1,7 +1,10 @@
 ﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Band.Units
 {
+    [JsonConverter(typeof(ElectricPotential.Converter))]
 	public class ElectricPotential : IComparable<ElectricPotential>
 	{
 		public readonly double Volts;
@@ -36,10 +39,7 @@ namespace Band.Units
             }
         }
 
-		public static ElectricPotential Zero
-		{
-			get { return new ElectricPotential(0); }
-		}
+        public static ElectricPotential Zero = new ElectricPotential(0);
 
 		public static ElectricPotential FromMegavolts(double megavolts)
 		{
@@ -137,13 +137,24 @@ namespace Band.Units
 		}
 
 		public static bool operator ==(ElectricPotential left, ElectricPotential right)
-		{
+        {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
             return Math.Abs(left.Volts - right.Volts) < 0.0001;
 		}
 
 		public static bool operator !=(ElectricPotential left, ElectricPotential right)
 		{
-            return Math.Abs(left.Volts - right.Volts) > 0.0001;
+            return !(left == right);
 		}
 
         public static implicit operator Energy(ElectricPotential p)
@@ -169,6 +180,19 @@ namespace Band.Units
         public override string ToString()
         {
             return string.Format("{0} V", Volts);
+        }
+
+        public class Converter : ExtendedJsonConverter<ElectricPotential>
+        {
+            protected override ElectricPotential Deserialize(Type objectType, JToken jToken)
+            {
+                return new ElectricPotential(jToken.ToObject<double>());
+            }
+
+            protected override JToken Serialize(ElectricPotential value)
+            {
+                return JToken.FromObject(value.Volts);
+            }
         }
     }
 }

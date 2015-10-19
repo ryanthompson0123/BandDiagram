@@ -4,7 +4,7 @@
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-using MonoTouch.Foundation;
+using Foundation;
 using System.CodeDom.Compiler;
 
 namespace BandAid.iOS
@@ -13,7 +13,7 @@ namespace BandAid.iOS
 	partial class StructureGalleryViewController
 	{
 		[Action ("AddTouched:")]
-		partial void AddTouched (MonoTouch.Foundation.NSObject sender);
+		partial void AddTouched (Foundation.NSObject sender);
 		
 		void ReleaseDesignerOutlets ()
 		{

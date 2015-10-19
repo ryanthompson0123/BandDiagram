@@ -1,7 +1,8 @@
-﻿using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using Foundation;
+using UIKit;
 using Band;
 using System.ComponentModel;
+using System;
 
 namespace BandAid.iOS
 {
@@ -39,12 +40,15 @@ namespace BandAid.iOS
 
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            switch (e.PropertyName)
+            InvokeOnMainThread(() =>
             {
-                case "Parameters":
-                    TableView.ReloadData();
-                    break;
-            }
+                switch (e.PropertyName)
+                {
+                    case "Parameters":
+                        TableView.ReloadData();
+                        break;
+                }
+            });
         }
 
         class ParameterListSource : UITableViewSource
@@ -56,21 +60,21 @@ namespace BandAid.iOS
                 this.viewModel = viewModel;
             }
 
-            public override string TitleForHeader(UITableView tableView, int section)
+            public override string TitleForHeader(UITableView tableView, nint section)
             {
-                return viewModel.Structure.Layers[section].Name;
+                return viewModel.Parameters[(int)section].TitleText;
             }
 
-            public override int NumberOfSections(UITableView tableView)
+            public override nint NumberOfSections(UITableView tableView)
             {
                 if (viewModel.Parameters == null) return 0;
 
                 return viewModel.Parameters.Count;
             }
 
-            public override int RowsInSection(UITableView tableview, int section)
+            public override nint RowsInSection(UITableView tableview, nint section)
             {
-                return viewModel.Parameters[section].VoltageDropText == null ? 0 : 2;
+                return viewModel.Parameters[(int)section].VoltageDropText == null ? 0 : 2;
             }
 
             public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)

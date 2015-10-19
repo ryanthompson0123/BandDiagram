@@ -4,19 +4,19 @@
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-using MonoTouch.Foundation;
+using Foundation;
 using System.CodeDom.Compiler;
 
 namespace BandAid.iOS
 {
 	[Register ("LayersTableViewController")]
-	partial class LayersTableViewController
+	partial class StructureTableViewController
 	{
 		[Action ("OnAddTapped:")]
-		partial void OnAddTapped (MonoTouch.Foundation.NSObject sender);
+		partial void OnAddTapped (Foundation.NSObject sender);
 
 		[Action ("OnTrashTapped:")]
-		partial void OnTrashTapped (MonoTouch.UIKit.UIBarButtonItem sender);
+		partial void OnTrashTapped (UIKit.UIBarButtonItem sender);
 		
 		void ReleaseDesignerOutlets ()
 		{

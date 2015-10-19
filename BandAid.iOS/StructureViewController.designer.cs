@@ -9,8 +9,8 @@ using System.CodeDom.Compiler;
 
 namespace BandAid.iOS
 {
-	[Register ("TestBenchViewController")]
-	partial class TestBenchViewController
+	[Register ("StructureViewController")]
+	partial class StructureViewController
 	{
 		[Outlet]
 		UIKit.UISlider biasSlider { get; set; }
@@ -19,32 +19,24 @@ namespace BandAid.iOS
 		UIKit.UILabel currentVoltageLabel { get; set; }
 
 		[Outlet]
-		SpriteKit.SKView plotView { get; set; }
-
-		[Outlet]
 		UIKit.UIBarButtonItem settingsButton { get; set; }
 
-		[Action ("OnSettingsClicked:")]
-		partial void OnSettingsClicked (Foundation.NSObject sender);
+		[Action ("OnStructuresClicked:")]
+		partial void OnStructuresClicked (Foundation.NSObject sender);
 
 		[Action ("OnToggleClicked:")]
 		partial void OnToggleClicked (Foundation.NSObject sender);
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (biasSlider != null) {
-				biasSlider.Dispose ();
-				biasSlider = null;
-			}
-
 			if (currentVoltageLabel != null) {
 				currentVoltageLabel.Dispose ();
 				currentVoltageLabel = null;
 			}
 
-			if (plotView != null) {
-				plotView.Dispose ();
-				plotView = null;
+			if (biasSlider != null) {
+				biasSlider.Dispose ();
+				biasSlider = null;
 			}
 
 			if (settingsButton != null) {

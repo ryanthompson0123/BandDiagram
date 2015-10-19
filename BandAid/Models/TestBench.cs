@@ -4,25 +4,32 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
+using System.Runtime.Serialization;
 
 namespace Band
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class TestBench : ObservableObject
     {
         private bool needsComputeValue;
-        [JsonIgnore]
         public bool NeedsCompute
         {
             get { return needsComputeValue; }
             set { SetProperty(ref needsComputeValue, value); }
         }
-
-        public string Name { get; set; }
-
+            
+        private string nameValue;
+        [JsonProperty]
+        public string Name
+        {
+            get { return nameValue; }
+            set { SetProperty(ref nameValue, value); }
+        }
+            
         private Structure structureValue;
+        [JsonProperty]
         public Structure Structure
         {
             get { return structureValue; }
@@ -41,43 +48,33 @@ namespace Band
             }
         }
 
-        [JsonIgnore]
-        public Dictionary<int, Structure> Steps { get; set; }
+        private List<Structure> stepsValue;
+        public List<Structure> Steps
+        {
+            get { return stepsValue; }
+            set { SetProperty(ref stepsValue, value); }
+        }
 
-        private ElectricPotential currentVoltageValue;
-        [JsonIgnore]
+        private int currentIndexValue;
+        [JsonProperty]
+        public int CurrentIndex
+        {
+            get { return currentIndexValue; }
+            set { SetProperty(ref currentIndexValue, value); }
+        }
+
         public ElectricPotential CurrentVoltage
         {
-            get { return currentVoltageValue; }
-            set
-            {
-                if (currentVoltageValue == value) return;
-
-                SetProperty(ref currentVoltageValue, value);
-                CurrentStep = StepForPotential(value);
-            }
+            get { return PotentialForStep(CurrentIndex); }
         }
 
-        private int currentStepValue;
-        public int CurrentStep
-        {
-            get { return currentStepValue; }
-            set
-            {
-                if (currentStepValue == value) return;
-
-                SetProperty(ref currentStepValue, value);
-                CurrentVoltage = PotentialForStep(value);
-            }
-        }
-
-        [JsonIgnore]
         public Structure CurrentStructure
         {
-            get { return Steps[CurrentStep]; }
+            get { return Steps[CurrentIndex]; }
         }
 
         private ElectricPotential minVoltageValue;
+        [JsonProperty]
         public ElectricPotential MinVoltage
         {
             get { return minVoltageValue; }
@@ -89,6 +86,7 @@ namespace Band
         }
 
         private ElectricPotential maxVoltageValue;
+        [JsonProperty]
         public ElectricPotential MaxVoltage
         {
             get { return maxVoltageValue; }
@@ -100,18 +98,18 @@ namespace Band
         }
 
         private ElectricPotential stepSizeValue;
+        [JsonProperty]
         public ElectricPotential StepSize
         {
             get { return stepSizeValue; }
             set
             {
-                if (value.Volts == 0.0) return;
+                if (value.RoundMillivolts == 0) return;
                 SetProperty(ref stepSizeValue, value);
                 SetNeedsCompute();
             }
         }
-
-        [JsonIgnore]
+        
         public int StepCount
         {
             get { return (int)((MaxVoltage - MinVoltage) / StepSize) + 1; }
@@ -119,14 +117,24 @@ namespace Band
 
         public TestBench()
         {
-            Steps = new Dictionary<int, Structure>();
-            CurrentVoltage = new ElectricPotential(1.0);
+            Steps = new List<Structure>();
             MinVoltage = new ElectricPotential(-2.0);
             MaxVoltage = new ElectricPotential(2.0);
             StepSize = new ElectricPotential(0.25);
+            CurrentIndex = StepCount / 2;
+        }
 
-            CurrentStep = StepForPotential(CurrentVoltage);
-            Structure = Structure.Default;
+        [OnDeserialized]
+        public void OnDeserialized(StreamingContext context)
+        {
+            NeedsCompute = true;
+        }
+
+        public static Task<TestBench> CreateAsync(string name)
+        {
+            var fileManager = DependencyService.Get<IFileManager>();
+
+            return fileManager.LoadTestBenchAsync(name);
         }
 
         public static async Task<TestBench> CreateDefaultAsync()
@@ -149,27 +157,32 @@ namespace Band
         {
             if (NeedsCompute)
             {
-                await Task.Run(() => Compute()); 
+                await Task.Run(Compute); 
             }
+        }
+
+        public void SetBias(ElectricPotential potential)
+        {
+            CurrentIndex = StepForPotential(potential);
         }
 
         private void Compute()
         {
+            NeedsCompute = false;
+
+            if (!Structure.IsValid) return;
+
             Debug.WriteLine(string.Format("Beginning calculation of {0} steps", StepCount));
             var stopwatch = Stopwatch.StartNew();
 
-            var steps = Enumerable.Range(0, StepCount).Select(s => PotentialForStep(s).RoundMillivolts)
-                .ToDictionary(p => p, p =>
-                {
-                    return Steps.ContainsKey(p) ? Steps[p] :
-                            Structure.DeepClone(ElectricPotential.FromMillivolts(p), new Temperature(300.0));
-                });
+            var steps = Enumerable.Range(0, StepCount)
+                .Select(s => PotentialForStep(s).RoundMillivolts)
+                .Select(mv => Structure.DeepClone(ElectricPotential.FromMillivolts(mv), new Temperature(300.0)))
+                .ToList();
 
             Debug.WriteLine(string.Format("Finished all calculations in {0} ms", stopwatch.ElapsedMilliseconds));
 
             Steps = steps;
-
-            NeedsCompute = false;
         }
 
         private ElectricPotential PotentialForStep(int step)

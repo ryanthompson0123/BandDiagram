@@ -2,62 +2,52 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Band
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class Metal : Material
 	{
-        private Energy workFunctionValue;
-		public override Energy WorkFunction
-        {
-            get { return workFunctionValue; }
-        }
-
-        public void SetWorkFunction(Energy energy)
-        {
-            workFunctionValue = energy;
-        }
-
-        public ChargeDensity ExtraCharge { get ; set; }
+        [JsonProperty]
+        public ChargeDensity ExtraCharge { get ; private set; }
 
 		public override Energy EnergyFromVacuumToBottomBand
 		{
-			get
-			{
-				return WorkFunction;
-			}
+            get { return WorkFunction; }
 		}
 
 		public override Energy EnergyFromVacuumToEfi
 		{
-			get
-			{
-				return WorkFunction;
-			}
+            get { return WorkFunction; }
 		}
 
 		public override Energy EnergyFromVacuumToTopBand
 		{
-			get
-			{
-				return WorkFunction;
-			}
+            get { return WorkFunction; }
 		}
 
-        public Metal(Length thickness)
+        [JsonConstructor]
+        internal Metal()
         {
             ExtraCharge = ChargeDensity.Zero;
-            Thickness = thickness;
-            Prepare();
         }
 
-        public override Material DeepClone()
+        [OnDeserialized]
+        public void OnDeserialized(StreamingContext context)
         {
-            var metal = new Metal(Thickness);
-            InitClone(metal);
+            base.OnDeserialized(context);
+        }
 
-            metal.SetWorkFunction(WorkFunction);
+        public override Material WithThickness(Length thickness)
+        {
+            var metal = new Metal();
+            InitClone(metal, thickness);
+
             metal.ExtraCharge = ExtraCharge;
+
+            metal.Prepare();
 
             return metal;
         }
@@ -76,6 +66,8 @@ namespace Band
 
 		public sealed override void Prepare()
 		{
+            if (Thickness == null) return;
+
 			EvalPoints.Clear();
 			EvalPoints.Add(new EvalPoint());
 			EvalPoints.Add(new EvalPoint {

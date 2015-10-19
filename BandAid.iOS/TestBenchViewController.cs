@@ -1,9 +1,9 @@
-﻿using System;
-using System.Drawing;
+using System;
+using CoreGraphics;
 
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
-using MonoTouch.SpriteKit;
+using Foundation;
+using UIKit;
+using SpriteKit;
 using Band;
 using System.ComponentModel;
 using Band.Units;
@@ -38,7 +38,7 @@ namespace BandAid.iOS
                 ViewModel = ViewModel.StructureParameterList
             };
 
-            parameterList.View.Frame = new RectangleF(-200f, 0f, 200f, View.Frame.Height);
+            parameterList.View.Frame = new CGRect(-200f, 0f, 200f, View.Frame.Height);
 
             SetUpTitleText();
             NavigationItem.TitleView = TitleText;
@@ -55,6 +55,9 @@ namespace BandAid.iOS
                 ViewModel = ViewModel.Scene
             };
             plotView.PresentScene(plotScene);
+
+            biasSlider.MaxValue = (float)ViewModel.BiasSliderMaxValue;
+            biasSlider.MinValue = (float)ViewModel.BiasSliderMinValue;
         }
 
         public override void ViewWillAppear(bool animated)
@@ -63,7 +66,7 @@ namespace BandAid.iOS
 
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
             biasSlider.ValueChanged += biasSlider_ValueChanged;
-            //chartSegments.ValueChanged += chartSegments_ValueChanged;
+            chartSegments.ValueChanged += chartSegments_ValueChanged;
         }
 
         public override void ViewDidAppear(bool animated)
@@ -83,7 +86,7 @@ namespace BandAid.iOS
 
         private void SetUpTitleText()
         {
-            TitleText = new UITextField(new RectangleF(0, 0, 400, 44))
+            TitleText = new UITextField(new CGRect(0, 0, 400, 44))
             {
                 TextAlignment = UITextAlignment.Center,
                 BackgroundColor = UIColor.Clear,
@@ -144,7 +147,7 @@ namespace BandAid.iOS
                     TitleText.Text = ViewModel.TitleText;
                     break;
                 case "CurrentVoltageText":
-                    zeroVoltageLabel.Text = ViewModel.CurrentVoltageText;
+                    currentVoltageLabel.Text = ViewModel.CurrentVoltageText;
                     break;
                 case "BiasSliderMaxValue":
                     biasSlider.MaxValue = (float)ViewModel.BiasSliderMaxValue;
@@ -162,19 +165,22 @@ namespace BandAid.iOS
 
         bool toggleIsOpen;
         bool firstTime = true;
-        async partial void ToggleTouched(NSObject sender)
+        async partial void OnToggleClicked(NSObject sender)
         {
             if (toggleIsOpen)
             {
+                parameterList.ViewWillDisappear(true);
                 await UIView.AnimateAsync(.3, () =>
                 {
-                    View.Frame = new RectangleF(0, 0, View.Frame.Width + 200, View.Frame.Height);
-                    parameterList.View.Frame = new RectangleF(-200, 0, 
+                    View.Frame = new CGRect(0, 0, View.Frame.Width + 200, View.Frame.Height);
+                    parameterList.View.Frame = new CGRect(-200, 0, 
                         200, View.Frame.Height);
                     View.LayoutIfNeeded();
+                    plotScene.SetUpPlot();
                 });
 
                 toggleIsOpen = false;
+                parameterList.ViewDidDisappear(true);
             }
             else
             {
@@ -184,21 +190,19 @@ namespace BandAid.iOS
                     firstTime = false;
                 }
 
+                parameterList.ViewWillAppear(true);
                 await UIView.AnimateAsync(.3, () =>
                 {
-                    View.Frame = new RectangleF(200, 0, View.Frame.Width - 200, View.Frame.Height);
-                    parameterList.View.Frame = new RectangleF(0, 0, 
+                    View.Frame = new CGRect(200, 0, View.Frame.Width - 200, View.Frame.Height);
+                    parameterList.View.Frame = new CGRect(0, 0, 
                         200, View.Frame.Height);
                     View.LayoutIfNeeded();
+                    plotScene.SetUpPlot();
                 });
 
                 toggleIsOpen = true;
+                parameterList.ViewDidAppear(true);
             }
-        }
-
-        async partial void StructuresTouched(NSObject sender)
-        {
-            await NavigationController.PresentingViewController.DismissViewControllerAsync(true);
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
@@ -208,14 +212,17 @@ namespace BandAid.iOS
             if (segue.Identifier == "layersPopoverSegue")
             {
                 var destination = (UINavigationController)segue.DestinationViewController;
-                var layers = (LayersTableViewController)destination.ChildViewControllers[0];
-                layers.Structure = ViewModel;
+                var layers = (StructureTableViewController)destination.ChildViewControllers[0];
+                layers.ViewModel = new StructureViewModel(ViewModel.TestBench.Structure);
             }
 
             if (segue.Identifier == "settingsPopoverSegue")
             {
                 var settings = (SettingsViewController)segue.DestinationViewController;
-                settings.Structure = ViewModel;
+                settings.ViewModel = ViewModel.GetSettingsViewModel();
+
+                var popover = settings.PopoverPresentationController;
+                popover.Delegate = new SettingsPopoverDelegate(ViewModel);
             }
         }
 
@@ -263,7 +270,7 @@ namespace BandAid.iOS
             get
             {
                 var playButton = new UIBarButtonItem(UIBarButtonSystemItem.Play);
-                //playButton.Clicked += OnPlayClicked;
+                playButton.Clicked += OnPlayClicked;
 
                 return new []
                 {
@@ -309,6 +316,40 @@ namespace BandAid.iOS
             }
 
             return array;
+        }
+
+        class SettingsPopoverDelegate : UIPopoverPresentationControllerDelegate
+        {
+            private readonly TestBenchViewModel viewModel;
+            public SettingsPopoverDelegate(TestBenchViewModel viewModel)
+            {
+                this.viewModel = viewModel;
+            }
+
+            public override void DidDismissPopover(UIPopoverPresentationController popoverPresentationController)
+            {
+                var settingsVc = (SettingsViewController)popoverPresentationController
+                    .PresentedViewController;
+                var settingsVm = settingsVc.ViewModel;
+                viewModel.UpdateSettings(
+                    settingsVm.MinVoltageText,
+                    settingsVm.MaxVoltageText,
+                    settingsVm.StepSizeText);
+            }
+        }
+
+        class StructurePopoverDelegate : UIPopoverPresentationControllerDelegate
+        {
+            private readonly TestBenchViewModel viewModel;
+            public StructurePopoverDelegate(TestBenchViewModel viewModel)
+            {
+                this.viewModel = viewModel;
+            }
+
+            public async override void DidDismissPopover(UIPopoverPresentationController popoverPresentationController)
+            {
+                await viewModel.TestBench.ComputeIfNeededAsync();
+            }
         }
     }
 }

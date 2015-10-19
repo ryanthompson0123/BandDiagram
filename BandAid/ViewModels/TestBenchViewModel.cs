@@ -83,34 +83,39 @@ namespace Band
         {
             TestBench = testBench;
 
-            StructureParameterList = new StructureParameterListViewModel(TestBench.Structure);
-            Scene = new StructureSceneViewModel();
+            StructureParameterList = new StructureParameterListViewModel(TestBench);
+            Scene = new StructureSceneViewModel(TestBench);
+
+            BiasSliderMaxValue = TestBench.MaxVoltage.Volts;
+            BiasSliderMinValue = testBench.MinVoltage.Volts;
 
             TitleText = TestBench.Name;
+            Compute();
         }
 
-        private void TestBench_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private async void Compute()
+        {
+            await TestBench.ComputeIfNeededAsync();
+        }
+
+        private async void TestBench_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case "CurrentStep":
-                    StructureParameterList.Structure = TestBench.CurrentStructure;
-                    break;
-                case "Steps":
-                    StructureParameterList.Structure = TestBench.CurrentStructure;
-                    Scene.Steps = TestBench.Steps;
+                case "CurrentIndex":
+                    CurrentVoltageText = TestBench.CurrentVoltage.ToString();
                     break;
                 case "Name":
                     TitleText = TestBench.Name;
-                    break;
-                case "CurrentVoltage":
-                    CurrentVoltageText = TestBench.CurrentVoltage.ToString();
                     break;
                 case "MaxVoltage":
                     BiasSliderMaxValue = TestBench.MaxVoltage.Volts;
                     break;
                 case "MinVoltage":
                     BiasSliderMinValue = TestBench.MinVoltage.Volts;
+                    break;
+                case "NeedsCompute":
+                    await TestBench.ComputeIfNeededAsync();
                     break;
             }
         }
@@ -125,7 +130,34 @@ namespace Band
             var realValue = roundedValue / roundingFactor;
 
             // Set the current voltage to the snapped voltage.
-            TestBench.CurrentVoltage = new ElectricPotential(realValue);
+            TestBench.SetBias(new ElectricPotential(realValue));
+        }
+
+        public async void UpdateSettings(string minVoltageText, string maxVoltageText, string stepSizeText)
+        {
+            double minVoltage;
+            double maxVoltage;
+            double stepSize;
+
+            if (double.TryParse(minVoltageText, out minVoltage) &&
+                double.TryParse(maxVoltageText, out maxVoltage) &&
+                double.TryParse(stepSizeText, out stepSize))
+            {
+                TestBench.MinVoltage = new ElectricPotential(minVoltage);
+                TestBench.MaxVoltage = new ElectricPotential(maxVoltage);
+                TestBench.StepSize = new ElectricPotential(stepSize);
+                await TestBench.ComputeIfNeededAsync();
+            }
+        }
+
+        public SettingsViewModel GetSettingsViewModel()
+        {
+            return new SettingsViewModel
+            {
+                MaxVoltageText = TestBench.MaxVoltage.Volts.ToString(),
+                MinVoltageText = TestBench.MinVoltage.Volts.ToString(),
+                StepSizeText = TestBench.StepSize.Volts.ToString()
+            };
         }
 
         private async void RenameTestBench(string oldName)

@@ -11,13 +11,7 @@ namespace Band.Units
             SquareMeters = squareMeters;
         }
 
-        public static Area Zero
-        {
-            get
-            {
-                return new Area(0);
-            }
-        }
+        public static Area Zero = new Area(0);
 
         public double SquareCentimeters
         {
@@ -135,12 +129,23 @@ namespace Band.Units
 
         public static bool operator ==(Area left, Area right)
         {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
             return left.SquareMeters == right.SquareMeters;
         }
 
         public static bool operator !=(Area left, Area right)
         {
-            return left.SquareMeters != right.SquareMeters;
+            return !(left == right);
         }
 
         public override bool Equals(object obj)

@@ -11,13 +11,7 @@ namespace Band.Units
             CubicMeters = cubicMeters;
         }
 
-        public static Volume Zero
-        {
-            get
-            {
-                return new Volume(0);
-            }
-        }
+        public static Volume Zero = new Volume(0);
 
         public double CubicCentimeters
         {
@@ -130,12 +124,23 @@ namespace Band.Units
 
         public static bool operator ==(Volume left, Volume right)
         {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
             return left.CubicMeters == right.CubicMeters;
         }
 
         public static bool operator !=(Volume left, Volume right)
         {
-            return left.CubicMeters != right.CubicMeters;
+            return !(left == right);
         }
 
         public override bool Equals(object obj)

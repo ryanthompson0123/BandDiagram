@@ -1,5 +1,6 @@
 [
 {
+		"materialType": "metal",
 "workFunction": 4.7,
 "extraCharge": 0.0,
 "name": "Ag",
@@ -7,6 +8,7 @@
 "fillColor": "#fa5666"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.2,
 "extraCharge": 0.0,
 "name": "Al",
@@ -14,12 +16,14 @@
 "fillColor": "#808080"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.28,
 "extraCharge": 0.0,
 "name": "Al-2",
 "fillColor": "#00ffff"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.8,
 "extraCharge": 0.0,
 "name": "Au",
@@ -27,12 +31,14 @@
 "fillColor": "#ff8040"
 },
 {
+		"materialType": "metal",
 "workFunction": 5.1,
 "extraCharge": 0.0,
 "name": "Au-2",
 "fillColor": "#00ff00"
 },
 {
+		"materialType": "metal",
 "workFunction": 2.9,
 "extraCharge": 0.0,
 "name": "Ca",
@@ -40,6 +46,7 @@
 "fillColor": "#000000"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.4,
 "extraCharge": 0.0,
 "name": "Cr",
@@ -47,6 +54,7 @@
 "fillColor": "#0000a0",
 },
 {
+		"materialType": "metal",
 "workFunction": 4.5,
 "extraCharge": 0.0,
 "name": "Cu",
@@ -54,6 +62,7 @@
 "fillColor": "#ff8080"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.4,
 "extraCharge": 0.0,
 "name": "Fe",
@@ -61,6 +70,7 @@
 "fillColor": "#000000"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.65,
 "extraCharge": 0.0,
 "name": "HfN",
@@ -70,6 +80,7 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#ff0000"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.5,
 "extraCharge": 0.0,
 "name": "Hg",
@@ -77,6 +88,7 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#c0c0c0"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.6,
 "extraCharge": 0.0,
 "name": "Ir",
@@ -84,6 +96,7 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#008000"
 },
 {
+		"materialType": "metal",
 "workFunction": 3.8,
 "extraCharge": 0.0,
 "name": "Mn",
@@ -91,6 +104,7 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#804000"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.2,
 "extraCharge": 0.0,
 "name": "Mo",
@@ -98,12 +112,14 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#000000"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.6,
 "extraCharge": 0.0,
 "name": "Mo-2",
 "fillColor": "#ec0000"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.15,
 "extraCharge": 0.0,
 "name": "n+ PolySi",
@@ -111,6 +127,7 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#ff0000"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.9,
 "extraCharge": 0.0,
 "name": "Ni",
@@ -118,12 +135,14 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#0000a0"
 },
 {
+		"materialType": "metal",
 "workFunction": 5.15,
 "extraCharge": 0.0,
 "name": "Ni-2",
 "fillColor": "#0080c0"
 },
 {
+		"materialType": "metal",
 "workFunction": 5.27,
 "extraCharge": 0.0,
 "name": "p+ PolySi",
@@ -131,6 +150,7 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#ff0000"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.0,
 "extraCharge": 0.0,
 "name": "Pb",
@@ -138,6 +158,7 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#808080"
 },
 {
+		"materialType": "metal",
 "workFunction": 5.0,
 "extraCharge": 0.0,
 "name": "Pd",
@@ -145,6 +166,7 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#000000"
 },
 {
+		"materialType": "metal",
 "workFunction": 5.3,
 "extraCharge": 0.0,
 "name": "Pt",
@@ -152,12 +174,14 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#808080"
 },
 {
+		"materialType": "metal",
 "workFunction": 5.65,
 "extraCharge": 0.0,
 "name": "Pt-2",
 "fillColor": "#8080c0"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.3,
 "extraCharge": 0.0,
 "name": "Sn",
@@ -165,6 +189,7 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#808080"
 },
 {
+		"materialType": "metal",
 "workFunction": 5.2,
 "extraCharge": 0.0,
 "name": "SrRuO3",
@@ -172,6 +197,7 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#000040"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.7,
 "extraCharge": 0.0,
 "name": "TaN",
@@ -179,6 +205,7 @@ Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
 "fillColor": "#000000"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.65,
 "extraCharge": 0.0,
 "name": "TaN-2",
@@ -187,6 +214,7 @@ MRS Olsen et al., TaN workfunctions on HfO2 and HfSiOx 2004",
 "fillColor": "#0000a0"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.4,
 "extraCharge": 0.0,
 "name": "TaSiN",
@@ -194,6 +222,7 @@ MRS Olsen et al., TaN workfunctions on HfO2 and HfSiOx 2004",
 "fillColor": "#000000"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.1,
 "extraCharge": 0.0,
 "name": "Ti",
@@ -201,18 +230,21 @@ MRS Olsen et al., TaN workfunctions on HfO2 and HfSiOx 2004",
 "fillColor": "#008000"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.33,
 "extraCharge": 0.0,
 "name": "Ti-2",
 "fillColor": "#ffff00"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.45,
 "extraCharge": 0.0,
 "name": "TiN",
 "fillColor": "#ff0000"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.5,
 "extraCharge": 0.0,
 "name": "W",
@@ -220,12 +252,14 @@ MRS Olsen et al., TaN workfunctions on HfO2 and HfSiOx 2004",
 "fillColor": "#808000"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.55,
 "extraCharge": 0.0,
 "name": "W-2",
 "fillColor": "#ff00ff"
 },
 {
+		"materialType": "metal",
 "workFunction": 4.3,
 "extraCharge": 0.0,
 "name": "Zn",
@@ -233,6 +267,7 @@ MRS Olsen et al., TaN workfunctions on HfO2 and HfSiOx 2004",
 "fillColor": "#008000"
 },
 {
+		"materialType": "metal",
 "workFunction": 3.8,
 "extraCharge": 0.0,
 "name": "Zr",

@@ -1,7 +1,10 @@
 ﻿using System;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Band.Units
 {
+    [JsonConverter(typeof(Length.Converter))]
 	public class Length : IComparable<Length>
 	{
 		public readonly double Meters;
@@ -11,13 +14,7 @@ namespace Band.Units
 			Meters = meters;
 		}
 
-		public static Length Zero
-		{
-			get
-			{
-				return new Length(0);
-			}
-		}
+        public static Length Zero = new Length(0);
 
 		public double Centimeters
 		{
@@ -125,12 +122,23 @@ namespace Band.Units
 
 		public static bool operator ==(Length left, Length right)
 		{
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
 			return left.Meters == right.Meters;
 		}
 
 		public static bool operator !=(Length left, Length right)
 		{
-			return left.Meters != right.Meters;
+            return !(left == right);
 		}
 
 		public override bool Equals(object obj)
@@ -147,6 +155,19 @@ namespace Band.Units
 		{
 			return Meters.GetHashCode();
 		}
+
+        public class Converter : ExtendedJsonConverter<Length>
+        {
+            protected override Length Deserialize(Type objectType, JToken jToken)
+            {
+                return new Length(jToken.ToObject<double>());
+            }
+
+            protected override JToken Serialize(Length value)
+            {
+                return JToken.FromObject(value.Meters);
+            }
+        }
 	}
 }
 

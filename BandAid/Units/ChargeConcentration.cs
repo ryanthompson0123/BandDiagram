@@ -21,13 +21,7 @@ namespace Band.Units
             get { return CoulombsPerCubicMeter / ElectricCharge.Elementary.Coulombs; }
         }
 
-        public static ChargeConcentration Zero
-        {
-            get
-            {
-                return new ChargeConcentration(0);
-            }
-        }
+        public static ChargeConcentration Zero = new ChargeConcentration(0);
 
         public static ChargeConcentration FromCoulombsPerCubicCentimeter(double coulombsPerCubicCentimeter)
         {
@@ -111,12 +105,23 @@ namespace Band.Units
 
         public static bool operator ==(ChargeConcentration left, ChargeConcentration right)
         {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
             return left.CoulombsPerCubicMeter == right.CoulombsPerCubicMeter;
         }
 
         public static bool operator !=(ChargeConcentration left, ChargeConcentration right)
         {
-            return left.CoulombsPerCubicMeter != right.CoulombsPerCubicMeter;
+            return !(right == left);
         }
 
         public override bool Equals(object obj)

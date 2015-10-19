@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace Band
 {
@@ -16,25 +17,42 @@ namespace Band
             private set { SetProperty(ref parametersValue, value); }
         }
 
-        private Structure structureValue;
-        public Structure Structure
+        private TestBench testBenchValue;
+        public TestBench TestBench
         {
-            get { return structureValue; }
+            get { return testBenchValue; }
             set
             {
-                SetProperty(ref structureValue, value);
-                UpdateItems();
+                SetProperty(ref testBenchValue, value);
+
+                TestBench.PropertyChanged += TestBench_PropertyChanged;
             }
         }
 
-        public StructureParameterListViewModel(Structure structure)
+        public StructureParameterListViewModel(TestBench testBench)
         {
-            Structure = structure;
+            Parameters = new List<StructureParameterItemViewModel>();
+
+            TestBench = testBench;
         }
 
-        private void UpdateItems()
+        private void TestBench_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Parameters = Structure.Layers.Select(l => new StructureParameterItemViewModel(l)).ToList();
+            switch (e.PropertyName)
+            {
+                case "Steps":
+                case "CurrentIndex":
+                    if (!TestBench.NeedsCompute)
+                    {
+                        UpdateParameters(TestBench.CurrentStructure);
+                    }
+                    break;
+            }
+        }
+
+        private void UpdateParameters(Structure structure)
+        {
+            Parameters = structure.Layers.Select(l => new StructureParameterItemViewModel(l)).ToList();
         }
     }
 }

@@ -2,53 +2,137 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Band
 {
+    [JsonObject(MemberSerialization.OptIn)]
 	public class Dielectric : Material
 	{
+        #region Configuration
 
-		public double DielectricConstant { get; set; }
-		public string DielectricConstantExpression { get; set; }
-		public Energy BandGap { get; set; }
-		public Energy ElectronAffinity { get; set; }
-		public Mass ElectronEffectiveMass { get; set; }
-		public Mass HoleEffectiveMass { get; set; }
+        [JsonProperty]
+		public double DielectricConstant { get; private set; }
 
+        [JsonProperty]
+		public string DielectricConstantExpression { get; private set; }
+
+        [JsonProperty]
+		public Energy BandGap { get; private set; }
+
+        [JsonProperty]
+		public Energy ElectronAffinity { get; private set; }
+
+        [JsonProperty]
+		public Mass ElectronEffectiveMass { get; private set; }
+
+        [JsonProperty]
+		public Mass HoleEffectiveMass { get; private set; }
+
+        #endregion
+
+        #region Property Accessors
+
+        private Energy lazyEnergyFromVacuumToBottomBand;
 		public override Energy EnergyFromVacuumToBottomBand
 		{
-			get
-			{
-				return ElectronAffinity + BandGap;
-			}
-		}
+            get
+            {
+                if (lazyEnergyFromVacuumToBottomBand == null)
+                {
+                    lazyEnergyFromVacuumToBottomBand = ElectronAffinity + BandGap;
+                }
 
+                return lazyEnergyFromVacuumToBottomBand;
+            }
+		}
+            
 		public override Energy EnergyFromVacuumToEfi
 		{
-			get
-			{
-				return ElectronAffinity + BandGap;
-			}
+            get
+            {
+                return EnergyFromVacuumToBottomBand;
+            }
 		}
-
+            
 		public override Energy EnergyFromVacuumToTopBand
 		{
-			get
-			{
-				return ElectronAffinity;
-			}
+            get { return ElectronAffinity; }
 		}
 
-        public override Energy WorkFunction
+        private Permittivity lazyPermittivity;
+        public Permittivity Permittivity
         {
             get
             {
-                throw new NotImplementedException("Dielectrics don't have a work function?");
+                if (lazyPermittivity == null)
+                {
+                    lazyPermittivity = DielectricConstant * Permittivity.OfFreeSpace;
+                }
+
+                return lazyPermittivity;
             }
+        }
+
+        private CapacitanceDensity lazyOxideCapacitance;
+        public CapacitanceDensity OxideCapacitance
+        {
+            get
+            {
+                if (lazyOxideCapacitance == null)
+                {
+                    lazyOxideCapacitance = Permittivity / Thickness;
+                }
+
+                return lazyOxideCapacitance;
+            }
+        }
+
+        public ElectricPotential VoltageDrop
+        {
+            get
+            {
+                return EvalPoints.First().Potential - EvalPoints.Last().Potential;
+            }
+        }
+
+        #endregion
+
+        [JsonConstructor]
+        internal Dielectric()
+        {
+        }
+
+        [OnDeserialized]
+        public void OnDeserialized(StreamingContext context)
+        {
+            base.OnDeserialized(context);
+        }
+
+        public override Material WithThickness(Length thickness)
+        {
+            var dielectric = new Dielectric
+            {
+                DielectricConstant = DielectricConstant,
+                DielectricConstantExpression = DielectricConstantExpression,
+                BandGap = BandGap,
+                ElectronAffinity = ElectronAffinity,
+                HoleEffectiveMass = HoleEffectiveMass,
+                ElectronEffectiveMass = ElectronEffectiveMass
+            };
+
+            InitClone(dielectric, thickness);
+
+            dielectric.Prepare();
+
+            return dielectric;
         }
 
 		public sealed override void Prepare()
 		{
+            if (Thickness == null) return;
+
 			// Check to see if there is a point at the beginning (0), if not, add one.
 			if (EvalPoints.All(p => p.Location > Length.Zero))
 			{
@@ -222,54 +306,6 @@ namespace Band
 		public Energy ValenceBandEnergy(EvalPoint p)
 		{
 			return -p.Potential - ElectronAffinity - BandGap;
-		}
-
-		public Permittivity Permittivity
-		{
-			get
-			{
-                // TODO: Support e-field dependent permittivity
-				return DielectricConstant * Permittivity.OfFreeSpace;
-			}
-		}
-
-        public Dielectric(Length thickness)
-        {
-            Thickness = thickness;
-            Prepare();
-        }
-
-        public override Material DeepClone()
-        {
-            var dielectric = new Dielectric(new Length(Thickness.Meters))
-            {
-                    DielectricConstant = DielectricConstant,
-                    DielectricConstantExpression = DielectricConstantExpression,
-                    BandGap = BandGap,
-                    ElectronAffinity = ElectronAffinity,
-                    HoleEffectiveMass = HoleEffectiveMass,
-                    ElectronEffectiveMass = ElectronEffectiveMass
-            };
-
-            InitClone(dielectric);
-
-            return dielectric;
-        }
-
-        public CapacitanceDensity OxideCapacitance
-        {
-            get
-            {
-                return DielectricConstant * Permittivity.OfFreeSpace / Thickness;
-            }
-        }
-
-		public ElectricPotential VoltageDrop
-		{
-            get
-            {
-                return EvalPoints.First().Potential - EvalPoints.Last().Potential;
-            }
 		}
 
 		public override ElectricPotential GetPotential(Length location)

@@ -11,13 +11,7 @@ namespace Band.Units
 			VoltsPerMeter = voltsPerMeter;
 		}
 
-		public static ElectricField Zero
-		{
-			get
-			{
-				return new ElectricField(0);
-			}
-		}
+        public static ElectricField Zero = new ElectricField(0);
 
 		public double VoltsPerCentimeter
 		{
@@ -117,12 +111,23 @@ namespace Band.Units
 
 		public static bool operator ==(ElectricField left, ElectricField right)
 		{
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)left == null) || ((object)right == null))
+            {
+                return false;
+            }
+
 			return left.VoltsPerMeter == right.VoltsPerMeter;
 		}
 
 		public static bool operator !=(ElectricField left, ElectricField right)
 		{
-			return left.VoltsPerMeter != right.VoltsPerMeter;
+            return !(left == right);
 		}
 
 		public override bool Equals(object obj)

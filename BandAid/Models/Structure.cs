@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using Band.Units;
-using System.Diagnostics;
+using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Band
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class Structure : ObservableObject
 	{
+        [JsonProperty("layers")]
         private List<Material> layersValue;
         public List<Material> Layers
         {
@@ -29,6 +32,42 @@ namespace Band
             }
 
             Evaluate();
+        }
+
+        [OnDeserialized]
+        public void OnDeserialized(StreamingContext context)
+        {
+            foreach (var layer in Layers)
+            {
+                layer.ParentStructure = this;
+            }
+
+            Evaluate();
+        }
+
+        public Structure DeepClone(ElectricPotential bias, Temperature temperature)
+        {
+            var structure = new Structure();
+
+            structure.Bias = bias;
+            structure.Temperature = temperature;
+
+            var layerClones = Layers.Select(l => l.DeepClone()).ToList();
+
+            foreach (var layer in layerClones)
+            {
+                layer.ParentStructure = structure;
+            }
+
+            structure.layersValue.AddRange(layerClones);
+            structure.Evaluate();
+
+            return structure;
+        }
+
+        public Structure DeepClone()
+        {
+            return DeepClone(Bias, Temperature);
         }
 
         public void InsertLayer(int index, Material layer)
@@ -136,10 +175,7 @@ namespace Band
 
         public bool IsTopLayerMetal
         {
-            get
-            {
-                return TopLayer is Metal;
-            }
+            get { return TopLayer is Metal; }
         }
 
         public bool IsBottomLayerSemiconductor
@@ -214,27 +250,25 @@ namespace Band
             }
         }
 
-        private ElectricPotential biasValue = ElectricPotential.Zero;
-        public ElectricPotential Bias
-        {
-            get { return biasValue; }
-            set
-            {
-                SetProperty(ref biasValue, value);
-                Evaluate();
-            }
-        }
+        [JsonProperty]
+        public ElectricPotential Bias { get; private set; }
 
-        private Temperature temperatureValue = Temperature.Room;
-        public Temperature Temperature
+        [JsonProperty]
+        public Temperature Temperature { get; private set; }
+
+        private ElectricPotential lazyThermalVoltage;
+        public ElectricPotential ThermalVoltage
         {
-            get { return temperatureValue; }
-            set
+            get
             {
-                SetProperty(ref temperatureValue, value);
-                Evaluate();
+                if (lazyThermalVoltage == null)
+                {
+                    lazyThermalVoltage = Temperature.ToEnergy() / ElectricCharge.Elementary;
+                }
+
+                return lazyThermalVoltage;
             }
-        }
+        }  
 
         public bool IsValid
         {
@@ -260,25 +294,6 @@ namespace Band
             }
         }
 
-        public Structure DeepClone(ElectricPotential bias, Temperature temperature)
-        {
-            var structure = new Structure();
-            structure.Bias = bias;
-            structure.Temperature = temperature;
-
-            foreach (var layer in ((IEnumerable<Material>)Layers).Reverse())
-            {
-                structure.AddLayer(layer.DeepClone());
-            }
-
-            return structure;
-        }
-
-        public Structure DeepClone()
-        {
-            return DeepClone(Bias, Temperature);
-        }
-
         private const int maximumIterations = 1000;
 
         private void Evaluate()
@@ -286,8 +301,7 @@ namespace Band
             // Don't do anything if the structure isn't valid
             if (!IsValid) return;
 
-            var stopwatch = Stopwatch.StartNew();
-            var iterationNumber = 0;
+            int iterationNumber;
 
             // Since we integrate left to right, we want to specify the voltage on the left
             var voltageBias = -Bias + WorkFunctionDifference;
@@ -349,94 +363,32 @@ namespace Band
             // If the last material is a semiconductor, fill in the missing points
             if (IsBottomLayerSemiconductor)
             {
-                EvaluateSemiconductor();
+                ((Semiconductor)BottomLayer).Evaluate();
+
+                // Now subtract the potential from all the points so the right is ref to 0
+                var lastPoint = BottomLayer.EvalPoints.Last();
+                var potential = lastPoint.Potential;
+
+                foreach (var layer in Layers)
+                {
+                    foreach (var ep in layer.EvalPoints)
+                    {
+                        ep.Potential = ep.Potential - potential;
+                    }
+                }
+
+                var trueLast = lastPoint.DeepClone();
+                if (trueLast.Location < Length.FromNanometers(50))
+                {
+                    trueLast.Location = Length.FromNanometers(50);
+                }
+                BottomLayer.EvalPoints.Add(trueLast);
             }
 
             /*
             Debug.WriteLine(String.Format("Evaluation finished after {0} iterations in {1} ms", 
                 iterationNumber, stopwatch.ElapsedMilliseconds));
             */
-        }
-
-        private void EvaluateSemiconductor()
-        {
-            var semiconductor = (Semiconductor)BottomLayer;
-            var storePotential = semiconductor.EvalPoints[0].Potential;
-
-            // First remove all the points
-            semiconductor.EvalPoints.Clear();
-
-            // Find the thickness through integration
-            // Integrate from 0 to the surface potential
-            // Integrate 2000 times so change stepSize depending on the surface potential
-            var stepSize = semiconductor.SurfacePotential / 2000;
-
-            stepSize = semiconductor.SurfacePotential > ElectricPotential.Zero ?
-                ElectricPotential.Abs(stepSize) : -ElectricPotential.Abs(stepSize);
-
-            var previousValue = 1 / semiconductor
-                .GetElectricField(semiconductor.SurfacePotential).VoltsPerMeter;
-            var runningThickness = Length.Zero;
-            var previousThickness = Length.Zero;
-
-            var point = new EvalPoint
-            {
-                Location = runningThickness,
-                ChargeDensity = semiconductor.GetChargeY(semiconductor.SurfacePotential),
-                ElectricField = new ElectricField(1 / previousValue),
-                Potential = semiconductor.SurfacePotential
-            };
-
-            semiconductor.EvalPoints.Add(point);
-
-            for (var i = 1; ElectricPotential.Abs(semiconductor.SurfacePotential - stepSize * i)
-                > ElectricPotential.FromMillivolts(1) && i < 10000; i++)
-            {
-                var potentialValue = semiconductor.SurfacePotential - stepSize * i;
-                var value = 1 / semiconductor.GetElectricField(potentialValue).VoltsPerMeter;
-                previousThickness = runningThickness;
-                runningThickness += new Length(((previousValue + value) / 2) * stepSize.Volts);
-
-                point = new EvalPoint
-                {
-                        Location = runningThickness,
-                        ChargeDensity = semiconductor.GetChargeY(potentialValue) * 1E-8,
-                        ElectricField = new ElectricField(1 / value),
-                        Potential = potentialValue
-                };
-
-                semiconductor.EvalPoints.Add(point);
-                previousValue = value;
-            }
-
-            // Now add the offset in potential
-            var checkCharge = ChargeDensity.Zero; // check and see if the charges add up
-            foreach (var checkPoint in semiconductor.EvalPoints)
-            {
-                checkPoint.Potential = checkPoint.Potential + storePotential;
-                checkPoint.Potential = checkPoint.Potential - semiconductor.SurfacePotential;
-                checkCharge += checkPoint.ChargeDensity;
-            }
-
-            // Now subtract the potential from all the points so the right is ref to 0
-            var lastPoint = BottomLayer.EvalPoints.Last();
-            var potential = lastPoint.Potential;
-
-            foreach (var layer in Layers)
-            {
-                foreach (var ep in layer.EvalPoints)
-                {
-                    ep.Potential = ep.Potential - potential;
-                }
-            }
-
-            var trueLast = lastPoint.DeepClone();
-            if (trueLast.Location < Length.FromNanometers(50))
-            {
-                trueLast.Location = Length.FromNanometers(50);
-            }
-            BottomLayer.EvalPoints.Add(trueLast);
-
         }
 
         // Calculate based on top charge return running charge
@@ -534,7 +486,7 @@ namespace Band
                 var semiconductor = (Semiconductor)BottomLayer;
 
                 // Calculate the surface potential and prepare
-                semiconductor.SurfacePotential = semiconductor.GetSurfacePotential(-runningCharge);
+                semiconductor.ExtraCharge = -runningCharge;
                 semiconductor.Prepare();
 
                 // Evaulate the potential drop given the remaining charge
@@ -721,40 +673,40 @@ namespace Band
             return ElectricPotential.Zero;
         }
 
-        public static Structure Default
-        {
-            get
-            {
-                var topMetal = new Metal(Length.FromNanometers(4));
-                topMetal.SetWorkFunction(Energy.FromElectronVolts(4.45));
-                topMetal.FillColor = "#ff0000";
-                topMetal.Name = "TiN";
-
-                var oxide = new Dielectric(Length.FromNanometers(2));
-                oxide.DielectricConstant = 3.9;
-                oxide.BandGap = Energy.FromElectronVolts(8.9);
-                oxide.ElectronAffinity = Energy.FromElectronVolts(0.95);
-                oxide.FillColor = "#804040";
-                oxide.Name = "SiO2";
-
-                var semiconductor = new Semiconductor();
-                semiconductor.BandGap = Energy.FromElectronVolts(1.1252);
-                semiconductor.ElectronAffinity = Energy.FromElectronVolts(4.05);
-                semiconductor.DielectricConstant = 11.7;
-                semiconductor.IntrinsicCarrierConcentration = Concentration.FromPerCubicCentimeter(1.41E10);
-                semiconductor.DopingType = DopingType.N;
-                semiconductor.DopantConcentration = Concentration.FromPerCubicCentimeter(1E18);
-                semiconductor.FillColor = "#00ff00";
-                semiconductor.Name = "Si";
-
-                var structure = new Structure();
-                structure.Temperature = new Temperature(300);
-                structure.AddLayer(semiconductor);
-                structure.AddLayer(oxide);
-                structure.AddLayer(topMetal);
-
-                return structure;
-            }
-        }
+//        public static Structure Default
+//        {
+//            get
+//            {
+//                var topMetal = new Metal(Length.FromNanometers(4));
+//                topMetal.WorkFunction = Energy.FromElectronVolts(4.45);
+//                topMetal.FillColor = "#ff0000";
+//                topMetal.Name = "TiN";
+//
+//                var oxide = new Dielectric(Length.FromNanometers(2));
+//                oxide.DielectricConstant = 3.9;
+//                oxide.BandGap = Energy.FromElectronVolts(8.9);
+//                oxide.ElectronAffinity = Energy.FromElectronVolts(0.95);
+//                oxide.FillColor = "#804040";
+//                oxide.Name = "SiO2";
+//
+//                var semiconductor = new Semiconductor();
+//                semiconductor.BandGap = Energy.FromElectronVolts(1.1252);
+//                semiconductor.ElectronAffinity = Energy.FromElectronVolts(4.05);
+//                semiconductor.DielectricConstant = 11.7;
+//                semiconductor.IntrinsicCarrierConcentration = Concentration.FromPerCubicCentimeter(1.41E10);
+//                semiconductor.DopingType = DopingType.N;
+//                semiconductor.DopantConcentration = Concentration.FromPerCubicCentimeter(1E18);
+//                semiconductor.FillColor = "#00ff00";
+//                semiconductor.Name = "Si";
+//
+//                var structure = new Structure();
+//                structure.Temperature = new Temperature(300);
+//                structure.AddLayer(semiconductor);
+//                structure.AddLayer(oxide);
+//                structure.AddLayer(topMetal);
+//
+//                return structure;
+//            }
+//        }
     }
 }

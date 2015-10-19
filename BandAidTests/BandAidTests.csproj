@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{DEE68B89-F56E-4DC5-A7FF-7D6EAD402093}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>BandAidTests</RootNamespace>
