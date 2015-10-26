@@ -39,15 +39,18 @@ namespace Band
             {
                 var dielectric = (Dielectric)layer;
 
-                CapacitanceText = dielectric.OxideCapacitance.FaradsPerSquareCentimeter.ToString();
-                VoltageDropText = dielectric.VoltageDrop.Volts.ToString();
+                CapacitanceText = dielectric.OxideCapacitance
+                    .MicroFaradsPerSquareCentimeterToString("{0:F5} μF/cm\xB2");
+                VoltageDropText = dielectric.VoltageDrop
+                    .ToString("{0:F5} V");
             }
             else
             {
                 var semiconductor = (Semiconductor)layer;
 
-                CapacitanceText = semiconductor.CapacitanceDensity.FaradsPerSquareCentimeter.ToString();
-                VoltageDropText = semiconductor.EvalPoints[0].Potential.Volts.ToString();
+                CapacitanceText = semiconductor.CapacitanceDensity
+                    .MicroFaradsPerSquareCentimeterToString("{0:F5} μF/cm\xB2");
+                VoltageDropText = semiconductor.EvalPoints[0].Potential.ToString("{0:F5} V");
             }
         }
     }

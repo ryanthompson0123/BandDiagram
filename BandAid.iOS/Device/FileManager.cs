@@ -12,6 +12,7 @@ using System.Linq;
 
 namespace BandAid.iOS
 {
+    [Preserve(AllMembers = true)]
     public class FileManager : IFileManager
     {
         private const string DefaultTestBenchName = "High - k Stack";

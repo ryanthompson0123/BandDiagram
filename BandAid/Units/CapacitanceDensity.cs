@@ -16,6 +16,11 @@ namespace Band.Units
             get { return FaradsPerSquareMeter / 1E4; }
         }
 
+        public double MicroFaradsPerSquareCentimeter
+        {
+            get { return FaradsPerSquareMeter * 1E2; }
+        }
+
         public static CapacitanceDensity FromFaradsPerSquareCentimeter(
             double faradsPerSquareCentimeter)
         {
@@ -132,7 +137,32 @@ namespace Band.Units
 
         public override string ToString()
         {
-            return string.Format("{0} F/cm\xB2");
+            return string.Format("{0:F1} F/m\xB2", FaradsPerSquareMeter);
+        }
+
+        public string ToString(string format)
+        {
+            return string.Format(format, FaradsPerSquareMeter);
+        }
+
+        public string FaradsPerSquareCentimeterToString()
+        {
+            return string.Format("{0:F1} F/cm\xB2", FaradsPerSquareCentimeter);
+        }
+
+        public string FaradsPerSquareCentimeterToString(string format)
+        {
+            return string.Format(format, FaradsPerSquareCentimeter);
+        }
+
+        public string MicroFaradsPerSquareCentimeterToString()
+        {
+            return string.Format("{0:F1} μF/cm\xB2", MicroFaradsPerSquareCentimeter);
+        }
+
+        public string MicroFaradsPerSquareCentimeterToString(string format)
+        {
+            return string.Format(format, MicroFaradsPerSquareCentimeter);
         }
     }
 }

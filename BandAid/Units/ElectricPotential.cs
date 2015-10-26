@@ -14,7 +14,7 @@ namespace Band.Units
 			Volts = volts;
 		}
 
-		public double Megavolts
+		public double MegaVolts
 		{
 			get
 			{
@@ -22,7 +22,7 @@ namespace Band.Units
 			}
 		}
 
-		public double Millivolts
+		public double MilliVolts
 		{
 			get
 			{
@@ -30,11 +30,11 @@ namespace Band.Units
 			}
 		}
 
-        public int RoundMillivolts
+        public int RoundMilliVolts
         {
             get
             {
-                var mvInt = (int)Millivolts;
+                var mvInt = (int)MilliVolts;
                 return ((int)Math.Round(mvInt / 10.0)) * 10;
             }
         }
@@ -179,7 +179,22 @@ namespace Band.Units
 
         public override string ToString()
         {
-            return string.Format("{0} V", Volts);
+            return string.Format("{0:F1} V", Volts);
+        }
+
+        public string ToString(string format)
+        {
+            return string.Format(format, Volts);
+        }
+
+        public string MilliVoltsToString()
+        {
+            return string.Format("{0:F1} mV", MilliVolts);
+        }
+
+        public string MilliVoltsToString(string format)
+        {
+            return string.Format(format, MilliVolts);
         }
 
         public class Converter : ExtendedJsonConverter<ElectricPotential>

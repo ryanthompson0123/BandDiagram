@@ -55,6 +55,7 @@ namespace BandAid.iOS
                 ViewModel = ViewModel.Scene
             };
             plotView.PresentScene(plotScene);
+            plotView.ActivityIndicator.StartAnimating();
 
             biasSlider.MaxValue = (float)ViewModel.BiasSliderMaxValue;
             biasSlider.MinValue = (float)ViewModel.BiasSliderMinValue;
@@ -122,6 +123,8 @@ namespace BandAid.iOS
 
         void chartSegments_ValueChanged (object sender, EventArgs e)
         {
+            plotView.ActivityIndicator.StartAnimating();
+
             switch (chartSegments.SelectedSegment)
             {
                 case 0:
@@ -168,8 +171,12 @@ namespace BandAid.iOS
 
         bool toggleIsOpen;
         bool firstTime = true;
+        bool toggling = false;
         async partial void OnToggleClicked(NSObject sender)
         {
+            if (toggling) return;
+
+            toggling = true;
             if (toggleIsOpen)
             {
                 parameterList.ViewWillDisappear(true);
@@ -179,9 +186,12 @@ namespace BandAid.iOS
                     parameterList.View.Frame = new CGRect(-200, 0, 
                         200, View.Frame.Height);
                     View.LayoutIfNeeded();
-                    plotScene.SetUpPlot();
+                    // For speed we just redraw the showing plot
+                    plotScene.RedrawCurrentPlot();
                 });
 
+                // After the animation is done, we start redrawing all the plots
+                plotScene.SetUpPlot(false);
                 toggleIsOpen = false;
                 parameterList.ViewDidDisappear(true);
             }
@@ -200,12 +210,17 @@ namespace BandAid.iOS
                     parameterList.View.Frame = new CGRect(0, 0, 
                         200, View.Frame.Height);
                     View.LayoutIfNeeded();
-                    plotScene.SetUpPlot();
+                    // For speed we just redraw the showing plot
+                    plotScene.RedrawCurrentPlot();
                 });
 
+                // After the animation is done, we start redrawing all the plots
+                plotScene.SetUpPlot(false);
                 toggleIsOpen = true;
                 parameterList.ViewDidAppear(true);
             }
+
+            toggling = false;
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
@@ -234,9 +249,9 @@ namespace BandAid.iOS
             chartSegments.UserInteractionEnabled = false;
             biasSlider.UserInteractionEnabled = false;
 
-            var max = new ElectricPotential(biasSlider.MaxValue).RoundMillivolts;
-            var min = new ElectricPotential(biasSlider.MinValue).RoundMillivolts;
-            var step = ViewModel.TestBench.StepSize.RoundMillivolts;
+            var max = new ElectricPotential(biasSlider.MaxValue).RoundMilliVolts;
+            var min = new ElectricPotential(biasSlider.MinValue).RoundMilliVolts;
+            var step = ViewModel.TestBench.StepSize.RoundMilliVolts;
             var delay = 2000 / ((max - min) / step);    // Whole animation should take 2s
 
             await Task.Run(async () =>

@@ -117,7 +117,7 @@ namespace Band
             switch (e.PropertyName)
             {
                 case "CurrentIndex":
-                    CurrentVoltageText = TestBench.CurrentVoltage.ToString();
+                    CurrentVoltageText = TestBench.CurrentVoltage.ToString("{0:F1} V");
                     break;
                 case "Name":
                     TitleText = TestBench.Name;

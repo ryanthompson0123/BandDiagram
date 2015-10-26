@@ -125,23 +125,66 @@ namespace BandAid.iOS
             AddChild(currentPlotNode);
         }
 
-        public async void SetUpPlot()
+        public async void SetUpPlot(bool showActivity = true)
         {
-            InvokeOnMainThread(PlotView.ActivityIndicator.StartAnimating);
+            if (showActivity)
+            {
+                InvokeOnMainThread(PlotView.ActivityIndicator.StartAnimating);
+            }
 
             await Task.Run(() =>
             {
                 UpdateSize();
                 if (ViewModel.Plots == null) return;
 
+                PlotNode oldCurrentPlotNode = null;
+                if (plotNodes != null)
+                {
+                    for (var i = 0; i < plotNodes.Count; i++)
+                    {
+                        if (i == ViewModel.CurrentPlotIndex)
+                        {
+                            oldCurrentPlotNode = plotNodes[i];
+                            continue;
+                        }
+
+                        plotNodes[i].Dispose();
+                    }
+                }
+
                 plotNodes = ViewModel.Plots.Select(p => CreatePlotNode(p)).ToList();
 
                 SetUpPrimaryYAxis();
                 SetUpXAxis();
                 DisplayStep(ViewModel.CurrentPlotIndex);
+
+                if (oldCurrentPlotNode != null)
+                {
+                    oldCurrentPlotNode.Dispose();
+                }
             });
 
-            InvokeOnMainThread(PlotView.ActivityIndicator.StopAnimating);
+            if (plotNodes != null && showActivity)
+            {
+                InvokeOnMainThread(PlotView.ActivityIndicator.StopAnimating);
+            }
+        }
+
+        public void RedrawCurrentPlot()
+        {
+            UpdateSize();
+            if (ViewModel.Plots == null || plotNodes == null) return;
+
+            var currentPlot = ViewModel.Plots[ViewModel.CurrentPlotIndex];
+            var plot = CreatePlotNode(currentPlot);
+
+            var oldPlot = plotNodes[ViewModel.CurrentPlotIndex];
+            plotNodes[ViewModel.CurrentPlotIndex] = plot;
+            oldPlot.Dispose();
+
+            SetUpPrimaryYAxis();
+            SetUpXAxis();
+            DisplayStep(ViewModel.CurrentPlotIndex);
         }
 
         private void UpdateSize()

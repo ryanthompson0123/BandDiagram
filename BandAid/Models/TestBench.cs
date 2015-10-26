@@ -102,7 +102,7 @@ namespace Band
             get { return stepSizeValue; }
             set
             {
-                if (value.RoundMillivolts == 0) return;
+                if (value.RoundMilliVolts == 0) return;
                 SetProperty(ref stepSizeValue, value);
                 SetNeedsCompute();
             }
@@ -194,7 +194,7 @@ namespace Band
             var stopwatch = Stopwatch.StartNew();
 
             var steps = Enumerable.Range(0, StepCount)
-                .Select(s => PotentialForStep(s).RoundMillivolts)
+                .Select(s => PotentialForStep(s).RoundMilliVolts)
                 .Select(mv => Structure.DeepClone(ElectricPotential.FromMillivolts(mv), new Temperature(300.0)))
                 .ToList();
 
@@ -205,12 +205,18 @@ namespace Band
 
         private ElectricPotential PotentialForStep(int step)
         {
-            return MinVoltage + StepSize * step;
+            var delta = StepSize * step;
+            var potential = MinVoltage + delta;
+
+            return potential;
         }
 
         private int StepForPotential(ElectricPotential potential)
         {
-            return (int)((potential - MinVoltage) / StepSize);
+            var delta = potential - MinVoltage;
+            var step = delta / StepSize;
+
+            return Convert.ToInt32(step);
         }
 
         private static async Task<string> FigureOutNextNameAsync()

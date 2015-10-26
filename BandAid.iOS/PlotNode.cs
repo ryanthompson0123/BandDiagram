@@ -1,7 +1,6 @@
 using SpriteKit;
 using Band;
 using CoreGraphics;
-using CoreGraphics;
 using UIKit;
 using CoreAnimation;
 using System;
@@ -12,6 +11,7 @@ namespace BandAid.iOS
     {
         public PlotViewModel ViewModel { get; private set; }
         public CGSize Size { get; private set; }
+        private SKTexture plotTexture;
 
         public nfloat XRatio
         {
@@ -42,12 +42,15 @@ namespace BandAid.iOS
                 PlotDataSetNode(dataSet);
             }
 
-            var image = UIGraphics.GetImageFromCurrentImageContext();
-            UIGraphics.EndImageContext();
+            using (var image = UIGraphics.GetImageFromCurrentImageContext())
+            {
+                plotTexture = SKTexture.FromImage(image);
+                var dataSetNode = new SKSpriteNode(SKTexture.FromImage(image));
+                dataSetNode.Position = new CGPoint(Size.Width / 2, Size.Height / 2);
+                AddChild(dataSetNode);
+            }
 
-            var dataSetNode = new SKSpriteNode(SKTexture.FromImage(image));
-            dataSetNode.Position = new CGPoint(Size.Width/2, Size.Height/2);
-            AddChild(dataSetNode);
+            UIGraphics.EndImageContext();
         }
 
         private void PlotDataSetNode(PlotDataSet dataSet)
@@ -92,6 +95,20 @@ namespace BandAid.iOS
                 X = (float)(dataPoint.X - ViewModel.XAxisBounds.Min) * XRatio,
                 Y = (float)(ViewModel.YAxisBounds.Max - dataPoint.Y) * YRatio
             };
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (plotTexture != null)
+                {
+                    plotTexture.Dispose();
+                    plotTexture = null;
+                }
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

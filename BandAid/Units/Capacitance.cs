@@ -123,6 +123,26 @@ namespace Band.Units
         {
             return Farads.GetHashCode();
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0:F1} F", Farads);
+        }
+
+        public string ToString(string format)
+        {
+            return string.Format(format, Farads);
+        }
+
+        public string MicroFaradsToString()
+        {
+            return string.Format("{0:F1} μF", MicroFarads);
+        }
+
+        public string MicroFaradsToString(string format)
+        {
+            return string.Format(format, MicroFarads);
+        }
     }
 }
 
