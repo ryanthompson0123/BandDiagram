@@ -82,7 +82,18 @@ namespace Band
 
         public void AddLayer(Material layer)
         {
-            InsertLayer(0, layer);
+            if (BottomLayer.MaterialType != MaterialType.Dielectric)
+            {
+                // If we're inserting a layer, and there's a metal or semiconductor on the
+                // bottom, then there's no point inserting it at the bottom
+                // because that's not valid, so put it above the bottom layer
+                InsertLayer(Layers.Count - 1, layer);
+            }
+            else
+            {
+                // Otherwise, insert it at the bottom
+                InsertLayer(Layers.Count, layer);
+            }
         }
 
         public void RemoveLayer(Material layer)
@@ -234,6 +245,17 @@ namespace Band
             get { return Layers.Any(l => l is Dielectric); }
         }
 
+        private bool noSolutionValue;
+        public bool NoSolution
+        {
+            get { return noSolutionValue; }
+            private set
+            {
+                noSolutionValue = value;
+                OnPropertyChanged("NoSolution");
+            }
+        }
+
         public Length Thickness
         {
             get
@@ -355,7 +377,8 @@ namespace Band
                     }
                     else
                     {
-                        throw new ArithmeticException("Could not find a solution!");
+                        NoSolution = true;
+                        return;
                     }
                 }
             }
@@ -385,6 +408,7 @@ namespace Band
                 BottomLayer.EvalPoints.Add(trueLast);
             }
 
+            NoSolution = false;
             /*
             Debug.WriteLine(String.Format("Evaluation finished after {0} iterations in {1} ms", 
                 iterationNumber, stopwatch.ElapsedMilliseconds));

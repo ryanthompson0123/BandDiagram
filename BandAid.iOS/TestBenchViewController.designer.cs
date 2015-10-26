@@ -19,7 +19,7 @@ namespace BandAid.iOS
 		UIKit.UILabel currentVoltageLabel { get; set; }
 
 		[Outlet]
-		SpriteKit.SKView plotView { get; set; }
+		BandAid.iOS.PlotView plotView { get; set; }
 
 		[Outlet]
 		UIKit.UIBarButtonItem settingsButton { get; set; }

@@ -13,6 +13,16 @@ namespace Band
             set { SetProperty(ref layersValue, value); }
         }
 
+        public bool CurrentLayoutIsInvalid
+        {
+            get { return !structure.IsValid; }
+        }
+
+        public bool CurrentLayoutHasNoSolution
+        {
+            get { return structure.NoSolution; }
+        }
+
         private Structure structure;
 
         public StructureViewModel(Structure structure)
@@ -47,8 +57,18 @@ namespace Band
 
         public void AddLayer(LayerViewModel viewModel)
         {
+            // If the bottom layer is a semiconductor or metal, then there's no point
+            // in adding this material below that, because it's not valid.
+            if (structure.BottomLayer.MaterialType != MaterialType.Dielectric)
+            {
+                Layers.Insert(Layers.Count - 1, viewModel);
+            }
+            else
+            {
+                Layers.Add(viewModel);
+            }
+
             structure.AddLayer(viewModel.Material);
-            Layers.Add(viewModel);
         }
     }
 }

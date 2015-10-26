@@ -75,7 +75,11 @@ namespace Band
             material.Notes = Notes;
             material.FillColor = FillColor;
             material.Thickness = thickness;
-            material.WorkFunction = WorkFunction;
+
+            if (material.MaterialType != MaterialType.Semiconductor || ParentStructure != null)
+            {
+                material.WorkFunction = WorkFunction;
+            }
 
             material.EvalPoints = EvalPoints.Select(ep => ep.DeepClone()).ToList();
         }

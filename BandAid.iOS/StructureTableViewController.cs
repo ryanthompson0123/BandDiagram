@@ -112,8 +112,27 @@ namespace BandAid.iOS
             {
                 var cell = tableView.DequeueReusableCell("LayerCell");
 
+                if (indexPath.Row == viewModel.Layers.Count)
+                {
+                    cell.TextLabel.TextColor = UIColor.Red;
+                    cell.DetailTextLabel.Text = "";
+                    cell.Accessory = UITableViewCellAccessory.None;
+
+                    if (viewModel.CurrentLayoutIsInvalid)
+                    {
+                        cell.TextLabel.Text = "This structure is invalid";
+                    }
+                    else if (viewModel.CurrentLayoutHasNoSolution)
+                    {
+                        cell.TextLabel.Text = "No soultion found for this structure";
+                    }
+
+                    return cell;
+                }
+
                 var layerVm = viewModel.Layers[indexPath.Row];
 
+                cell.TextLabel.TextColor = UIColor.Black;
                 cell.TextLabel.Text = layerVm.NameText;
                 cell.DetailTextLabel.Text = layerVm.MaterialTypeText;
 
@@ -122,11 +141,19 @@ namespace BandAid.iOS
 
             public override nint RowsInSection(UITableView tableview, nint section)
             {
+                if (viewModel.CurrentLayoutHasNoSolution ||
+                    viewModel.CurrentLayoutIsInvalid)
+                {
+                    return viewModel.Layers.Count + 1;
+                }
+
                 return viewModel.Layers.Count;
             }
 
             public override bool CanEditRow(UITableView tableView, NSIndexPath indexPath)
             {
+                if (indexPath.Row == viewModel.Layers.Count) return false;  // Error row
+
                 return true;
             }
 
@@ -144,6 +171,7 @@ namespace BandAid.iOS
 
             public override bool CanMoveRow(UITableView tableView, NSIndexPath indexPath)
             {
+                if (indexPath.Row == viewModel.Layers.Count) return false; // Error row
                 return true;
             }
 
@@ -152,7 +180,16 @@ namespace BandAid.iOS
             {
                 var movedLayer = viewModel.Layers[sourceIndexPath.Row];
 
-                viewModel.MoveLayer(movedLayer, destinationIndexPath.Row);
+                if (destinationIndexPath.Row == viewModel.Layers.Count)
+                {
+                    viewModel.MoveLayer(movedLayer, destinationIndexPath.Row - 1);
+                }
+                else
+                {
+                    viewModel.MoveLayer(movedLayer, destinationIndexPath.Row);
+                }
+
+                tableView.ReloadData();
             }
 
             #endregion

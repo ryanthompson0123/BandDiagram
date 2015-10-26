@@ -7,6 +7,7 @@ using UIKit;
 using Foundation;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace BandAid.iOS
 {
@@ -73,6 +74,11 @@ namespace BandAid.iOS
             get { return new CGSize(Size.Width - LeftYAxisMargin - RightYAxisMargin, 100f); }
         }
 
+        public PlotView PlotView
+        {
+            get { return (PlotView)View; }
+        }
+
         public StructurePlotScene(CGSize size)
             : base(size)
         {
@@ -119,16 +125,23 @@ namespace BandAid.iOS
             AddChild(currentPlotNode);
         }
 
-        public void SetUpPlot()
+        public async void SetUpPlot()
         {
-            UpdateSize();
-            if (ViewModel.Plots == null) return;
+            InvokeOnMainThread(PlotView.ActivityIndicator.StartAnimating);
 
-            plotNodes = ViewModel.Plots.Select(p => CreatePlotNode(p)).ToList();
+            await Task.Run(() =>
+            {
+                UpdateSize();
+                if (ViewModel.Plots == null) return;
 
-            SetUpPrimaryYAxis();
-            SetUpXAxis();
-            DisplayStep(ViewModel.CurrentPlotIndex);
+                plotNodes = ViewModel.Plots.Select(p => CreatePlotNode(p)).ToList();
+
+                SetUpPrimaryYAxis();
+                SetUpXAxis();
+                DisplayStep(ViewModel.CurrentPlotIndex);
+            });
+
+            InvokeOnMainThread(PlotView.ActivityIndicator.StopAnimating);
         }
 
         private void UpdateSize()

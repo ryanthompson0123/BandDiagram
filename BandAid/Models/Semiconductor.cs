@@ -5,6 +5,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Runtime.Serialization;
+using System.Diagnostics;
 
 namespace Band
 {
@@ -504,6 +505,11 @@ namespace Band
                 previousThickness = runningThickness;
                 runningThickness += new Length(((previousValue + value) / 2) * stepSize.Volts);
 
+                if (double.IsNaN(runningThickness.Meters))
+                {
+                    Debug.WriteLine("Por que Nan??");
+                }
+
                 point = new EvalPoint
                 {
                     Location = runningThickness,
@@ -597,14 +603,19 @@ namespace Band
                 var efiEnergy = -EnergyFromVacuumToEfi - point.Potential;
                 var wfEnergy = -WorkFunction;
 
+                if (double.IsNaN(location.Meters))
+                {
+                    Debug.WriteLine("Why is this NaN");
+                }
+
                 cbDataset.DataPoints.Add(new PlotDataPoint
                 {
-                    X =location.Nanometers, 
+                    X = location.Nanometers, 
                     Y = cbEnergy.ElectronVolts
                 });
                 vbDataset.DataPoints.Add(new PlotDataPoint
                 {
-                    X =location.Nanometers, 
+                    X = location.Nanometers, 
                     Y = vbEnergy.ElectronVolts
                 });
                 efiDataset.DataPoints.Add(new PlotDataPoint

@@ -175,6 +175,10 @@
     <Compile Include="StructureTableViewController.designer.cs">
       <DependentUpon>StructureTableViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="PlotView.cs" />
+    <Compile Include="PlotView.designer.cs">
+      <DependentUpon>PlotView.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />

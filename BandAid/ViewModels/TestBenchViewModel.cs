@@ -65,6 +65,20 @@ namespace Band
             private set { SetProperty(ref biasSliderMinValueValue, value); }
         }
 
+        private bool computingValue;
+        public bool Computing
+        {
+            get { return computingValue; }
+            private set { SetProperty(ref computingValue, value); }
+        }
+
+        private bool noSolutionValue;
+        public bool NoSolution
+        {
+            get { return noSolutionValue; }
+            private set { SetProperty(ref noSolutionValue, value); }
+        }
+
         public PlotType PlotType
         {
             set
@@ -115,7 +129,12 @@ namespace Band
                     BiasSliderMinValue = TestBench.MinVoltage.Volts;
                     break;
                 case "NeedsCompute":
+                    Computing = true;
                     await TestBench.ComputeIfNeededAsync();
+                    Computing = false;
+                    break;
+                case "NoSolution":
+                    NoSolution = TestBench.NoSolution;
                     break;
             }
         }

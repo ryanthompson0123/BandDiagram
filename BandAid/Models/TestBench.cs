@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using System.Runtime.Serialization;
+using System.ComponentModel;
 
 namespace Band
 {
@@ -36,15 +37,12 @@ namespace Band
             set
             {
                 structureValue = value;
-                value.PropertyChanged += (sender, e) =>
-                {
-                    if (e.PropertyName == "Layers")
-                    {
-                        SetNeedsCompute();
-                    }
-                };
+                value.PropertyChanged += Structure_PropertyChanged;
 
-                SetNeedsCompute();
+                if (value.IsValid)
+                {
+                    SetNeedsCompute();
+                }
             }
         }
 
@@ -109,6 +107,13 @@ namespace Band
                 SetNeedsCompute();
             }
         }
+
+        private bool noSolutionValue;
+        public bool NoSolution
+        {
+            get { return noSolutionValue; }
+            private set { SetProperty(ref noSolutionValue, value); }
+        }
         
         public int StepCount
         {
@@ -164,6 +169,19 @@ namespace Band
         public void SetBias(ElectricPotential potential)
         {
             CurrentIndex = StepForPotential(potential);
+        }
+
+        private void Structure_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "Layers":
+                    if (Structure.IsValid && !Structure.NoSolution) SetNeedsCompute();
+                    break;
+                case "NoSolution":
+                    NoSolution = Structure.NoSolution;
+                    break;
+            }
         }
 
         private void Compute()

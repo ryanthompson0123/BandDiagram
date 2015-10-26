@@ -136,7 +136,7 @@ namespace BandAid.iOS
                 case 3:
                     ViewModel.PlotType = PlotType.ChargeDensity;
                     break;
-            }
+            }     
         }
 
         void ViewModel_PropertyChanged (object sender, PropertyChangedEventArgs e)
@@ -154,6 +154,9 @@ namespace BandAid.iOS
                     break;
                 case "BiasSliderMinValue":
                     biasSlider.MinValue = (float)ViewModel.BiasSliderMinValue;
+                    break;
+                case "Computing":
+                    if (ViewModel.Computing && ViewModel.TestBench.Structure.IsValid) plotView.ActivityIndicator.StartAnimating();
                     break;
             }
         }
