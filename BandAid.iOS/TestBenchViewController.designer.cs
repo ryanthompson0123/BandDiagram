@@ -13,13 +13,7 @@ namespace BandAid.iOS
 	partial class TestBenchViewController
 	{
 		[Outlet]
-		UIKit.UISlider biasSlider { get; set; }
-
-		[Outlet]
-		UIKit.UILabel currentVoltageLabel { get; set; }
-
-		[Outlet]
-		BandAid.iOS.PlotView plotView { get; set; }
+		BandAid.iOS.GraphView graphView { get; set; }
 
 		[Outlet]
 		UIKit.UIBarButtonItem settingsButton { get; set; }
@@ -32,19 +26,9 @@ namespace BandAid.iOS
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (biasSlider != null) {
-				biasSlider.Dispose ();
-				biasSlider = null;
-			}
-
-			if (currentVoltageLabel != null) {
-				currentVoltageLabel.Dispose ();
-				currentVoltageLabel = null;
-			}
-
-			if (plotView != null) {
-				plotView.Dispose ();
-				plotView = null;
+			if (graphView != null) {
+				graphView.Dispose ();
+				graphView = null;
 			}
 
 			if (settingsButton != null) {

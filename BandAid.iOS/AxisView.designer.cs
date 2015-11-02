@@ -3,9 +3,10 @@ using Foundation;
 
 namespace BandAid.iOS
 {
-    [Register ("PlotView")]
-    partial class PlotView
+    [Register ("AxisView")]
+    partial class AxisView
     {
+
         void ReleaseDesignerOutlets ()
         {
         }

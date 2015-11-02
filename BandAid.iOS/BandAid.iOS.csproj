@@ -129,6 +129,7 @@
     <BundleResource Include="Resources\highk.json" />
     <BundleResource Include="Resources\nvm.json" />
     <None Include="packages.config" />
+    <None Include="Paths.sketchcs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -146,7 +147,6 @@
       <DependentUpon>SettingsViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="StructurePlotScene.cs" />
-    <Compile Include="PlotNode.cs" />
     <Compile Include="MaterialTypeViewController.cs" />
     <Compile Include="MaterialTypeViewController.designer.cs">
       <DependentUpon>MaterialTypeViewController.cs</DependentUpon>
@@ -161,7 +161,6 @@
     </Compile>
     <Compile Include="UIColorExtensions.cs" />
     <Compile Include="StructureParameterListViewController.cs" />
-    <Compile Include="AxisNode.cs" />
     <Compile Include="StructureCollectionViewCell.cs" />
     <Compile Include="StructureCollectionViewCell.designer.cs">
       <DependentUpon>StructureCollectionViewCell.cs</DependentUpon>
@@ -175,6 +174,14 @@
     <Compile Include="StructureTableViewController.designer.cs">
       <DependentUpon>StructureTableViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="AxisView.cs" />
+    <Compile Include="AxisView.designer.cs">
+      <DependentUpon>AxisView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GraphView.designer.cs">
+      <DependentUpon>GraphView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GraphView.cs" />
     <Compile Include="PlotView.cs" />
     <Compile Include="PlotView.designer.cs">
       <DependentUpon>PlotView.cs</DependentUpon>

@@ -13,174 +13,103 @@ namespace Band
 
     public class Plot
     {
-        public string Name { get; set; }
-        public string XAxisLabel { get; set; }
-        public string YAxisLabel { get; set; }
-        public PlotAxisBounds XAxisBounds { get; set; }
-        public PlotAxisBounds YAxisBounds { get; set; }
+        public string Title { get; set; }
+        public PlotAxis XAxis { get; set; }
+        public PlotAxis YAxis { get; set; }
 
         public ObservableCollection<PlotDataSet> DataSets { get; set; }
 
-        protected Plot()
+        public Plot(List<PlotDataSet> dataSets)
         {
-            DataSets = new ObservableCollection<PlotDataSet>();
-            DataSets.CollectionChanged += (sender, e) => 
-            {
-                var allPoints = DataSets.SelectMany(s => s.DataPoints).ToList();
-                XAxisBounds = new PlotAxisBounds
-                {
-                    Max = allPoints.Max(p => p.X),
-                    Min = allPoints.Min(p => p.X)
-                };
-
-                YAxisBounds = new PlotAxisBounds
-                {
-                    Max = allPoints.Max(p => p.Y),
-                    Min = allPoints.Min(p => p.Y)
-                };
-            };
+            DataSets = new ObservableCollection<PlotDataSet>(dataSets);
+            XAxis = new PlotAxis();
+            YAxis = new PlotAxis();
         }
 
-        public static Plot Create(Structure structure, PlotType plotType)
+        public void AutoScale()
         {
-            var plot = Create(plotType);
+            var allPoints = DataSets.SelectMany(s => s.DataPoints).ToList();
+            XAxis.Max = allPoints.Max(p => p.X);
+            XAxis.Min = allPoints.Min(p => p.X);
 
-            Length thickness = Length.Zero;
-            foreach (var layer in structure.Layers)
-            {
-                switch (plotType)
-                {
-                    case PlotType.Energy:
-                        foreach (var dataset in layer.GetEnergyDatasets(thickness))
-                        {
-                            plot.DataSets.Add(dataset);
-                        }
-                        break;
-                    case PlotType.ElectricField:
-                        plot.DataSets.Add(layer.GetElectricFieldDataset(thickness));
-                        break;
-                    case PlotType.ChargeDensity:
-                        plot.DataSets.Add(layer.GetChargeDensityDataset(thickness));
-                        break;
-                    case PlotType.Potential:
-                        plot.DataSets.Add(layer.GetPotentialDataset(thickness));
-                        break;
-                }
-
-                thickness += layer.Thickness;
-            }
-
-            return plot;
+            YAxis.Max = allPoints.Max(p => p.Y);
+            YAxis.Min = allPoints.Min(p => p.Y);
         }
 
-        public static Plot Create(PlotType plotType)
+        internal static double CalculateSpanForBestFit(double max, double min, double value)
         {
-            switch (plotType)
+            var thisOne = (max - min) / value;
+            var bigger = (max - min) / (value * 2);
+            var smaller = (max - min) / (value / 2);
+
+            if (thisOne < 10 && bigger < 10 && smaller < 10)
             {
-                case PlotType.Energy:
-                    return new Plot
-                    {
-                        Name = "Energy",
-                        YAxisLabel = "Energy (eV)",
-                        XAxisLabel = "Distance (nm)"
-                    };
-                case PlotType.ChargeDensity:
-                    return new Plot
-                    {
-                        Name = "Charge Density",
-                        YAxisLabel = "Charge Density (C/cm2)",
-                        XAxisLabel = "Distance (nm)"
-                    };
-                case PlotType.ElectricField:
-                    return new Plot
-                    {
-                        Name = "Electric Field",
-                        YAxisLabel = "Electric Field (MV/cm)",
-                        XAxisLabel = "Distance (nm)"
-                    };
-                case PlotType.Potential:
-                    return new Plot
-                    {
-                        Name = "Potential",
-                        YAxisLabel = "Potential (V)",
-                        XAxisLabel = "Distance (nm)"
-                    };
-                default:
-                    return new Plot
-                    {
-                        Name = "Unknown Plot",
-                        YAxisLabel = "Unknown Unit",
-                        XAxisLabel = "Unknown Unit"
-                    };
+                return CalculateSpanForBestFit(max, min, value / 2);
             }
+
+            if (thisOne > 10 && bigger > 10 && smaller > 10)
+            {
+                return CalculateSpanForBestFit(max, min, value * 2);
+            }
+
+            var numbers = new[] { value, value * 2, value / 2 };
+
+            return numbers.OrderBy(v => Math.Abs((long)((max - min) / v) - 10)).First();
         }
     }
 
     public class PlotAnimationGrouping
     {
-        public PlotAxisBounds XAxisBounds { get; set; }
-        public PlotAxisBounds YAxisBounds { get; set; }
+        public PlotAxis XAxis { get; private set; }
+        public PlotAxis YAxis { get; private set; }
+        public PlotAxis AnimationAxis { get; private set; }
 
-        public int MinorYAxisTicks { get; set; }
-        public int MinorXAxisTicks { get; set; }
+        public List<Plot> Plots { get; private set; }
 
-        public double MajorXAxisSpan { get; set; }
-        public double MajorYAxisSpan { get; set; }
-
-        public List<Plot> Plots { get; set; }
-
-        protected PlotAnimationGrouping()
+        public PlotAnimationGrouping(PlotAxis animationAxis, Func<double, Plot> provider)
         {
-            MinorXAxisTicks = 1;
-            MinorYAxisTicks = 1;
+            AnimationAxis = animationAxis;
+
+            Plots = Enumerable.Range(0, animationAxis.MajorTickCount)
+                .Select(s => s * animationAxis.MajorSpan + animationAxis.Min)
+                .Select(provider)
+                .ToList();
+
+            var allXBounds = Plots.Select(p => p.XAxis).ToList();
+            var allYBounds = Plots.Select(p => p.YAxis).ToList();
+
+            var xMax = Math.Ceiling(allXBounds.Max(b => b.Max));
+            var xMin = Math.Floor(allXBounds.Min(b => b.Min));
+            var xTick = Plots[0].XAxis.MajorSpan > 0 ? 
+                Plots[0].XAxis.MajorSpan : Plot.CalculateSpanForBestFit(xMax, xMin, 1.0);
+
+            XAxis = new PlotAxis
+            {
+                AxisType = AxisType.X,
+                Max = xMax,
+                Min = xMin,
+                MajorSpan = xTick,
+                Title = Plots[0].XAxis.Title
+            };
+
+            var yMax = Math.Ceiling(allYBounds.Max(b => b.Max));
+            var yMin = Math.Floor(allYBounds.Min(b => b.Min));
+            var yTick = Plots[0].YAxis.MajorSpan > 0 ?
+                Plots[0].YAxis.MajorSpan : Plot.CalculateSpanForBestFit(yMax, yMin, 1.0);
+
+            YAxis = new PlotAxis
+            {
+                AxisType = AxisType.PrimaryY,
+                Max = yMax,
+                Min = yMin,
+                MajorSpan = yTick,
+                Title = Plots[0].YAxis.Title
+            };
         }
 
-        public static PlotAnimationGrouping Create(List<Plot> plots)
+        public int GetIndexOfClosestPlot(double value)
         {
-            var allXBounds = plots.Select(p => p.XAxisBounds).ToList();
-            var allYBounds = plots.Select(p => p.YAxisBounds).ToList();
-
-            var xBounds = new PlotAxisBounds
-            {
-                Max = Math.Ceiling(allXBounds.Max(b => b.Max)),
-                Min = Math.Floor(allXBounds.Min(b => b.Min))
-            };
-
-            var yBounds = new PlotAxisBounds
-            {
-                Max = Math.Ceiling(allYBounds.Max(b => b.Max)),
-                Min = Math.Floor(allYBounds.Min(b => b.Min))
-            };
-
-            return new PlotAnimationGrouping
-            {
-                Plots = plots,
-                XAxisBounds = xBounds,
-                YAxisBounds = yBounds,
-                MajorXAxisSpan = FigureTickValue(xBounds, 1.0),
-                MajorYAxisSpan = FigureTickValue(yBounds, 1.0)
-            };
-        }
-
-        private static double FigureTickValue(PlotAxisBounds bounds, double value)
-        {
-            var thisOne = (bounds.Max - bounds.Min) / value;
-            var bigger = (bounds.Max - bounds.Min) / (value * 2);
-            var smaller = (bounds.Max - bounds.Min) / (value / 2);
-
-            if (thisOne < 10 && bigger < 10 && smaller < 10)
-            {
-                return FigureTickValue(bounds, value / 2);
-            }
-
-            if (thisOne > 10 && bigger > 10 && smaller > 10)
-            {
-                return FigureTickValue(bounds, value * 2);
-            }
-
-            var numbers = new[] { value, value * 2, value / 2 };
-
-            return numbers.OrderBy(v => Math.Abs((long)((bounds.Max - bounds.Min) / v) - 10)).First();
+            return AnimationAxis.GetClosestMajorTickIndex(value);
         }
     }
 
@@ -204,9 +133,69 @@ namespace Band
         public double Y { get; set; }
     }
 
-    public class PlotAxisBounds
+    public enum AxisType { PrimaryY, SecondaryY, X }
+
+    public class PlotAxis
     {
+        public AxisType AxisType { get; set; }
         public double Min { get; set; }
         public double Max { get; set; }
+        public double MajorSpan { get; set; }
+        public double MinorSpan { get; set; }
+        public string Title { get; set; }
+
+        public double Range
+        {
+            get { return Max - Min; }
+        }
+
+        public double Midpoint
+        {
+            get { return Min + (Range / 2); }
+        }
+
+        public int MajorTickCount
+        {
+            get { return (int)(Range / MajorSpan) + 1; }
+        }
+
+        public List<string> TickLabels
+        {
+            get
+            {
+                return MajorTicks
+                    .Select(t => string.Format("{0:0.0}", t))
+                    .ToList();
+            }
+        }
+
+        public List<double> MajorTicks
+        {
+            get
+            {
+                return Enumerable
+                    .Range(0, MajorTickCount)
+                    .Select(s => s * MajorSpan + Min)
+                    .ToList();
+            }
+        }
+
+        public int GetClosestMajorTickIndex(double value)
+        {
+            var stepFraction = (value - Min) / MajorSpan;
+
+            return Convert.ToInt32(stepFraction);
+        }
+
+        public double GetClosestMajorTick(double value)
+        {
+            var step = GetClosestMajorTickIndex(value);
+            return step * MajorSpan + Min;
+        }
+
+        public double GetTickValue(int tickNumber)
+        {
+            return tickNumber * MajorSpan + Min;
+        }
     }
 }

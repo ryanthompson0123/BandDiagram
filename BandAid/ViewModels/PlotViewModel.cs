@@ -13,14 +13,14 @@ namespace Band
             private set { SetProperty(ref plotValue, value); }
         }
 
-        public PlotAxisBounds XAxisBounds
+        public PlotAxis XAxisBounds
         {
-            get { return plotGroup.XAxisBounds; }
+            get { return plotGroup.XAxis; }
         }
 
-        public PlotAxisBounds YAxisBounds
+        public PlotAxis YAxisBounds
         {
-            get { return plotGroup.YAxisBounds; }
+            get { return plotGroup.YAxis; }
         }
 
         public List<PlotDataSet> DataSets

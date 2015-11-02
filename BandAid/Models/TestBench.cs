@@ -171,6 +171,11 @@ namespace Band
             CurrentIndex = StepForPotential(potential);
         }
 
+        public Structure GetStep(ElectricPotential potential)
+        {
+            return Steps[StepForPotential(potential)];
+        }
+
         private void Structure_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)

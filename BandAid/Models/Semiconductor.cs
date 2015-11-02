@@ -478,7 +478,7 @@ namespace Band
             // Find the thickness through integration
             // Integrate from 0 to the surface potential
             // Integrate 2000 times so change stepSize depending on the surface potential
-            var stepSize = phiS / 2000;
+            var stepSize = phiS / 20;
 
             stepSize = phiS > ElectricPotential.Zero ?
                 ElectricPotential.Abs(stepSize) : -ElectricPotential.Abs(stepSize);

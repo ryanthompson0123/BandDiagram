@@ -1,0 +1,26 @@
+﻿```xml
+<Manifest>
+  <AgentType>iOSUnified_UIKit</AgentType>
+  <Resources />
+  <TimeoutSeconds>0</TimeoutSeconds>
+</Manifest>
+```
+```csharp
+// Sketch your next great idea!
+
+using UIKit;
+using Foundation;
+using CoreGraphics;
+
+
+var i = 4;
+var sum = 0;
+
+for (var j = 0; j < i; j++)
+{
+    sum += j;
+}
+
+
+```
+

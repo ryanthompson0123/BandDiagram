@@ -44,27 +44,6 @@ namespace Band
             }
         }
 
-        private string currentVoltageTextValue;
-        public string CurrentVoltageText
-        {
-            get { return currentVoltageTextValue; }
-            private set { SetProperty(ref currentVoltageTextValue, value); }
-        }
-
-        private double biasSliderMaxValueValue;
-        public double BiasSliderMaxValue
-        {
-            get { return biasSliderMaxValueValue; }
-            private set { SetProperty(ref biasSliderMaxValueValue, value); }
-        }
-
-        private double biasSliderMinValueValue;
-        public double BiasSliderMinValue
-        {
-            get { return biasSliderMinValueValue; }
-            private set { SetProperty(ref biasSliderMinValueValue, value); }
-        }
-
         private bool computingValue;
         public bool Computing
         {
@@ -79,29 +58,34 @@ namespace Band
             private set { SetProperty(ref noSolutionValue, value); }
         }
 
+        private PlotType plotTypeValue;
         public PlotType PlotType
         {
-            set
-            {
-                Scene.PlotType = value;
-                NeedsScreenshot = true;
-            }
+            get { return plotTypeValue; }
+            private set { SetProperty(ref plotTypeValue, value); }
+        }
+
+        private PlotAnimationGrouping plotGroupValue;
+        public PlotAnimationGrouping PlotGroup
+        {
+            get { return plotGroupValue; }
+            private set { SetProperty(ref plotGroupValue, value); }
         }
 
         // Don't observe these because they get created once and passed to their respective
         // views. Those views will observe these objects individually.
         public StructureParameterListViewModel StructureParameterList { get; set; }
-        public StructureSceneViewModel Scene { get; set; }
+        //public StructureSceneViewModel Scene { get; set; }
 
         public TestBenchViewModel(TestBench testBench)
         {
             TestBench = testBench;
 
             StructureParameterList = new StructureParameterListViewModel(TestBench);
-            Scene = new StructureSceneViewModel(TestBench);
+            //Scene = new StructureSceneViewModel(TestBench);
 
-            BiasSliderMaxValue = TestBench.MaxVoltage.Volts;
-            BiasSliderMinValue = testBench.MinVoltage.Volts;
+            //BiasSliderMaxValue = TestBench.MaxVoltage.Volts;
+            //BiasSliderMinValue = testBench.MinVoltage.Volts;
 
             TitleText = TestBench.Name;
             Compute();
@@ -116,17 +100,8 @@ namespace Band
         {
             switch (e.PropertyName)
             {
-                case "CurrentIndex":
-                    CurrentVoltageText = TestBench.CurrentVoltage.ToString("{0:F1} V");
-                    break;
                 case "Name":
                     TitleText = TestBench.Name;
-                    break;
-                case "MaxVoltage":
-                    BiasSliderMaxValue = TestBench.MaxVoltage.Volts;
-                    break;
-                case "MinVoltage":
-                    BiasSliderMinValue = TestBench.MinVoltage.Volts;
                     break;
                 case "NeedsCompute":
                     Computing = true;
@@ -136,20 +111,137 @@ namespace Band
                 case "NoSolution":
                     NoSolution = TestBench.NoSolution;
                     break;
+                case "Steps":
+                    UpdatePlot();
+                    break;
+            }
+        }
+
+        private void UpdatePlot()
+        {
+            if (TestBench.Steps.Count == 0) return;
+
+            var animationAxis = new PlotAxis
+            {
+                Max = TestBench.MaxVoltage.Volts,
+                Min = TestBench.MinVoltage.Volts,
+                MajorSpan = TestBench.StepSize.Volts,
+                Title = "Bias (V)"
+            };
+
+            PlotGroup = new PlotAnimationGrouping(animationAxis, 
+                d => CreatePlot(TestBench.GetStep(new ElectricPotential(d))));
+        }
+
+        private Plot CreatePlot(Structure structure)
+        {
+            var dataSets = new List<PlotDataSet>();
+
+            Length thickness = Length.Zero;
+            foreach (var layer in structure.Layers)
+            {
+                switch (PlotType)
+                {
+                    case PlotType.Energy:
+                        foreach (var dataset in layer.GetEnergyDatasets(thickness))
+                        {
+                            dataSets.Add(dataset);
+                        }
+                        break;
+                    case PlotType.ElectricField:
+                        dataSets.Add(layer.GetElectricFieldDataset(thickness));
+                        break;
+                    case PlotType.ChargeDensity:
+                        dataSets.Add(layer.GetChargeDensityDataset(thickness));
+                        break;
+                    case PlotType.Potential:
+                        dataSets.Add(layer.GetPotentialDataset(thickness));
+                        break;
+                }
+
+                thickness += layer.Thickness;
+            }
+
+            var plot = CreatePlot(PlotType, dataSets);
+            plot.AutoScale();
+            return plot;
+        }
+
+        private static Plot CreatePlot(PlotType plotType, List<PlotDataSet> dataSets)
+        {
+            switch (plotType)
+            {
+                case PlotType.Energy:
+                    return new Plot(dataSets)
+                    {
+                        Title = "Energy",
+                        YAxis = new PlotAxis
+                        {
+                            Title = "Energy (eV)"
+                        },
+                        XAxis = new PlotAxis
+                        {
+                            Title = "Distance (nm)",
+                            MajorSpan = 5.0
+                        }
+                    };
+                case PlotType.ChargeDensity:
+                    return new Plot(dataSets)
+                    {
+                        Title = "Charge Density",
+                        YAxis = new PlotAxis
+                        {
+                            Title = "Charge Density (μC/cm\xB2)"
+                        },
+                        XAxis = new PlotAxis
+                        {
+                            Title = "Distance (nm)",
+                            MajorSpan = 5.0
+                        }
+                    };
+                case PlotType.ElectricField:
+                    return new Plot(dataSets)
+                    {
+                        Title = "Electric Field",
+                        YAxis = new PlotAxis
+                        {
+                            Title = "Electric Field (MV/cm)"
+                        },
+                        XAxis = new PlotAxis
+                        {
+                            Title = "Distance (nm)",
+                            MajorSpan = 5.0
+                        }
+                    };
+                case PlotType.Potential:
+                    return new Plot(dataSets)
+                    {
+                        Title = "Potential",
+                        YAxis = new PlotAxis
+                        {
+                            Title = "Potential (V)"
+                        },
+                        XAxis = new PlotAxis
+                        {
+                            Title = "Distance (nm)",
+                            MajorSpan = 5.0
+                        }
+                    };
+                default:
+                    return null;
             }
         }
 
         public void SetSelectedBias(double bias)
         {
-            // This code 'snaps' the user's desired voltage to the nearest
-            // step that we've calculated ahead of time.
-            var roundingFactor = 1 / (float)TestBench.StepSize.Volts;
-            var roundValue = bias * roundingFactor;
-            var roundedValue = Math.Round(roundValue, MidpointRounding.AwayFromZero);
-            var realValue = roundedValue / roundingFactor;
-
             // Set the current voltage to the snapped voltage.
-            TestBench.SetBias(new ElectricPotential(realValue));
+            TestBench.SetBias(new ElectricPotential(bias));
+        }
+
+        public void SetSelectedPlotType(PlotType plotType)
+        {
+            PlotType = plotType;
+            UpdatePlot();
         }
 
         public async void UpdateSettings(string minVoltageText, string maxVoltageText, string stepSizeText)

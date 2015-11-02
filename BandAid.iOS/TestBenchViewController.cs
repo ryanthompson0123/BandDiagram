@@ -20,9 +20,12 @@ namespace BandAid.iOS
 
         private StructureParameterListViewController parameterList;
 
-        private StructurePlotScene plotScene;
-
         public UITextField TitleText { get; set; }
+
+        public GraphView GraphView
+        {
+            get { return graphView; }
+        }
 
         public TestBenchViewController(IntPtr handle)
             : base(handle)
@@ -47,18 +50,6 @@ namespace BandAid.iOS
             NavigationItem.RightBarButtonItems = RightBarButtonItems;
 
             View.BackgroundColor = UIColor.GroupTableViewBackgroundColor;
-
-            plotView.ShowsFPS = true;
-            plotView.ShowsNodeCount = true;
-            plotScene = new StructurePlotScene(plotView.Bounds.Size)
-            {
-                ViewModel = ViewModel.Scene
-            };
-            plotView.PresentScene(plotScene);
-            plotView.ActivityIndicator.StartAnimating();
-
-            biasSlider.MaxValue = (float)ViewModel.BiasSliderMaxValue;
-            biasSlider.MinValue = (float)ViewModel.BiasSliderMinValue;
         }
 
         public override void ViewWillAppear(bool animated)
@@ -66,15 +57,8 @@ namespace BandAid.iOS
             base.ViewWillAppear(animated);
 
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
-            biasSlider.ValueChanged += biasSlider_ValueChanged;
             chartSegments.ValueChanged += chartSegments_ValueChanged;
-        }
-
-        public override void ViewDidAppear(bool animated)
-        {
-            base.ViewDidAppear(animated);
-
-            plotScene.TakeScreenshot();
+            GraphView.AnimationValueChanged += GraphView_AnimationValueChanged;
         }
 
         public override void ViewDidDisappear(bool animated)
@@ -82,7 +66,6 @@ namespace BandAid.iOS
             base.ViewDidDisappear(animated);
 
             ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
-            biasSlider.ValueChanged -= biasSlider_ValueChanged;
         }
 
         private void SetUpTitleText()
@@ -123,50 +106,55 @@ namespace BandAid.iOS
 
         void chartSegments_ValueChanged (object sender, EventArgs e)
         {
-            plotView.ActivityIndicator.StartAnimating();
+            graphView.ActivityIndicator.StartAnimating();
 
             switch (chartSegments.SelectedSegment)
             {
                 case 0:
-                    ViewModel.PlotType = PlotType.Energy;
+                    ViewModel.SetSelectedPlotType(PlotType.Energy);
                     break;
                 case 1:
-                    ViewModel.PlotType = PlotType.Potential;
+                    ViewModel.SetSelectedPlotType(PlotType.Potential);
                     break;
                 case 2:
-                    ViewModel.PlotType = PlotType.ElectricField;
+                    ViewModel.SetSelectedPlotType(PlotType.ElectricField);
                     break;
                 case 3:
-                    ViewModel.PlotType = PlotType.ChargeDensity;
+                    ViewModel.SetSelectedPlotType(PlotType.ChargeDensity);
                     break;
             }     
         }
 
-        void ViewModel_PropertyChanged (object sender, PropertyChangedEventArgs e)
+        private void GraphView_AnimationValueChanged (object sender, EventArgs e)
         {
-            switch (e.PropertyName)
-            {
-                case "TitleText":
-                    TitleText.Text = ViewModel.TitleText;
-                    break;
-                case "CurrentVoltageText":
-                    currentVoltageLabel.Text = ViewModel.CurrentVoltageText;
-                    break;
-                case "BiasSliderMaxValue":
-                    biasSlider.MaxValue = (float)ViewModel.BiasSliderMaxValue;
-                    break;
-                case "BiasSliderMinValue":
-                    biasSlider.MinValue = (float)ViewModel.BiasSliderMinValue;
-                    break;
-                case "Computing":
-                    if (ViewModel.Computing && ViewModel.TestBench.Structure.IsValid) plotView.ActivityIndicator.StartAnimating();
-                    break;
-            }
+            ViewModel.SetSelectedBias(GraphView.AnimationValue);
         }
 
-        void biasSlider_ValueChanged (object sender, EventArgs e)
+        bool firstGraph = true;
+
+        void ViewModel_PropertyChanged (object sender, PropertyChangedEventArgs e)
         {
-            ViewModel.SetSelectedBias(biasSlider.Value);
+            InvokeOnMainThread(() =>
+            {
+                switch (e.PropertyName)
+                {
+                    case "TitleText":
+                        TitleText.Text = ViewModel.TitleText;
+                        break;
+                    case "Computing":
+                        if (ViewModel.Computing && ViewModel.TestBench.Structure.IsValid) graphView.ActivityIndicator.StartAnimating();
+                        break;
+                    case "PlotGroup":
+                        GraphView.SetPlotGroup(ViewModel.PlotGroup);
+
+                        if (firstGraph)
+                        {
+                            GraphView.SetAnimationValue(ViewModel.PlotGroup.AnimationAxis.Midpoint, false);
+                            firstGraph = false;
+                        }
+                        break;
+                }
+            });
         }
 
         bool toggleIsOpen;
@@ -182,16 +170,18 @@ namespace BandAid.iOS
                 parameterList.ViewWillDisappear(true);
                 await UIView.AnimateAsync(.3, () =>
                 {
-                    View.Frame = new CGRect(0, 0, View.Frame.Width + 200, View.Frame.Height);
+                    View.Frame = new CGRect(0, 0, 
+                        View.Frame.Width + 200, View.Frame.Height);
+                    
                     parameterList.View.Frame = new CGRect(-200, 0, 
                         200, View.Frame.Height);
                     View.LayoutIfNeeded();
                     // For speed we just redraw the showing plot
-                    plotScene.RedrawCurrentPlot();
+                    //plotScene.RedrawCurrentPlot();
                 });
 
                 // After the animation is done, we start redrawing all the plots
-                plotScene.SetUpPlot(false);
+                //plotScene.SetUpPlot(false);
                 toggleIsOpen = false;
                 parameterList.ViewDidDisappear(true);
             }
@@ -211,11 +201,11 @@ namespace BandAid.iOS
                         200, View.Frame.Height);
                     View.LayoutIfNeeded();
                     // For speed we just redraw the showing plot
-                    plotScene.RedrawCurrentPlot();
+                    //plotScene.RedrawCurrentPlot();
                 });
 
                 // After the animation is done, we start redrawing all the plots
-                plotScene.SetUpPlot(false);
+                //plotScene.SetUpPlot(false);
                 toggleIsOpen = true;
                 parameterList.ViewDidAppear(true);
             }
@@ -246,48 +236,19 @@ namespace BandAid.iOS
 
         private async void OnPlayClicked(object sender, EventArgs e)
         {
-            chartSegments.UserInteractionEnabled = false;
-            biasSlider.UserInteractionEnabled = false;
+            UIApplication.SharedApplication.BeginIgnoringInteractionEvents();
 
-            var max = new ElectricPotential(biasSlider.MaxValue).RoundMilliVolts;
-            var min = new ElectricPotential(biasSlider.MinValue).RoundMilliVolts;
-            var step = ViewModel.TestBench.StepSize.RoundMilliVolts;
-            var delay = 2000 / ((max - min) / step);    // Whole animation should take 2s
+            await GraphView.RunSweepAnimationAsync();
 
-            await Task.Run(async () =>
-            {
-                for (var i = min; i <= max; i += step)
-                {
-                    if (i == min)
-                    {
-                        InvokeOnMainThread(() => 
-                        {
-                            biasSlider.SetValue((float)i / (float)1000.0, false);
-                            biasSlider_ValueChanged(this, EventArgs.Empty);
-                        });
-                    }
-                    else
-                    {
-                        InvokeOnMainThread(() => 
-                        {
-                            biasSlider.SetValue((float)i / (float)1000.0, true);
-                            biasSlider_ValueChanged(this, EventArgs.Empty);
-                        });
-                    }
-
-                    await Task.Delay(delay);
-                }
-            });
-
-            chartSegments.UserInteractionEnabled = true;
-            biasSlider.UserInteractionEnabled = true;
+            UIApplication.SharedApplication.EndIgnoringInteractionEvents();
         }
 
+        UIBarButtonItem playButton;
         private UIBarButtonItem[] RightBarButtonItems
         {
             get
             {
-                var playButton = new UIBarButtonItem(UIBarButtonSystemItem.Play);
+                playButton = new UIBarButtonItem(UIBarButtonSystemItem.Play);
                 playButton.Clicked += OnPlayClicked;
 
                 return new []
