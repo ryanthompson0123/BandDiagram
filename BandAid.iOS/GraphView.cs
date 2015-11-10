@@ -25,6 +25,11 @@ namespace BandAid.iOS
             get { return primaryXAxisView; }
         }
 
+        public GridView Grid
+        {
+            get { return gridView; }
+        }
+
         public PlotView Plot
         {
             get { return plotView; }
@@ -79,6 +84,8 @@ namespace BandAid.iOS
 
             PrimaryYAxis.Axis = value.YAxis;
             PrimaryXAxis.Axis = value.XAxis;
+            Grid.YAxis = value.YAxis;
+            Grid.XAxis = value.XAxis;
             Plot.PlotGroup = value;
             Slider.MaxValue = (float)value.AnimationAxis.Max;
             Slider.MinValue = (float)value.AnimationAxis.Min;
@@ -122,6 +129,26 @@ namespace BandAid.iOS
             });
 
             Slider.UserInteractionEnabled = true;
+        }
+
+        public UIImage RenderToImage()
+        {
+            UIGraphics.BeginImageContextWithOptions(Bounds.Size, Opaque, UIScreen.MainScreen.Scale);
+            Layer.RenderInContext(UIGraphics.GetCurrentContext());
+            var image = UIGraphics.GetImageFromCurrentImageContext();
+            UIGraphics.EndImageContext();
+
+            return image;
+        }
+
+        public UIImage RenderPlotToImage()
+        {
+            UIGraphics.BeginImageContextWithOptions(Plot.Bounds.Size, false, UIScreen.MainScreen.Scale);
+            Plot.Layer.RenderInContext(UIGraphics.GetCurrentContext());
+            var image = UIGraphics.GetImageFromCurrentImageContext();
+            UIGraphics.EndImageContext();
+
+            return image;
         }
 
         private void Slider_ValueChanged(object sender, EventArgs e)

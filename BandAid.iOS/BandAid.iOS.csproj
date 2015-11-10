@@ -130,6 +130,14 @@
     <BundleResource Include="Resources\nvm.json" />
     <None Include="packages.config" />
     <None Include="Paths.sketchcs" />
+    <BundleResource Include="Resources\highk.png" />
+    <BundleResource Include="Resources\nvm.png" />
+    <BundleResource Include="Resources\toggle%402x.png" />
+    <BundleResource Include="Resources\toggle.png" />
+    <BundleResource Include="Resources\untoggle%402x.png" />
+    <BundleResource Include="Resources\untoggle.png" />
+    <BundleResource Include="Resources\layers.png" />
+    <BundleResource Include="Resources\layers%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -185,6 +193,10 @@
     <Compile Include="PlotView.cs" />
     <Compile Include="PlotView.designer.cs">
       <DependentUpon>PlotView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GridView.cs" />
+    <Compile Include="GridView.designer.cs">
+      <DependentUpon>GridView.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

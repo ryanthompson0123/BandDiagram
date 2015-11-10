@@ -15,6 +15,12 @@ namespace BandAid.iOS
 		[Action ("OnAddTapped:")]
 		partial void OnAddTapped (Foundation.NSObject sender);
 
+		[Action ("OnDuplicateClicked:")]
+		partial void OnDuplicateClicked (Foundation.NSObject sender);
+
+		[Action ("OnTrashClicked:")]
+		partial void OnTrashClicked (Foundation.NSObject sender);
+
 		[Action ("OnTrashTapped:")]
 		partial void OnTrashTapped (UIKit.UIBarButtonItem sender);
 		

@@ -136,6 +136,11 @@ namespace Band.Units
         {
             protected override Concentration Deserialize(Type objectType, JToken jToken)
             {
+                if (jToken == null || jToken.Type == JTokenType.Null)
+                {
+                    return null;
+                }
+
                 return Concentration.FromPerCubicCentimeter(jToken.ToObject<double>());
             }
 

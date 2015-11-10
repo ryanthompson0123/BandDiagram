@@ -10,7 +10,17 @@ using System.Runtime.Serialization;
 namespace Band
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum MaterialType { Metal, Dielectric, Semiconductor }
+    public enum MaterialType
+    {
+        [EnumMember(Value = "metal")]
+        Metal, 
+
+        [EnumMember(Value = "dielectric")]
+        Dielectric,
+
+        [EnumMember(Value = "semiconductor")]
+        Semiconductor 
+    }
 
     [JsonObject(MemberSerialization.OptIn)]
     [JsonConverter(typeof(Material.Converter))]
@@ -37,8 +47,10 @@ namespace Band
         public abstract Energy EnergyFromVacuumToBottomBand { get; }
         public abstract Energy EnergyFromVacuumToEfi { get; }
 
+        [JsonIgnore]
         public Structure ParentStructure { get; set; }
 
+        [JsonProperty]
         public MaterialType MaterialType
         {
             get
@@ -54,6 +66,10 @@ namespace Band
                 }
 
                 return MaterialType.Semiconductor;
+            }
+            set
+            {
+                return;
             }
         }
 

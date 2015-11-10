@@ -25,6 +25,9 @@ namespace BandAid.iOS
 		UIKit.UILabel animationAxisValueLabel { get; set; }
 
 		[Outlet]
+		BandAid.iOS.GridView gridView { get; set; }
+
+		[Outlet]
 		BandAid.iOS.PlotView plotView { get; set; }
 
 		[Outlet]
@@ -56,6 +59,11 @@ namespace BandAid.iOS
 			if (animationAxisValueLabel != null) {
 				animationAxisValueLabel.Dispose ();
 				animationAxisValueLabel = null;
+			}
+
+			if (gridView != null) {
+				gridView.Dispose ();
+				gridView = null;
 			}
 
 			if (plotView != null) {

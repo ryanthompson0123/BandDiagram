@@ -1,12 +1,12 @@
 {
 	"name": "NVM Stack",
-	"currentIndex": 40,
+	"currentIndex": 0,
 	"minVoltage": -10.0,
 	"maxVoltage": 10.0,
 	"stepSize": 0.25,
 	"structure": {
 	  "name": "NVM Stack",
-	  "bias": 0,
+	  "bias": -10.0,
 	  "temperature": 300,
 	  "layers": [
 	    {

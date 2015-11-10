@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 namespace BandAid.iOS
 {
-    public partial class PlotView : UIView
+    public sealed partial class PlotView : UIView
     {
         private PlotAnimationGrouping plotGroupValue;
         public PlotAnimationGrouping PlotGroup

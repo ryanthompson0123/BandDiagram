@@ -26,7 +26,11 @@ namespace BandAid.iOS
         {
             Xamarin.Forms.Forms.Init();
 
-            new FileManager().UnpackAssetsIfNotUnpacked();
+            var fm = new FileManager();
+            fm.UnpackAssetsIfNotUnpacked();
+            Console.WriteLine(fm.DocumentsPath);
+
+           
         }
 		
         // This method is invoked when the application is about to move from active to inactive state.

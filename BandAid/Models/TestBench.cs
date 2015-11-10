@@ -153,6 +153,13 @@ namespace Band
             return testBench;
         }
 
+        public Task SaveAsync()
+        {
+            var fileManager = DependencyService.Get<IFileManager>();
+
+            return fileManager.SaveTestBenchAsync(this);
+        }
+
         public void SetNeedsCompute()
         {
             NeedsCompute = true;
@@ -169,6 +176,15 @@ namespace Band
         public void SetBias(ElectricPotential potential)
         {
             CurrentIndex = StepForPotential(potential);
+        }
+
+        public void SetRange(ElectricPotential min, ElectricPotential max, ElectricPotential step)
+        {
+            minVoltageValue = min;
+            maxVoltageValue = max;
+            stepSizeValue = step;
+
+            SetNeedsCompute();
         }
 
         public Structure GetStep(ElectricPotential potential)

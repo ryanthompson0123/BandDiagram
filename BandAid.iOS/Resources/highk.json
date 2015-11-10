@@ -1,12 +1,12 @@
 {
 	"name": "High-k Stack",
-	"currentIndex": 20,
+	"currentIndex": 0,
 	"minVoltage": -2.0,
 	"maxVoltage": 2.0,
 	"stepSize": 0.1,
 	"structure": {
 	  "name": "High-k Stack",
-	  "bias": 0,
+	  "bias": -2.0,
 	  "temperature": 300,
 	  "layers": [
 	    {

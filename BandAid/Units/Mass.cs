@@ -129,6 +129,11 @@ namespace Band.Units
         {
             protected override Mass Deserialize(Type objectType, JToken jToken)
             {
+                if (jToken == null || jToken.Type == JTokenType.Null)
+                {
+                    return null;
+                }
+
                 return new Mass(jToken.ToObject<double>());
             }
 

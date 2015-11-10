@@ -9,9 +9,33 @@ namespace Band
 {
     public class StructureGalleryItemViewModel : ObservableObject
     {
-        public string TitleText { get; private set; }
-        public string DataFile { get; private set; }
-        public string ImageFile { get; private set; }
+        private bool isSelectedValue;
+        public bool IsSelected
+        {
+            get { return isSelectedValue; }
+            set { SetProperty(ref isSelectedValue, value); }
+        }
+
+        private string titleTextValue;
+        public string TitleText
+        {
+            get { return titleTextValue; }
+            private set { SetProperty(ref titleTextValue, value); }
+        }
+
+        private string dataFileValue;
+        public string DataFile
+        {
+            get { return dataFileValue; }
+            private set { SetProperty(ref dataFileValue, value); }
+        }
+
+        private string imageFileValue;
+        public string ImageFile
+        {
+            get { return imageFileValue; }
+            private set { SetProperty(ref imageFileValue, value); }
+        }
 
         public StructureGalleryItemViewModel(string title)
         {

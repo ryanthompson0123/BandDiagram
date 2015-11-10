@@ -164,6 +164,11 @@ namespace Band.Units
         {
             protected override Energy Deserialize(Type objectType, JToken jToken)
             {
+                if (jToken == null || jToken.Type == JTokenType.Null)
+                {
+                    return null;
+                }
+
                 return Energy.FromElectronVolts(jToken.ToObject<double>());
             }
 

@@ -18,6 +18,9 @@ namespace BandAid.iOS
 		[Outlet]
 		UIKit.UIBarButtonItem settingsButton { get; set; }
 
+		[Action ("OnPlayClicked:")]
+		partial void OnPlayClicked (Foundation.NSObject sender);
+
 		[Action ("OnSettingsClicked:")]
 		partial void OnSettingsClicked (Foundation.NSObject sender);
 

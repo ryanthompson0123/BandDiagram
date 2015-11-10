@@ -27,6 +27,11 @@ namespace BandAid.iOS
             get { return graphView; }
         }
 
+        public UIBarButtonItem ToggleButton
+        {
+            get { return ToolbarItems[0]; }
+        }
+
         public TestBenchViewController(IntPtr handle)
             : base(handle)
         {
@@ -47,7 +52,6 @@ namespace BandAid.iOS
             NavigationItem.TitleView = TitleText;
 
             ToolbarItems = GetBottomButtonItems(ToolbarItems);
-            NavigationItem.RightBarButtonItems = RightBarButtonItems;
 
             View.BackgroundColor = UIColor.GroupTableViewBackgroundColor;
         }
@@ -130,8 +134,6 @@ namespace BandAid.iOS
             ViewModel.SetSelectedBias(GraphView.AnimationValue);
         }
 
-        bool firstGraph = true;
-
         void ViewModel_PropertyChanged (object sender, PropertyChangedEventArgs e)
         {
             InvokeOnMainThread(() =>
@@ -146,15 +148,35 @@ namespace BandAid.iOS
                         break;
                     case "PlotGroup":
                         GraphView.SetPlotGroup(ViewModel.PlotGroup);
-
-                        if (firstGraph)
+                        GraphView.SetAnimationValue(ViewModel.TestBench.CurrentVoltage.Volts, false);
+                        TakeScreenshot();
+                        break;
+                    case "NeedsScreenshot":
+                        if (ViewModel.NeedsScreenshot)
                         {
-                            GraphView.SetAnimationValue(ViewModel.PlotGroup.AnimationAxis.Midpoint, false);
-                            firstGraph = false;
+                            TakeScreenshot();
                         }
                         break;
                 }
             });
+        }
+
+        private async void TakeScreenshot()
+        {
+            await TakeScreenshotAsync();
+        }
+
+        private async Task TakeScreenshotAsync()
+        {
+            var image = GraphView.RenderPlotToImage();
+
+            using (var imageData = image.AsPNG())
+            {
+                using (var imageStream = imageData.AsStream())
+                {
+                    await ViewModel.SaveScreenshotAsync(imageStream);
+                }
+            }
         }
 
         bool toggleIsOpen;
@@ -167,6 +189,8 @@ namespace BandAid.iOS
             toggling = true;
             if (toggleIsOpen)
             {
+                ToggleButton.Image = UIImage.FromBundle("toggle");
+
                 parameterList.ViewWillDisappear(true);
                 await UIView.AnimateAsync(.3, () =>
                 {
@@ -187,6 +211,8 @@ namespace BandAid.iOS
             }
             else
             {
+                ToggleButton.Image = UIImage.FromBundle("untoggle");
+
                 if (firstTime)
                 {
                     View.Superview.AddSubview(parameterList.View);
@@ -213,6 +239,15 @@ namespace BandAid.iOS
             toggling = false;
         }
 
+        async partial void OnPlayClicked(NSObject sender)
+        {
+            UIApplication.SharedApplication.BeginIgnoringInteractionEvents();
+
+            await GraphView.RunSweepAnimationAsync();
+
+            UIApplication.SharedApplication.EndIgnoringInteractionEvents();
+        }
+
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
         {
             base.PrepareForSegue(segue, sender);
@@ -232,31 +267,10 @@ namespace BandAid.iOS
                 var popover = settings.PopoverPresentationController;
                 popover.Delegate = new SettingsPopoverDelegate(ViewModel);
             }
-        }
 
-        private async void OnPlayClicked(object sender, EventArgs e)
-        {
-            UIApplication.SharedApplication.BeginIgnoringInteractionEvents();
-
-            await GraphView.RunSweepAnimationAsync();
-
-            UIApplication.SharedApplication.EndIgnoringInteractionEvents();
-        }
-
-        UIBarButtonItem playButton;
-        private UIBarButtonItem[] RightBarButtonItems
-        {
-            get
+            if (segue.Identifier == "unwindToGallery")
             {
-                playButton = new UIBarButtonItem(UIBarButtonSystemItem.Play);
-                playButton.Clicked += OnPlayClicked;
-
-                return new []
-                {
-                    new UIBarButtonItem(UIBarButtonSystemItem.Action),
-                    NavigationItem.RightBarButtonItem,
-                    playButton
-                };
+                ViewModel.SaveTestBench();
             }
         }
 

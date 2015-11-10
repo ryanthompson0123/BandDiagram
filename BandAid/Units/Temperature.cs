@@ -151,6 +151,11 @@ namespace Band.Units
         {
             protected override Temperature Deserialize(Type objectType, JToken jToken)
             {
+                if (jToken == null || jToken.Type == JTokenType.Null)
+                {
+                    return null;
+                }
+
                 return new Temperature(jToken.ToObject<double>());
             }
 

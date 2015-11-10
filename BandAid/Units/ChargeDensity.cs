@@ -152,6 +152,11 @@ namespace Band.Units
         {
             protected override ChargeDensity Deserialize(Type objectType, JToken jToken)
             {
+                if (jToken == null || jToken.Type == JTokenType.Null)
+                {
+                    return null;
+                }
+
                 return new ChargeDensity(jToken.ToObject<double>());
             }
 

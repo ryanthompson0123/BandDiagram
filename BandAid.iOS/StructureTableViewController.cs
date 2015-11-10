@@ -22,27 +22,10 @@ namespace BandAid.iOS
         {
             base.ViewDidLoad();
 			
-            NavigationItem.RightBarButtonItems = RightBarButtonItems;
             TableView.Source = new LayersTableSource(TableView, ViewModel);
             TableView.SetEditing(true, false);
 
             PreferredContentSize = new CGSize(360, 540);
-        }
-
-        private UIBarButtonItem[] RightBarButtonItems
-        {
-            get
-            {
-                return new []
-                {
-                    NavigationItem.RightBarButtonItem,
-                    new UIBarButtonItem
-                    {
-                        Title = "Duplicate",
-                        Image = UIImage.FromBundle("copy")
-                    }
-                };
-            }
         }
 
         public override void ViewWillAppear(bool animated)
@@ -50,16 +33,13 @@ namespace BandAid.iOS
             base.ViewWillAppear(animated);
 
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
-            NavigationItem.RightBarButtonItems[1].Clicked += OnDuplicateTapped;
         }
-
 
         public override void ViewDidDisappear(bool animated)
         {
             base.ViewDidDisappear(animated);
 
             ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
-            NavigationItem.RightBarButtonItems[1].Clicked -= OnDuplicateTapped;
         }
 
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -67,9 +47,8 @@ namespace BandAid.iOS
             // Not currently used
         }
 
-        private void OnDuplicateTapped(object sender, EventArgs e)
+        partial void OnDuplicateClicked(NSObject sender)
         {
-            
             var indexPath = TableView.IndexPathForSelectedRow;
             if (indexPath == null) return;
 
@@ -79,6 +58,15 @@ namespace BandAid.iOS
             TableView.DeselectRow(indexPath, true);
         }
 
+        partial void OnTrashClicked(NSObject sender)
+        {
+            var indexPath = TableView.IndexPathForSelectedRow;
+            if (indexPath == null) return;
+
+            var deletedLayer = ViewModel.Layers[indexPath.Row];
+            ViewModel.DeleteLayer(deletedLayer);
+        }
+
         [Action("UnwindToStructure:")]
         public void UnwindToStructure(UIStoryboardSegue segue)
         {
@@ -86,15 +74,6 @@ namespace BandAid.iOS
             var selectedMaterial = sourceVc.ViewModel.SelectedMaterial;
 
             ViewModel.AddLayer(new LayerViewModel(selectedMaterial));
-        }
-
-        partial void OnTrashTapped(UIBarButtonItem sender)
-        {
-            var indexPath = TableView.IndexPathForSelectedRow;
-            if (indexPath == null) return;
-
-            var deletedLayer = ViewModel.Layers[indexPath.Row];
-            ViewModel.DeleteLayer(deletedLayer);
         }
 
         class LayersTableSource : UITableViewSource

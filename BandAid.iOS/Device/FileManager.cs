@@ -7,6 +7,7 @@ using BandAid.iOS;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json.Serialization;
 
 [assembly: Xamarin.Forms.Dependency(typeof(FileManager))]
 
@@ -15,7 +16,7 @@ namespace BandAid.iOS
     [Preserve(AllMembers = true)]
     public class FileManager : IFileManager
     {
-        private const string DefaultTestBenchName = "High - k Stack";
+        private const string DefaultTestBenchName = "High-k Stack";
 
         public bool NeedsInitialLibrary
         {
@@ -68,7 +69,11 @@ namespace BandAid.iOS
 
         public Task SaveTestBenchAsync(TestBench testBench)
         {
-            var outJson = JsonConvert.SerializeObject(testBench);
+            var outJson = JsonConvert.SerializeObject(testBench, Formatting.Indented,
+                              new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                });
 
             var filename = Path.Combine(TestBenchPath, testBench.Name + ".json");
 
@@ -90,6 +95,32 @@ namespace BandAid.iOS
         public Task<TestBench> LoadDefaultTestBenchAsync()
         {
             return LoadTestBenchAsync(DefaultTestBenchName);
+        }
+
+        public Task DeleteTestBenchAsync(string name)
+        {
+            var fileName = Path.Combine(TestBenchPath, name + ".json");
+            var screenshotName = Path.Combine(TestBenchPath, name + ".png");
+
+            if (File.Exists(fileName))
+            {
+                File.Delete(fileName);
+            }
+
+            if (File.Exists(screenshotName))
+            {
+                File.Delete(screenshotName);
+            }
+
+            return Task.FromResult(true);
+        }
+
+        public Task CopyScreenshotAsync(string sourceName, string destinationName)
+        {
+            File.Copy(Path.Combine(TestBenchPath, sourceName + ".png"),
+                Path.Combine(TestBenchPath, destinationName + ".png"));
+
+            return Task.FromResult(true);
         }
 
         public Task MoveTestBenchAsync(TestBench testBench, string oldName)
@@ -129,11 +160,14 @@ namespace BandAid.iOS
             return Path.Combine(TestBenchPath, testBenchName + ".png");
         }
 
-        public void SaveTestBenchScreenshot(string testBenchName, byte[] bytes)
+        public async Task SaveTestBenchScreenshotAsync(string testBenchName, Stream imageStream)
         {
             var screenshotPath = Path.Combine(TestBenchPath, testBenchName + ".png");
 
-            File.WriteAllBytes(screenshotPath, bytes);
+            using (var fs = new FileStream(screenshotPath, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                await imageStream.CopyToAsync(fs);
+            }
         }
 
         public Task<string> GetMaterialDataAsync(MaterialType materialType)
@@ -177,15 +211,19 @@ namespace BandAid.iOS
         private void GenerateDefaultTestBenches()
         {
             var highkBundleUrl = NSBundle.MainBundle.PathForResource("highk", "json");
+            var highkImageBundleUrl = NSBundle.MainBundle.PathForResource("highk", "png");
             var nvmBundleUrl = NSBundle.MainBundle.PathForResource("nvm", "json");
+            var nvmImageBundleUrl = NSBundle.MainBundle.PathForResource("nvm", "png");
 
             if (!Directory.Exists(TestBenchPath))
             {
                 Directory.CreateDirectory(TestBenchPath);
             }
 
-            File.Copy(highkBundleUrl, Path.Combine(TestBenchPath, DefaultTestBenchName + ".json"), true);
+            File.Copy(highkBundleUrl, Path.Combine(TestBenchPath, "High-k Stack.json"), true);
+            File.Copy(highkImageBundleUrl, Path.Combine(TestBenchPath, "High-k Stack.png"), true);
             File.Copy(nvmBundleUrl, Path.Combine(TestBenchPath, "NVM Stack.json"), true);
+            File.Copy(nvmImageBundleUrl, Path.Combine(TestBenchPath, "NVM Stack.png"), true);
         }
     }
 }

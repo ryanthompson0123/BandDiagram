@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Band.Units;
 using System.Collections.Generic;
+using Newtonsoft.Json.Serialization;
 
 namespace Band
 {
@@ -24,6 +25,14 @@ namespace Band
         {
             // FrameWork 4.5
             return typeof(T).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
+        }
+
+        public override bool CanWrite
+        {
+            get
+            {
+                return false;
+            }
         }
 
         /// <summary>Parses the json to the specified type.</summary>
@@ -56,13 +65,9 @@ namespace Band
             return target;
         }
 
-        /// <summary>Serializes to the specified type</summary>
-        /// <param name="writer">Newtonsoft.Json.JsonWriter</param>
-        /// <param name="value">Object to serialize.</param>
-        /// <param name="serializer">Newtonsoft.Json.JsonSerializer to use.</param>
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            serializer.Serialize(writer, value);
+            throw new NotImplementedException();
         }
     }
 

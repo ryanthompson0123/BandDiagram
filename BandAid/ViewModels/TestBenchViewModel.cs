@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using System.ComponentModel;
+using System.IO;
 
 namespace Band
 {
@@ -40,7 +41,7 @@ namespace Band
                 SetProperty(ref titleTextValue, value);
 
                 TestBench.Name = value;
-                RenameTestBench(oldName);
+                RemoveTestBench(oldName);
             }
         }
 
@@ -102,11 +103,16 @@ namespace Band
             {
                 case "Name":
                     TitleText = TestBench.Name;
+                    SaveTestBench();
                     break;
                 case "NeedsCompute":
-                    Computing = true;
-                    await TestBench.ComputeIfNeededAsync();
-                    Computing = false;
+                    if (TestBench.NeedsCompute)
+                    {
+                        SaveTestBench();
+                        Computing = true;
+                        await TestBench.ComputeIfNeededAsync();
+                        Computing = false;
+                    }
                     break;
                 case "NoSolution":
                     NoSolution = TestBench.NoSolution;
@@ -115,6 +121,22 @@ namespace Band
                     UpdatePlot();
                     break;
             }
+        }
+
+        public async void SaveTestBench()
+        {
+            NeedsScreenshot = false;
+            await TestBench.SaveAsync();
+            NeedsScreenshot = true;
+        }
+
+        public async Task SaveScreenshotAsync(Stream imageStream)
+        {
+            var fm = DependencyService.Get<IFileManager>();
+
+            await fm.SaveTestBenchScreenshotAsync(TestBench.Name, imageStream);
+
+            NeedsScreenshot = false;
         }
 
         private void UpdatePlot()
@@ -244,7 +266,7 @@ namespace Band
             UpdatePlot();
         }
 
-        public async void UpdateSettings(string minVoltageText, string maxVoltageText, string stepSizeText)
+        public void UpdateSettings(string minVoltageText, string maxVoltageText, string stepSizeText)
         {
             double minVoltage;
             double maxVoltage;
@@ -254,10 +276,8 @@ namespace Band
                 double.TryParse(maxVoltageText, out maxVoltage) &&
                 double.TryParse(stepSizeText, out stepSize))
             {
-                TestBench.MinVoltage = new ElectricPotential(minVoltage);
-                TestBench.MaxVoltage = new ElectricPotential(maxVoltage);
-                TestBench.StepSize = new ElectricPotential(stepSize);
-                await TestBench.ComputeIfNeededAsync();
+                TestBench.SetRange(new ElectricPotential(minVoltage), new ElectricPotential(maxVoltage),
+                    new ElectricPotential(stepSize));
             }
         }
 
@@ -271,14 +291,14 @@ namespace Band
             };
         }
 
-        private async void RenameTestBench(string oldName)
+        private async void RemoveTestBench(string oldName)
         {
             // If we are setting for first time, or the name didn't change,
             // we don't need to do anything.
             if (string.IsNullOrEmpty(oldName) || oldName == TitleText) return;
 
             var fileManager = DependencyService.Get<IFileManager>();
-            await fileManager.MoveTestBenchAsync(TestBench, oldName);
+            await fileManager.DeleteTestBenchAsync(oldName);
         }
     }
 }

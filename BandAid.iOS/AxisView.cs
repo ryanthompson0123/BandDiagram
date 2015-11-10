@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace BandAid.iOS
 {
-    public partial class AxisView : UIView
+    public sealed partial class AxisView : UIView
     {
         private List<UILabel> tickLabels;
 

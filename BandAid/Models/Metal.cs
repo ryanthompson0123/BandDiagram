@@ -35,7 +35,7 @@ namespace Band
         }
 
         [OnDeserialized]
-        public void OnDeserialized(StreamingContext context)
+        new public void OnDeserialized(StreamingContext context)
         {
             base.OnDeserialized(context);
         }
