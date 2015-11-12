@@ -45,6 +45,34 @@ namespace Band
             }
         }
 
+        private string flatbandVoltageTextValue;
+        public string FlatbandVoltageText
+        {
+            get { return flatbandVoltageTextValue; }
+            private set { SetProperty(ref flatbandVoltageTextValue, value); }
+        }
+
+        private string eotTextValue;
+        public string EotText
+        {
+            get { return eotTextValue; }
+            private set { SetProperty(ref eotTextValue, value); }
+        }
+
+        private string cstackTextValue;
+        public string CstackText
+        {
+            get { return cstackTextValue; }
+            private set { SetProperty(ref cstackTextValue, value); }
+        }
+
+        private string thresholdVoltageTextValue;
+        public string ThresholdVoltageText
+        {
+            get { return thresholdVoltageTextValue; }
+            private set { SetProperty(ref thresholdVoltageTextValue, value); }
+        }
+
         private bool computingValue;
         public bool Computing
         {
@@ -95,6 +123,7 @@ namespace Band
         private async void Compute()
         {
             await TestBench.ComputeIfNeededAsync();
+            SetAllQuickValues();
         }
 
         private async void TestBench_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -111,6 +140,7 @@ namespace Band
                         SaveTestBench();
                         Computing = true;
                         await TestBench.ComputeIfNeededAsync();
+                        SetAllQuickValues();
                         Computing = false;
                     }
                     break;
@@ -120,7 +150,23 @@ namespace Band
                 case "Steps":
                     UpdatePlot();
                     break;
+                case "CurrentIndex":
+                    CstackText = TestBench.CurrentStructure
+                        .StackCapacitance.MicroFaradsPerSquareCentimeterToString("{0:F3} μF/cm\xB2");
+                    break;
             }
+        }
+
+        private void SetAllQuickValues()
+        {
+            FlatbandVoltageText = TestBench.CurrentStructure
+                .FlatbandVoltage.ToString("{0:F3} V");
+            EotText = TestBench.CurrentStructure
+                .EquivalentOxideThickness.NanometersToString("{0:F3} nm");
+            CstackText = TestBench.CurrentStructure
+                .StackCapacitance.MicroFaradsPerSquareCentimeterToString("{0:F3} μF/cm\xB2");
+            ThresholdVoltageText = TestBench.CurrentStructure
+                .ThresholdVoltage.ToString("{0:F3} V");
         }
 
         public async void SaveTestBench()

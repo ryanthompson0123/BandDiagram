@@ -338,7 +338,7 @@ namespace Band
             };
 
             InitClone(semiconductor, Length.FromMicrometers(50));
-            Prepare();
+            semiconductor.Prepare();
 
             return semiconductor;
         }

@@ -54,6 +54,11 @@ namespace BandAid.iOS
             ToolbarItems = GetBottomButtonItems(ToolbarItems);
 
             View.BackgroundColor = UIColor.GroupTableViewBackgroundColor;
+
+            vfbLabel.Text = "";
+            eotLabel.Text = "";
+            cstackLabel.Text = "";
+            vthLabel.Text = "";
         }
 
         public override void ViewWillAppear(bool animated)
@@ -156,6 +161,18 @@ namespace BandAid.iOS
                         {
                             TakeScreenshot();
                         }
+                        break;
+                    case "FlatbandVoltageText":
+                        vfbLabel.Text = ViewModel.FlatbandVoltageText;
+                        break;
+                    case "EotText":
+                        eotLabel.Text = ViewModel.EotText;
+                        break;
+                    case "CstackText":
+                        cstackLabel.Text = ViewModel.CstackText;
+                        break;
+                    case "ThresholdVoltageText":
+                        vthLabel.Text = ViewModel.ThresholdVoltageText;
                         break;
                 }
             });

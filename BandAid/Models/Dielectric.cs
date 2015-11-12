@@ -331,7 +331,8 @@ namespace Band
                 PlotColor = FillColor
             };
 
-            var lastEField = ElectricField.Zero;
+            var previousMaterial = ParentStructure.Layers[ParentStructure.Layers.IndexOf(this) - 1];
+            var lastEField = previousMaterial.GetLastElectricField();
 
             foreach (var point in EvalPoints)
             {

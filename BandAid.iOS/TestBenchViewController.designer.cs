@@ -13,10 +13,22 @@ namespace BandAid.iOS
 	partial class TestBenchViewController
 	{
 		[Outlet]
+		UIKit.UILabel cstackLabel { get; set; }
+
+		[Outlet]
+		UIKit.UILabel eotLabel { get; set; }
+
+		[Outlet]
 		BandAid.iOS.GraphView graphView { get; set; }
 
 		[Outlet]
 		UIKit.UIBarButtonItem settingsButton { get; set; }
+
+		[Outlet]
+		UIKit.UILabel vfbLabel { get; set; }
+
+		[Outlet]
+		UIKit.UILabel vthLabel { get; set; }
 
 		[Action ("OnPlayClicked:")]
 		partial void OnPlayClicked (Foundation.NSObject sender);
@@ -37,6 +49,26 @@ namespace BandAid.iOS
 			if (settingsButton != null) {
 				settingsButton.Dispose ();
 				settingsButton = null;
+			}
+
+			if (vfbLabel != null) {
+				vfbLabel.Dispose ();
+				vfbLabel = null;
+			}
+
+			if (eotLabel != null) {
+				eotLabel.Dispose ();
+				eotLabel = null;
+			}
+
+			if (cstackLabel != null) {
+				cstackLabel.Dispose ();
+				cstackLabel = null;
+			}
+
+			if (vthLabel != null) {
+				vthLabel.Dispose ();
+				vthLabel = null;
 			}
 		}
 	}

@@ -156,6 +156,26 @@ namespace Band.Units
 			return Meters.GetHashCode();
 		}
 
+        public override string ToString()
+        {
+            return string.Format("{0:F1} m", Meters);
+        }
+
+        public string ToString(string format)
+        {
+            return string.Format(format, Meters);
+        }
+
+        public string NanometersToString()
+        {
+            return string.Format("{0:F1} nm", Nanometers);
+        }
+
+        public string NanometersToString(string format)
+        {
+            return string.Format(format, Nanometers);
+        }
+
         public class Converter : ExtendedJsonConverter<Length>
         {
             protected override Length Deserialize(Type objectType, JToken jToken)

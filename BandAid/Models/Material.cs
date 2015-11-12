@@ -202,6 +202,11 @@ namespace Band
             return dataset;
         }
 
+        public ElectricField GetLastElectricField()
+        {
+            return EvalPoints.Last().ElectricField;
+        }
+
         public class Converter : JsonCreationConverter<Material>
         {
             protected override Material Create(Type objectType, JObject jObject)

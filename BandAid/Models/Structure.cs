@@ -580,7 +580,7 @@ namespace Band
 
                 if (structureClone.IsBottomLayerSemiconductor)
                 {
-                    semiconductorCharge = ((Semiconductor)BottomLayer)
+                    semiconductorCharge = ((Semiconductor)structureClone.BottomLayer)
                         .GetChargeDensity(ElectricPotential.Zero);
                 }
 
