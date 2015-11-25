@@ -33,5 +33,7 @@
 	<string>1</string>
 	<key>CFBundleIdentifier</key>
 	<string>edu.boisestate.banddiagram</string>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 </dict>
 </plist>
