@@ -222,4 +222,17 @@
   <ItemGroup>
     <Folder Include="Device\" />
   </ItemGroup>
+  <ItemGroup>
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Contents.json" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\BandIcon-Small-40%402x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\BandIcon-Small-40%403x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\BandIcon-60%402x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\BandIcon-60%403x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\BandIcon-Small.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\BandIcon-Small%402x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\BandIcon-Small-40.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\BandIcon-76.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\BandIcon-76%402x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\BandIcon-Small%403x.png" />
+  </ItemGroup>
 </Project>
