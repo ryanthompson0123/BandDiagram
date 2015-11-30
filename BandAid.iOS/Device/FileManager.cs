@@ -210,8 +210,8 @@ namespace BandAid.iOS
 
         private void GenerateDefaultTestBenches()
         {
-            var highkBundleUrl = NSBundle.MainBundle.PathForResource("highk", "json");
-            var highkImageBundleUrl = NSBundle.MainBundle.PathForResource("highk", "png");
+            var sio2BundleUrl = NSBundle.MainBundle.PathForResource("sio2", "json");
+            var sio2ImageBundleUrl = NSBundle.MainBundle.PathForResource("sio2", "png");
             var nvmBundleUrl = NSBundle.MainBundle.PathForResource("nvm", "json");
             var nvmImageBundleUrl = NSBundle.MainBundle.PathForResource("nvm", "png");
 
@@ -220,8 +220,8 @@ namespace BandAid.iOS
                 Directory.CreateDirectory(TestBenchPath);
             }
 
-            File.Copy(highkBundleUrl, Path.Combine(TestBenchPath, "High-k Stack.json"), true);
-            File.Copy(highkImageBundleUrl, Path.Combine(TestBenchPath, "High-k Stack.png"), true);
+            File.Copy(sio2BundleUrl, Path.Combine(TestBenchPath, "PolySi-SiO2.json"), true);
+            File.Copy(sio2ImageBundleUrl, Path.Combine(TestBenchPath, "PolySi-SiO2.png"), true);
             File.Copy(nvmBundleUrl, Path.Combine(TestBenchPath, "NVM Stack.json"), true);
             File.Copy(nvmImageBundleUrl, Path.Combine(TestBenchPath, "NVM Stack.png"), true);
         }

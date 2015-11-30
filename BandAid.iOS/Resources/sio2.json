@@ -1,0 +1,50 @@
+{
+  "name": "PolySi-SiO2",
+  "structure": {
+    "layers": [
+      {
+        "extraCharge": 0.0,
+        "name": "n+ PolySi",
+        "notes": "Ricki's 1st Band Diagram Program",
+        "fillColor": "#ff0000",
+        "thickness": 5E-09,
+        "workFunction": 4.15,
+        "materialType": "metal"
+      },
+      {
+        "dielectricConstant": 3.9,
+        "dielectricConstantExpression": null,
+        "bandGap": 8.9,
+        "electronAffinity": 0.95,
+        "electronEffectiveMass": null,
+        "holeEffectiveMass": null,
+        "name": "SiO2",
+        "notes": null,
+        "fillColor": "#804040",
+        "thickness": 2E-09,
+        "workFunction": null,
+        "materialType": "dielectric"
+      },
+      {
+        "dielectricConstant": 11.7,
+        "bandGap": 1.1252,
+        "electronAffinity": 4.05,
+        "dopingType": "N",
+        "dopantConcentration": 1E+18,
+        "intrinsicCarrierConcentration": 14100000000.0,
+        "workFunction": 4.1452705295493182,
+        "name": "Si",
+        "notes": null,
+        "fillColor": "#00ff00",
+        "thickness": null,
+        "materialType": "semiconductor"
+      }
+    ],
+    "bias": -2.0,
+    "temperature": 300.0
+  },
+  "currentIndex": 0,
+  "minVoltage": -2.0,
+  "maxVoltage": 2.0,
+  "stepSize": 0.1
+}
