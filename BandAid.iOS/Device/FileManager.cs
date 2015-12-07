@@ -16,7 +16,7 @@ namespace BandAid.iOS
     [Preserve(AllMembers = true)]
     public class FileManager : IFileManager
     {
-        private const string DefaultTestBenchName = "High-k Stack";
+        private const string DefaultTestBenchName = "PolySi-SiO2";
 
         public bool NeedsInitialLibrary
         {
