@@ -31,9 +31,9 @@ namespace BandAid.iOS
 
 			var selectedIndex = TableView.IndexPathForSelectedRow;
 			var selectedParameter = ViewModel.MaterialParameterSections[selectedIndex.Section][selectedIndex.Row]
-											 as MaterialParameterViewModel<string>;
+											 as MaterialParameterViewModel<Color>;
 
-			selectedParameter.Value = colorPickerController.ViewModel.SelectedColor.HexCode;
+            selectedParameter.Value = colorPickerController.ViewModel.SelectedColor;
 		}
 
 		public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
@@ -42,8 +42,12 @@ namespace BandAid.iOS
 
 			if (segue.Identifier == "ColorPickerSegue")
 			{
+                var selectedIndex = TableView.IndexPathForSelectedRow;
+                var selectedParameter = ViewModel.MaterialParameterSections[selectedIndex.Section][selectedIndex.Row]
+                                                 as MaterialParameterViewModel<Color>;
+                
 				var dest = (ColorPickerHueGridViewController)segue.DestinationViewController;
-				dest.ViewModel = new ColorPickerViewModel();
+                dest.ViewModel = new ColorPickerViewModel(selectedParameter.Value);
 			}
 		}
 
@@ -107,7 +111,7 @@ namespace BandAid.iOS
 						return textAreaCell;
 					case ParameterType.PlotColor:
 						var colorPickerCell = (ColorPickerCell)tableView.DequeueReusableCell(ColorPickerCell.Key);
-						colorPickerCell.ViewModel = (MaterialParameterViewModel<string>)parameter;
+						colorPickerCell.ViewModel = (MaterialParameterViewModel<Color>)parameter;
 						colorPickerCell.Initialize();
 						return colorPickerCell;
 					case ParameterType.DopingType:

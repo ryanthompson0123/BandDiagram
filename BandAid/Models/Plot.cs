@@ -116,7 +116,7 @@ namespace Band
     public class PlotDataSet
     {
         public string Name { get; set; }
-        public string PlotColor { get; set; }
+        public Color PlotColor { get; set; }
         public int LineThickness { get; set; }
 
         public List<PlotDataPoint> DataPoints { get; set; }

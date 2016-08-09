@@ -214,7 +214,7 @@ namespace Band
 		private static List<MaterialParameterViewModel> GetPlotColorSection(Material material)
 		{
 			var plotColorSection = new List<MaterialParameterViewModel>();
-			plotColorSection.Add(new MaterialParameterViewModel<string>(ParameterType.PlotColor)
+			plotColorSection.Add(new MaterialParameterViewModel<Color>(ParameterType.PlotColor)
 			{
 				Value = material.FillColor
 			});

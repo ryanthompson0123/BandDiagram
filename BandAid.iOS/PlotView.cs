@@ -124,7 +124,7 @@ namespace BandAid.iOS
                 var layer = new CAShapeLayer();
 
                 layer.Frame = Bounds;
-                layer.StrokeColor = CustomUIColor.FromHexString(dataSet.PlotColor).CGColor;
+                layer.StrokeColor = dataSet.PlotColor.ToUIColor().CGColor;
                 layer.FillColor = UIColor.Clear.CGColor;
                 layer.LineWidth = (float)dataSet.LineThickness;
                 layer.Path = new CGPath(path, plotTransform);

@@ -592,7 +592,7 @@ namespace Band
             {
                 Name = String.Format("{0} - Work Function", Name),
                 LineThickness = 1,
-                PlotColor = "#000000"
+                PlotColor = Color.Black
             };
 
             foreach (var point in EvalPoints)

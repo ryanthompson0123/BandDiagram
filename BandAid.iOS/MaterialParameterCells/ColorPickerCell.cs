@@ -11,7 +11,7 @@ namespace BandAid.iOS
 	{
 		public static readonly NSString Key = new NSString("colorPickerCell");
 
-		public MaterialParameterViewModel<string> ViewModel { get; set; }
+		public MaterialParameterViewModel<Color> ViewModel { get; set; }
 
 		public UILabel TitleLabel
 		{
@@ -32,7 +32,7 @@ namespace BandAid.iOS
 		public override void Initialize()
 		{
 			TitleLabel.Text = ViewModel.TitleText;
-			ColorView.BackgroundColor = CustomUIColor.FromHexString(ViewModel.Value);
+            ColorView.BackgroundColor = ViewModel.Value.ToUIColor();
 
 			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
 		}
@@ -52,7 +52,7 @@ namespace BandAid.iOS
 			switch (e.PropertyName)
 			{
 				case "Value":
-					ColorView.BackgroundColor = CustomUIColor.FromHexString(ViewModel.Value);
+                    ColorView.BackgroundColor = ViewModel.Value.ToUIColor();
 					break;
 			}
 		}

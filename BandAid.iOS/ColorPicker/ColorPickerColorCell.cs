@@ -9,7 +9,7 @@ namespace BandAid.iOS
 	{
 		public static readonly NSString Key = new NSString("ColorPickerColorCell");
 
-		public ColorPickerColorViewModel ViewModel { get; set; }
+        public Color Color { get; set; }
 
 		protected ColorPickerColorCell(IntPtr handle) 
 			: base(handle)
@@ -19,7 +19,7 @@ namespace BandAid.iOS
 
 		public void Initialize()
 		{
-			BackgroundColor = UIColor.FromHSBA(ViewModel.Hue, ViewModel.Saturation, ViewModel.Brightness, 1.0f);
+            BackgroundColor = Color.ToUIColor();
 		}
 
 		public override void ApplyLayoutAttributes(UICollectionViewLayoutAttributes layoutAttributes)

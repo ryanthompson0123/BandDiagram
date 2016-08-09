@@ -98,7 +98,7 @@ namespace BandAid.iOS
 				var cell = collectionView.DequeueReusableCell(ColorPickerColorCell.Key, indexPath)
 										 as ColorPickerColorCell;
 
-				cell.ViewModel = viewModel.CurrentPalette.Colors[indexPath.Row];
+				cell.Color = viewModel.CurrentPalette.Colors[indexPath.Row];
 				cell.Initialize();
 				return cell;
 			}

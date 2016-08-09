@@ -33,7 +33,7 @@ namespace Band
         public string Notes { get; private set; }
 
         [JsonProperty]
-		public string FillColor { get; private set; }
+		public Color FillColor { get; private set; }
 
         [JsonProperty]
         public Length Thickness { get; private set; }

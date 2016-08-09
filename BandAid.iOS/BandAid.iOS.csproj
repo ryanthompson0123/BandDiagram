@@ -226,6 +226,7 @@
     <Compile Include="ColorPicker\ColorPickerColorCell.designer.cs">
       <DependentUpon>ColorPickerColorCell.cs</DependentUpon>
     </Compile>
+    <Compile Include="ColorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />
