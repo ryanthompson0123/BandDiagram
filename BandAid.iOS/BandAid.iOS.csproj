@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">iPhoneSimulator</Platform>
@@ -25,9 +24,8 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchDebug>true</MtouchDebug>
     <CodesignKey>iPhone Developer</CodesignKey>
-    <MtouchExtraArgs>-gcc_flags "-force_load /Applications/Reveal.app/Contents/SharedSupport/iOS-Libraries/Reveal.framework/Reveal"</MtouchExtraArgs>
-    <MtouchI18n>
-    </MtouchI18n>
+    <MtouchExtraArgs></MtouchExtraArgs>
+    <MtouchI18n></MtouchI18n>
     <MtouchArch>i386</MtouchArch>
     <MtouchProfiling>true</MtouchProfiling>
     <MtouchUseRefCounting>true</MtouchUseRefCounting>
@@ -55,14 +53,12 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchDebug>true</MtouchDebug>
     <CodesignKey>iPhone Developer</CodesignKey>
-    <IpaPackageName>
-    </IpaPackageName>
+    <IpaPackageName></IpaPackageName>
     <MtouchProfiling>true</MtouchProfiling>
     <MtouchArch>ARMv7, ARM64</MtouchArch>
     <MtouchUseSGen>true</MtouchUseSGen>
     <MtouchUseRefCounting>true</MtouchUseRefCounting>
-    <MtouchI18n>
-    </MtouchI18n>
+    <MtouchI18n></MtouchI18n>
     <MtouchLink>None</MtouchLink>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
@@ -138,6 +134,7 @@
     <BundleResource Include="Resources\untoggle.png" />
     <BundleResource Include="Resources\layers.png" />
     <BundleResource Include="Resources\layers%402x.png" />
+    <BundleResource Include="Resources\color-bar%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -198,9 +195,41 @@
     <Compile Include="GridView.designer.cs">
       <DependentUpon>GridView.cs</DependentUpon>
     </Compile>
+    <Compile Include="MaterialDetailViewController.cs" />
+    <Compile Include="MaterialDetailViewController.designer.cs">
+      <DependentUpon>MaterialDetailViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MaterialParameterCells\TextInputCell.cs" />
+    <Compile Include="MaterialParameterCells\TextInputCell.designer.cs">
+      <DependentUpon>TextInputCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MaterialParameterCells\DoubleSliderCell.cs" />
+    <Compile Include="MaterialParameterCells\DoubleSliderCell.designer.cs">
+      <DependentUpon>DoubleSliderCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MaterialParameterCells\TextAreaCell.cs" />
+    <Compile Include="MaterialParameterCells\TextAreaCell.designer.cs">
+      <DependentUpon>TextAreaCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MaterialParameterCells\ColorPickerCell.cs" />
+    <Compile Include="MaterialParameterCells\ColorPickerCell.designer.cs">
+      <DependentUpon>ColorPickerCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MaterialParameterCells\MultiButtonCell.cs" />
+    <Compile Include="MaterialParameterCells\MultiButtonCell.designer.cs">
+      <DependentUpon>MultiButtonCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MaterialParameterCells\BaseParameterCell.cs" />
+    <Compile Include="ColorPicker\ColorPickerHueGridViewController.cs" />
+    <Compile Include="ColorPicker\ColorPickerHueGridViewController.designer.cs" />
+    <Compile Include="ColorPicker\ColorPickerColorCell.cs" />
+    <Compile Include="ColorPicker\ColorPickerColorCell.designer.cs">
+      <DependentUpon>ColorPickerColorCell.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />
+    <InterfaceDefinition Include="Resources\MaterialDetailViewController.xib" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.1.5.0.6447\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.1.5.0.6447\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" />
@@ -221,5 +250,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Device\" />
+    <Folder Include="MaterialParameterCells\" />
+    <Folder Include="ColorPicker\" />
   </ItemGroup>
 </Project>

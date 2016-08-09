@@ -29,84 +29,97 @@ namespace BandAid.iOS
             PreferredContentSize = new CGSize(360, 540);
         }
 
-        public void OnRowSelected(int row)
-        {
-            var material = ViewModel.Materials[row].Material;
+		public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
+		{
+			base.PrepareForSegue(segue, sender);
 
-            if (material.MaterialType == MaterialType.Semiconductor)
-            {
-                OnSemiconductorSelected((Semiconductor)material);
-            }
-            else
-            {
-                OnMaterialSelected(material);
-            }
-        }
+			if (segue.Identifier == "MaterialFormSegue")
+			{
+				var destination = (MaterialDetailViewController)segue.DestinationViewController;
+				var selectedMatieral = ViewModel.Materials[TableView.IndexPathForSelectedRow.Row].Material;
 
-        private async void OnSemiconductorSelected(Semiconductor semiconductor)
-        {
-            var alert = UIAlertController.Create("Select Doping Type", "", UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create("N Type", UIAlertActionStyle.Default, action =>
-            {
-                ViewModel.SelectedMaterial = semiconductor.DeepClone(DopingType.N);
-                PerformSegue("unwindToStructure", this);
-            }));
-            alert.AddAction(UIAlertAction.Create("P Type", UIAlertActionStyle.Default, action =>
-            {
-                ViewModel.SelectedMaterial = semiconductor.DeepClone(DopingType.P);
-                PerformSegue("unwindToStructure", this);
-            }));
+				destination.ViewModel = new MaterialDetailViewModel(selectedMatieral, EditMode.Existing);
+			}
+		}
 
-            await PresentViewControllerAsync(alert, true);
-        }
+        //public void OnRowSelected(int row)
+        //{
+        //    var material = ViewModel.Materials[row].Material;
 
-        private async void OnMaterialSelected(Material material)
-        {
-            var alert = UIAlertController.Create("Enter Thickness (nm)", "", UIAlertControllerStyle.Alert);
-            alert.AddTextField(textField =>
-            {
-                textField.KeyboardType = UIKeyboardType.DecimalPad;
-            });
+        //    if (material.MaterialType == MaterialType.Semiconductor)
+        //    {
+        //        OnSemiconductorSelected((Semiconductor)material);
+        //    }
+        //    else
+        //    {
+        //        OnMaterialSelected(material);
+        //    }
+        //}
 
-            alert.AddAction(UIAlertAction.Create("Ok", UIAlertActionStyle.Default, action =>
-            {
-                double thickness;
-                if (!double.TryParse(alert.TextFields[0].Text, out thickness))
-                {
-                    OnMaterialSelected(material);
-                    return;
-                }
+        //private async void OnSemiconductorSelected(Semiconductor semiconductor)
+        //{
+        //    var alert = UIAlertController.Create("Select Doping Type", "", UIAlertControllerStyle.Alert);
+        //    alert.AddAction(UIAlertAction.Create("N Type", UIAlertActionStyle.Default, action =>
+        //    {
+        //        ViewModel.SelectedMaterial = semiconductor.DeepClone(DopingType.N);
+        //        PerformSegue("unwindToStructure", this);
+        //    }));
+        //    alert.AddAction(UIAlertAction.Create("P Type", UIAlertActionStyle.Default, action =>
+        //    {
+        //        ViewModel.SelectedMaterial = semiconductor.DeepClone(DopingType.P);
+        //        PerformSegue("unwindToStructure", this);
+        //    }));
 
-                ViewModel.SelectedMaterial = material.WithThickness(Length.FromNanometers(thickness));
-                PerformSegue("unwindToStructure", this);
-            }));
+        //    await PresentViewControllerAsync(alert, true);
+        //}
 
-            await PresentViewControllerAsync(alert, true);
-        }
+        //private async void OnMaterialSelected(Material material)
+        //{
+        //    var alert = UIAlertController.Create("Enter Thickness (nm)", "", UIAlertControllerStyle.Alert);
+        //    alert.AddTextField(textField =>
+        //    {
+        //        textField.KeyboardType = UIKeyboardType.DecimalPad;
+        //    });
 
-        private static string DocumentsPath
-        {
-            get
-            {
-                return NSFileManager.DefaultManager.GetUrls(
-                    NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomain.User)[0].Path;
-            }
-        }
+        //    alert.AddAction(UIAlertAction.Create("Ok", UIAlertActionStyle.Default, action =>
+        //    {
+        //        double thickness;
+        //        if (!double.TryParse(alert.TextFields[0].Text, out thickness))
+        //        {
+        //            OnMaterialSelected(material);
+        //            return;
+        //        }
 
-        private static string MetalsPath
-        {
-            get { return Path.Combine(DocumentsPath, "metals.json"); }
-        }
+        //        ViewModel.SelectedMaterial = material.WithThickness(Length.FromNanometers(thickness));
+        //        PerformSegue("unwindToStructure", this);
+        //    }));
 
-        private static string DielectricsPath
-        {
-            get { return Path.Combine(DocumentsPath, "dielectrics.json"); }
-        }
+        //    await PresentViewControllerAsync(alert, true);
+        //}
 
-        private static string SemiconductorsPath
-        {
-            get { return Path.Combine(DocumentsPath, "semiconductors.json"); }
-        }
+        //private static string DocumentsPath
+        //{
+        //    get
+        //    {
+        //        return NSFileManager.DefaultManager.GetUrls(
+        //            NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomain.User)[0].Path;
+        //    }
+        //}
+
+        //private static string MetalsPath
+        //{
+        //    get { return Path.Combine(DocumentsPath, "metals.json"); }
+        //}
+
+        //private static string DielectricsPath
+        //{
+        //    get { return Path.Combine(DocumentsPath, "dielectrics.json"); }
+        //}
+
+        //private static string SemiconductorsPath
+        //{
+        //    get { return Path.Combine(DocumentsPath, "semiconductors.json"); }
+        //}
 
         class MaterialSource : UITableViewSource
         {
@@ -136,7 +149,7 @@ namespace BandAid.iOS
 
             public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
             {
-                var cell = (MaterialCell)tableView.DequeueReusableCell("MaterialCell");
+				var cell = (MaterialCell)tableView.DequeueReusableCell(MaterialCell.Key);
 
                 var materialVm = viewModel.Materials[indexPath.Row];
 
@@ -152,11 +165,6 @@ namespace BandAid.iOS
                 if (viewModel.Materials == null) return 0;
 
                 return viewModel.Materials.Count;
-            }
-
-            public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
-            {
-                viewController.OnRowSelected(indexPath.Row);
             }
         }
     }

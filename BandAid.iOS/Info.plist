@@ -4,8 +4,6 @@
 <dict>
 	<key>CFBundleDisplayName</key>
 	<string>BandAid.iOS</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.your-company.BandAid.iOS</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
@@ -31,5 +29,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>CFBundleName</key>
+	<string>BandAid.iOS</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.kordata.band</string>
 </dict>
 </plist>

@@ -40,6 +40,15 @@ namespace BandAid.iOS
 
             }
         }
+
+		public static string ToHexString(this UIColor color)
+		{
+			var r = (int)(255.0 * color.CGColor.Components[0]);
+			var g = (int)(255.0 * color.CGColor.Components[1]);
+			var b = (int)(255.0 * color.CGColor.Components[2]);
+			var a = (int)(255.0 * color.CGColor.Alpha);
+
+			return string.Format("#{0:X2}{1:X2}{2:X2}{3:X2}", a, r, g, b);
+		}
     }
 }
-
