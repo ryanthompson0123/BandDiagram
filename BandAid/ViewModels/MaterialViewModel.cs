@@ -61,10 +61,10 @@ namespace Band
                     var semiconductor = (Semiconductor)material;
                     LeftText = String.Join("\n", semiconductorLabels);
                     RightText = String.Format("{0}\n{1}\n{2}\n{3}\n{4}",
-                        semiconductor.DielectricConstant, semiconductor.BandGap.ElectronVolts,
+                        semiconductor.DielectricConstant, semiconductor.BandGap.Evaluate().ElectronVolts,
                         semiconductor.ElectronAffinity.ElectronVolts, 
-                        semiconductor.IntrinsicCarrierConcentration.PerCubicCentimeter,
-                        semiconductor.DopantConcentration.PerCubicCentimeter);
+                        semiconductor.IntrinsicCarrierConcentration.Evaluate().PerCubicCentimeter,
+                        semiconductor.DopantConcentration.Evaluate().PerCubicCentimeter);
                     break;
             }
         }

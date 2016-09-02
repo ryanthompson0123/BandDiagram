@@ -49,12 +49,15 @@ namespace BandAid.iOS
 
 		void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			switch (e.PropertyName)
-			{
-				case "Value":
-                    ColorView.BackgroundColor = ViewModel.Value.ToUIColor();
-					break;
-			}
+            InvokeOnMainThread(() =>
+            {
+                switch (e.PropertyName)
+                {
+                    case "Value":
+                        ColorView.BackgroundColor = ViewModel.Value.ToUIColor();
+                        break;
+                }
+            });
 		}
 	}
 }

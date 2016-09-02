@@ -22,26 +22,136 @@ namespace Band
         #region Configuration
 
         [JsonProperty]
-		public double DielectricConstant { get; private set; }
+        private double dielectricConstant;
+		public double DielectricConstant
+        {
+            get { return dielectricConstant; }
+            set
+            {
+                ClearLazies();
+                SetProperty(ref dielectricConstant, value);
+            }
+        }
 
         [JsonProperty]
-		public Energy BandGap { get; private set; }
+        private MathExpression<Energy> bandGap;
+        public MathExpression<Energy> BandGap
+        {
+            get { return bandGap; }
+            set
+            {
+                ClearLazies();
+                value.CustomConstructor = Energy.FromElectronVolts;
+                if (Temperature != null)
+                {
+                    value.SetVariable("T", Temperature.Kelvin);
+                }
+
+                SetProperty(ref bandGap, value);
+            }
+        }
 
         [JsonProperty]
-		public Energy ElectronAffinity { get; private set; }
+        private Energy electronAffinity;
+		public Energy ElectronAffinity
+        {
+            get { return electronAffinity; }
+            set
+            {
+                ClearLazies();
+                SetProperty(ref electronAffinity, value);
+            }
+        }
 
         [JsonProperty]
-		public DopingType DopingType { get; private set; }
+        private DopingType dopingType;
+		public DopingType DopingType
+        {
+            get { return dopingType; }
+            set
+            {
+                ClearLazies();
+                SetProperty(ref dopingType, value);
+            }
+        }
 
         [JsonProperty]
-		public Concentration DopantConcentration { get; private set; }
+        private MathExpression<Concentration> dopantConcentration;
+        public MathExpression<Concentration> DopantConcentration
+        {
+            get { return dopantConcentration; }
+            set
+            {
+                ClearLazies();
+
+                value.CustomConstructor = Concentration.FromPerCubicCentimeter;
+
+                SetProperty(ref dopantConcentration, value);
+            }
+        }
 
         [JsonProperty]
-		public Concentration IntrinsicCarrierConcentration { get; private set; }
+        private MathExpression<Concentration> intrinsicCarrierConcentration;
+        public MathExpression<Concentration> IntrinsicCarrierConcentration
+        {
+            get { return intrinsicCarrierConcentration; }
+            set 
+            {
+                ClearLazies();
+
+                value.CustomConstructor = Concentration.FromPerCubicCentimeter;
+
+                if (Temperature != null)
+                {
+                    value.SetVariable("T", Temperature.Kelvin);
+                }
+
+                SetProperty(ref intrinsicCarrierConcentration, value);
+            }
+        }
+
+        [JsonProperty]
+        private Temperature temperature;
+        public Temperature Temperature
+        {
+            get { return temperature; }
+            set
+            {
+                ClearLazies();
+
+                if (BandGap != null)
+                {
+                    BandGap.SetVariable("T", value.Kelvin);
+                }
+
+                if (IntrinsicCarrierConcentration != null)
+                {
+                    IntrinsicCarrierConcentration.SetVariable("T", value.Kelvin);
+                }
+
+                SetProperty(ref temperature, value);
+                SetUpMathExpressions();
+            }
+        }
 
         #endregion
 
         #region Derived Property Accessors
+
+        private void ClearLazies()
+        {
+            lazyCapacitanceDensity = null;
+            lazySurfacePotential = null;
+            lazyThermalVoltage = null;
+            lazyEnergyFromVacuumToEfi = null;
+            lazyEnergyFromVacuumToBottomBand = null;
+            lazyPhiF = null;
+            lazyWorkFunction = null;
+            lazyPermittivity = null;
+            lazyFreeHoleConcentration = null;
+            lazySemiconductorConstant = null;
+            lazyFreeElectronConcentration = null;
+        }
 
         private ChargeDensity extraChargeValue;
         public ChargeDensity ExtraCharge
@@ -57,9 +167,18 @@ namespace Band
             }
         }
 
+        private ElectricPotential lazyThermalVoltage;
         public ElectricPotential ThermalVoltage
         {
-            get { return ParentStructure.ThermalVoltage; }
+            get
+            {
+                if (lazyThermalVoltage == null)
+                {
+                    lazyThermalVoltage = Temperature.ToEnergy() / ElectricCharge.Elementary;
+                }
+
+                return lazyThermalVoltage;
+            }
         }
 
 		public override Energy EnergyFromVacuumToTopBand
@@ -131,7 +250,7 @@ namespace Band
                 if (lazyPhiF == null)
                 {
                     var phiF = ThermalVoltage * Math.Log(
-                        DopantConcentration / IntrinsicCarrierConcentration);
+                        DopantConcentration.Evaluate() / IntrinsicCarrierConcentration.Evaluate());
                     lazyPhiF = DopingType == DopingType.P ? phiF : -phiF;
                 }
 
@@ -148,7 +267,7 @@ namespace Band
                 {
                     lazySemiconductorConstant = Math.Sqrt(2 * ElectricCharge.Elementary.Coulombs
                         * Permittivity.OfFreeSpace.FaradsPerCentimeter * DielectricConstant
-                        * DopantConcentration.PerCubicCentimeter);
+                        * DopantConcentration.Evaluate().PerCubicCentimeter);
                 }
 
                 return lazySemiconductorConstant.Value;
@@ -164,12 +283,12 @@ namespace Band
                 {
                     if (DopingType == DopingType.P)
                     {
-                        lazyFreeElectronConcentration = IntrinsicCarrierConcentration
-                            * (IntrinsicCarrierConcentration / DopantConcentration);
+                        lazyFreeElectronConcentration = (IntrinsicCarrierConcentration
+                            * (IntrinsicCarrierConcentration / DopantConcentration)).Evaluate();
                     }
                     else
                     {
-                        lazyFreeElectronConcentration = DopantConcentration;
+                        lazyFreeElectronConcentration = DopantConcentration.Evaluate();
                     }
                 }
 
@@ -186,12 +305,12 @@ namespace Band
                 {
                     if (DopingType == DopingType.N)
                     {
-                        lazyFreeHoleConcentration = IntrinsicCarrierConcentration
-                            * (IntrinsicCarrierConcentration / DopantConcentration);
+                        lazyFreeHoleConcentration = (IntrinsicCarrierConcentration
+                            * (IntrinsicCarrierConcentration / DopantConcentration)).Evaluate();
                     }
                     else
                     {
-                        lazyFreeHoleConcentration = DopantConcentration;
+                        lazyFreeHoleConcentration = DopantConcentration.Evaluate();
                     }
                 }
 
@@ -206,7 +325,7 @@ namespace Band
             {
                 if (lazySurfacePotential == null)
                 {
-                    var highPotential = BandGap.ToPotential() * 3;
+                    var highPotential = BandGap.Evaluate().ToPotential() * 3;
                     var lowPotential = ElectricPotential.Zero - 2 * BandGap;
                     var guessPotential = (highPotential + lowPotential) / 2;
                     var guessCharge = GetChargeDensity(guessPotential);
@@ -300,25 +419,57 @@ namespace Band
         public void OnDeserialized(StreamingContext context)
         {
             base.OnDeserialized(context);
+            SetUpMathExpressions();
+        }
+
+        void SetUpMathExpressions()
+        {
+            if (BandGap != null)
+            {
+                BandGap.CustomConstructor = Energy.FromElectronVolts;
+                if (Temperature != null)
+                {
+                    BandGap.SetVariable("T", Temperature.Kelvin);
+                }
+            }
+
+            if (IntrinsicCarrierConcentration != null)
+            {
+                IntrinsicCarrierConcentration.CustomConstructor = Concentration.FromPerCubicCentimeter;
+                if (Temperature != null)
+                {
+                    IntrinsicCarrierConcentration.SetVariable("T", Temperature.Kelvin);
+                }
+            }
+
+            if (DopantConcentration != null)
+            {
+                DopantConcentration.CustomConstructor = Concentration.FromPerCubicCentimeter;
+            }
         }
 
 		public sealed override void Prepare()
-		{
-			EvalPoints.Clear();
-			EvalPoints.Add(new EvalPoint {
-				Location = Length.Zero,
-                ChargeDensity = ChargeDensity.Zero,
-				ElectricField = ElectricField.Zero,
-				Potential = ElectricPotential.Zero
-			});
+        {
+            SetUpMathExpressions();
 
-			EvalPoints.Add(new EvalPoint {
+            EvalPoints.Clear();
+            EvalPoints.Add(new EvalPoint
+            {
+                Location = Length.Zero,
+                ChargeDensity = ChargeDensity.Zero,
+                ElectricField = ElectricField.Zero,
+                Potential = ElectricPotential.Zero
+            });
+
+            EvalPoints.Add(new EvalPoint
+            {
                 Location = Length.FromNanometers(50),
                 ChargeDensity = ChargeDensity.Zero,
-				ElectricField = ElectricField.Zero,
-				Potential = ElectricPotential.Zero
-			});
-		}
+                ElectricField = ElectricField.Zero,
+                Potential = ElectricPotential.Zero
+            });
+        }
+
 
         public override Material WithThickness(Length thickness)
         {
@@ -334,7 +485,8 @@ namespace Band
                 ElectronAffinity = ElectronAffinity,
                 DopingType = dopingType,
                 DopantConcentration = DopantConcentration,
-                IntrinsicCarrierConcentration = IntrinsicCarrierConcentration
+                IntrinsicCarrierConcentration = IntrinsicCarrierConcentration,
+                Temperature = Temperature
             };
 
             InitClone(semiconductor, Length.FromMicrometers(50));
@@ -597,7 +749,20 @@ namespace Band
 
             foreach (var point in EvalPoints)
             {
-                var location = point.Location + offset;
+                Length location;
+
+                // If this point is at 50nm or greater, we declare it to
+                // be the last point, and we set it to be at 50nm so that it makes
+                // a solid line on the plot.
+                if (point.Location.Nanometers >= 50.0)
+                {
+                    location = Length.FromNanometers(50.0) + offset;
+                }
+                else
+                {
+                    location = point.Location + offset;
+                }
+
                 var cbEnergy = -EnergyFromVacuumToTopBand - point.Potential;
                 var vbEnergy = -EnergyFromVacuumToBottomBand - point.Potential;
                 var efiEnergy = -EnergyFromVacuumToEfi - point.Potential;
@@ -627,6 +792,9 @@ namespace Band
                 {
                     X = location.Nanometers, Y = wfEnergy.ElectronVolts
                 });
+
+                // Any points greater than 50nm are ignored.
+                if (point.Location.Nanometers > 50.0) break;
             }
 
             return new List<PlotDataSet> { cbDataset, vbDataset, efiDataset, wfDataset };

@@ -22,10 +22,8 @@ namespace BandAid.iOS
         {
             base.ViewDidLoad();
 			
-            TableView.Source = new LayersTableSource(TableView, ViewModel);
+            TableView.Source = new LayersTableSource(this);
             TableView.SetEditing(true, false);
-
-            PreferredContentSize = new CGSize(360, 540);
         }
 
         public override void ViewWillAppear(bool animated)
@@ -33,6 +31,7 @@ namespace BandAid.iOS
             base.ViewWillAppear(animated);
 
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+            NavigationController.SetToolbarHidden(true, true);
         }
 
         public override void ViewDidDisappear(bool animated)
@@ -47,7 +46,7 @@ namespace BandAid.iOS
             // Not currently used
         }
 
-        partial void OnDuplicateClicked(NSObject sender)
+        void DuplicateSelectedMaterial()
         {
             var indexPath = TableView.IndexPathForSelectedRow;
             if (indexPath == null) return;
@@ -58,7 +57,7 @@ namespace BandAid.iOS
             TableView.DeselectRow(indexPath, true);
         }
 
-        partial void OnTrashClicked(NSObject sender)
+        void TrashSelectedMaterial()
         {
             var indexPath = TableView.IndexPathForSelectedRow;
             if (indexPath == null) return;
@@ -67,23 +66,53 @@ namespace BandAid.iOS
             ViewModel.DeleteLayer(deletedLayer);
         }
 
-        [Action("UnwindToStructure:")]
-        public void UnwindToStructure(UIStoryboardSegue segue)
+        public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
         {
-            var sourceVc = (MaterialSelectViewController)segue.SourceViewController;
-            var selectedMaterial = sourceVc.ViewModel.SelectedMaterial;
+            base.PrepareForSegue(segue, sender);
+
+            if (segue.Identifier == "SelectLayerSegue")
+            {
+                var selectedLayer = ViewModel.Layers[TableView.IndexPathForSelectedRow.Row];
+                var destination = (MaterialDetailViewController)segue.DestinationViewController;
+
+                destination.ViewModel = new MaterialDetailViewModel(selectedLayer.Material, EditMode.InStructure);
+            }
+        }
+
+        [Action("UnwindFromAddLayer:")]
+        public void UnwindFromAddLayer(UIStoryboardSegue segue)
+        {
+            var sourceVc = (MaterialDetailViewController)segue.SourceViewController;
+            var selectedMaterial = sourceVc.ViewModel.Material;
 
             ViewModel.AddLayer(new LayerViewModel(selectedMaterial));
+        }
+
+        [Action("UnwindFromMaterialForm:")]
+        public void UnwindFromMaterialForm(UIStoryboardSegue segue)
+        {
+            if (segue.Identifier == "TrashSegue")
+            {
+                TrashSelectedMaterial();
+            }
+
+            if (segue.Identifier == "DuplicateSegue")
+            {
+                DuplicateSelectedMaterial();
+            }
         }
 
         class LayersTableSource : UITableViewSource
         {
             private readonly StructureViewModel viewModel;
+            private readonly StructureTableViewController viewController;
 
-            public LayersTableSource(UITableView tableView, StructureViewModel viewModel)
+            public LayersTableSource(StructureTableViewController viewController)
             {
-                this.viewModel = viewModel;
-                viewModel.Layers.CollectionChanged += (sender, e) => tableView.ReloadData();
+                this.viewController = viewController;
+
+                viewModel = viewController.ViewModel;
+                viewModel.Layers.CollectionChanged += (sender, e) => viewController.TableView.ReloadData();
             }
 
             #region implemented abstract members of UITableViewSource

@@ -59,6 +59,11 @@ namespace Band
         // Ported from http://www.docjar.com/html/api/java/awt/Color.java.html
         public float GetHue()
         {
+            if (GetSaturation() <= float.Epsilon)
+            {
+                return 0.0f;
+            }
+
             var minval = Math.Min(R, Math.Min(G, B));
             var maxval = Math.Max(R, Math.Max(G, B));
             float hue;

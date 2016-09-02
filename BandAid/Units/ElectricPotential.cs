@@ -106,6 +106,11 @@ namespace Band.Units
             return new ElectricPotential(left.Volts - right.ElectronVolts);
         }
 
+        public static ElectricPotential operator -(ElectricPotential left, MathExpression<Energy> right)
+        {
+            return new ElectricPotential(left.Volts - right.Evaluate().ElectronVolts);
+        }
+
         public static ElectricPotential Abs(ElectricPotential potential)
         {
             return new ElectricPotential(Math.Abs(potential.Volts));

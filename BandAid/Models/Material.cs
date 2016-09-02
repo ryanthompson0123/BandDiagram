@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Converters;
 using System.Runtime.Serialization;
+using System.ComponentModel;
 
 namespace Band
 {
@@ -24,22 +25,55 @@ namespace Band
 
     [JsonObject(MemberSerialization.OptIn)]
     [JsonConverter(typeof(Material.Converter))]
-	public abstract class Material
+    public abstract class Material : ObservableObject
 	{
         [JsonProperty]
-		public string Name { get; private set; }
-
-        [JsonProperty]		
-        public string Notes { get; private set; }
-
-        [JsonProperty]
-		public Color FillColor { get; private set; }
-
-        [JsonProperty]
-        public Length Thickness { get; private set; }
+        private string id;
+        public string Id
+        {
+            get { return id; }
+            set { SetProperty(ref id, value); }
+        }
 
         [JsonProperty]
-        public virtual Energy WorkFunction { get; private set; }
+        private string name;
+		public string Name
+        {
+            get { return name; }
+            set { SetProperty(ref name, value); }
+        }
+
+        [JsonProperty]
+        private string notes;
+        public string Notes
+        {
+            get { return notes; }
+            set { SetProperty(ref notes, value); }
+        }
+
+        [JsonProperty]
+        private Color fillColor;
+		public Color FillColor
+        {
+            get { return fillColor; }
+            set { SetProperty(ref fillColor, value); }
+        }
+
+        [JsonProperty]
+        private Length thickness;
+        public Length Thickness
+        {
+            get { return thickness; }
+            set { SetProperty(ref thickness, value); }
+        }
+
+        [JsonProperty]
+        private Energy workFunction;
+        public virtual Energy WorkFunction
+        {
+            get { return workFunction; }
+            set { SetProperty(ref workFunction, value); }
+        }
 
 		public List<EvalPoint> EvalPoints { get; set; }
 
@@ -50,7 +84,7 @@ namespace Band
         [JsonIgnore]
         public Structure ParentStructure { get; set; }
 
-        [JsonProperty]
+        [JsonProperty(PropertyName="materialType")]
         public MaterialType MaterialType
         {
             get
@@ -76,6 +110,7 @@ namespace Band
 		protected Material()
 		{
 			EvalPoints = new List<EvalPoint>();
+            Id = Guid.NewGuid().ToString();
 		}
 
         [OnDeserialized]
@@ -91,6 +126,7 @@ namespace Band
             material.Notes = Notes;
             material.FillColor = FillColor;
             material.Thickness = thickness;
+            material.Id = Id;
 
             if (material.MaterialType != MaterialType.Semiconductor || ParentStructure != null)
             {
@@ -205,6 +241,33 @@ namespace Band
         public ElectricField GetLastElectricField()
         {
             return EvalPoints.Last().ElectricField;
+        }
+
+        public static Material Create(MaterialType materialType)
+        {
+            switch (materialType)
+            {
+                case MaterialType.Metal:
+                    return new Metal
+                    {
+                        FillColor = Color.Black,
+                        Thickness = Length.FromNanometers(5.0)
+                    };
+                case MaterialType.Dielectric:
+                    return new Dielectric
+                    {
+                        FillColor = Color.Black,
+                        Thickness = Length.FromNanometers(5.0)
+                    };
+                case MaterialType.Semiconductor:
+                    return new Semiconductor
+                    {
+                        FillColor = Color.Black,
+                        Thickness = Length.FromNanometers(50.0)
+                    };
+                default:
+                    return null;
+            }
         }
 
         public class Converter : JsonCreationConverter<Material>

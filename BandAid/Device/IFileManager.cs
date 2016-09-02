@@ -29,6 +29,7 @@ namespace Band
 
         Task<IEnumerable<string>> EnumerateTestBenchesAsync();
         Task<string> GetMaterialDataAsync(MaterialType materialType);
+        Task PutMaterialDataAsync(MaterialType materialType, string data);
 
         string GetScreenshotPath(string testBenchName);
 

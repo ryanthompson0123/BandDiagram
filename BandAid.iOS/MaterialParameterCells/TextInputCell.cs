@@ -30,8 +30,9 @@ namespace BandAid.iOS
 		{
 			TitleLabel.Text = ViewModel.TitleText;
 			TextInput.Text = ViewModel.Value;
+            TextInput.Placeholder = "Enter value";
 
-			TextInput.ValueChanged += TextInput_ValueChanged;
+            TextInput.EditingChanged += TextInput_EditingChanged;
 		}
 
 		public override void OnSelected()
@@ -42,14 +43,14 @@ namespace BandAid.iOS
 		public override void PrepareForReuse()
 		{
 			base.PrepareForReuse();
+            TextInput.EditingChanged -= TextInput_EditingChanged;
 
-			TextInput.ValueChanged -= TextInput_ValueChanged;
-
-			TitleLabel.Text = "";
+            TitleLabel.Text = "";
 			TextInput.Text = "";
+            TextInput.Placeholder = "";
 		}
 
-		void TextInput_ValueChanged(object sender, EventArgs e)
+		void TextInput_EditingChanged(object sender, EventArgs e)
 		{
 			ViewModel.Value = TextInput.Text;
 		}

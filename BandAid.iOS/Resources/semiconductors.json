@@ -1,67 +1,78 @@
 [
-	{
-		"materialType": "semiconductor",
-		"dielectricConstant": 8.5,
-		"bandGap": 6.28,
-		"electronAffinity": 1.9,
-		"intrinsicCarrierConcentration": 9.4E-34,
-		"dopantConcentration": 1E18,
-		"name": "AlN",
-		"notes": "RPI Professor Schubert",
-		"fillColor": "#8000ff"
-	},
-	{
-		"materialType": "semiconductor",
-		"dielectricConstant": 13.1,
-		"bandGap": 1.42,
-		"electronAffinity": 4.07,
-		"intrinsicCarrierConcentration": 9000000,
-		"dopantConcentration": 1E18,
-		"name": "GaAs",
-		"fillColor": "#ff8080"
-	},
-	{
-		"materialType": "semiconductor",
-		"dielectricConstant": 8.9,
-		"bandGap": 3.425,
-		"electronAffinity": 4.1,
-		"intrinsicCarrierConcentration": 1.9E-10,
-		"dopantConcentration": 1E18,
-		"name": "GaN",
-		"notes": "RPI Professor Schubert",
-		"fillColor": "#0000ff"
-	},
-	{
-		"materialType": "semiconductor",
-		"dielectricConstant": 16.0,
-		"bandGap": 0.67,
-		"electronAffinity": 4.0,
-		"intrinsicCarrierConcentration": 24000000000000,
-		"dopantConcentration": 1E18,
-		"name": "Ge",
-		"fillColor": "#ff8040"
-	},
-	{
-		"materialType": "semiconductor",
-		"dielectricConstant": 15.3,
-		"bandGap": 1.97,
-		"electronAffinity": 5.8,
-		"intrinsicCarrierConcentration": 182,
-		"dopantConcentration": 1E18,
-		"name": "InN",
-		"notes": "RPI Professor Schubert and http://www.ioffe.rssi.ru/SVA/NSM/Semicond/
-		Electron Affinity from Wladek W. Walukiewicz at Lawrence Berkeley National Lab",
-		"fillColor": "#000080"
-	},
-	{
-		"materialType": "semiconductor",
-		"dielectricConstant": 11.7,
-		"bandGap": 1.12524,
-		"electronAffinity": 4.05,
-		"intrinsicCarrierConcentration": 1.4112E10,
-		"dopantConcentration": 1E18,
-		"name": "Si",
-		"notes": "Temperature dependent band gap and intrinsic carrier concentration taken from Muller and Kamins \"Device Electronics for Integrated Circuits\" 3rd Ed pg 54",
-		"fillColor": "#00ff00"
-	}
+  {
+    "materialType": "semiconductor",
+    "dielectricConstant": 8.5,
+    "bandGap": "6.28",
+    "electronAffinity": 1.9,
+    "intrinsicCarrierConcentration": "9.4E-34",
+    "dopantConcentration": "1E18",
+    "name": "AlN",
+    "notes": "RPI Professor Schubert",
+    "fillColor": "#8000ff",
+    "temperature": 300,
+    "id": "9f6b343f-8b2c-4658-be01-5738c557f9c1"
+  },
+  {
+    "materialType": "semiconductor",
+    "dielectricConstant": 13.1,
+    "bandGap": "1.42",
+    "electronAffinity": 4.07,
+    "intrinsicCarrierConcentration": "9000000",
+    "dopantConcentration": "1E18",
+    "name": "GaAs",
+    "fillColor": "#ff8080",
+    "temperature": 300,
+    "id": "fc53d78a-9326-4646-b048-6c3e8b127d1d"
+  },
+  {
+    "materialType": "semiconductor",
+    "dielectricConstant": 8.9,
+    "bandGap": "3.425",
+    "electronAffinity": 4.1,
+    "intrinsicCarrierConcentration": "1.9E-10",
+    "dopantConcentration": "1E18",
+    "name": "GaN",
+    "notes": "RPI Professor Schubert",
+    "fillColor": "#0000ff",
+    "temperature": 300,
+    "id": "4ce17abe-2818-4541-af4f-329a57f1a18d"
+  },
+  {
+    "materialType": "semiconductor",
+    "dielectricConstant": 16,
+    "bandGap": "0.67",
+    "electronAffinity": 4,
+    "intrinsicCarrierConcentration": "24000000000000",
+    "dopantConcentration": "1E18",
+    "name": "Ge",
+    "fillColor": "#ff8040",
+    "temperature": 300,
+    "id": "c51da07b-b021-40d3-942e-29723143bdaa"
+  },
+  {
+    "materialType": "semiconductor",
+    "dielectricConstant": 15.3,
+    "bandGap": "1.97",
+    "electronAffinity": 5.8,
+    "intrinsicCarrierConcentration": "182",
+    "dopantConcentration": "1E18",
+    "name": "InN",
+    "notes": "RPI Professor Schubert and http://www.ioffe.rssi.ru/SVA/NSM/Semicond/ Electron Affinity from Wladek W. Walukiewicz at Lawrence Berkeley National Lab",
+    "fillColor": "#000080",
+    "temperature": 300,
+    "id": "0c5ffad4-6e8e-4bc7-9010-433243b373b7"
+  },
+  {
+    "materialType": "semiconductor",
+    "dielectricConstant": 11.7,
+    "bandGap": "1.17-4.73E-4*T^2/(T+651)",
+    "electronAffinity": 4.05,
+    "intrinsicCarrierConcentration": "3.87E16*T^(3/2)*exp(-7014/T)",
+    "dopantConcentration": "1E18",
+    "name": "Si",
+    "notes": "Temperature dependent band gap and intrinsic carrier concentration taken from Muller and Kamins \"Device Electronics for Integrated Circuits\" 3rd Ed pg 54",
+    "fillColor": "#00ff00",
+    "temperature": 300,
+    "id": "6785242f-2e12-48df-b44f-ebbd5c64c1a5"
+  }
 ]

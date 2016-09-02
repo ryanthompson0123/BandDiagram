@@ -4,6 +4,7 @@ using System.Linq;
 using Band.Units;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using System.ComponentModel;
 
 namespace Band
 {
@@ -40,17 +41,24 @@ namespace Band
             foreach (var layer in Layers)
             {
                 layer.ParentStructure = this;
+                layer.PropertyChanged += Layer_PropertyChanged;
             }
 
             Evaluate();
         }
 
-        public Structure DeepClone(ElectricPotential bias, Temperature temperature)
+        void Layer_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Evaluate();
+
+            OnPropertyChanged("Layers");
+        }
+
+        public Structure DeepClone(ElectricPotential bias)
         {
             var structure = new Structure();
 
             structure.Bias = bias;
-            structure.Temperature = temperature;
 
             var layerClones = Layers.Select(l => l.DeepClone()).ToList();
 
@@ -67,12 +75,13 @@ namespace Band
 
         public Structure DeepClone()
         {
-            return DeepClone(Bias, Temperature);
+            return DeepClone(Bias);
         }
 
         public void InsertLayer(int index, Material layer)
         {
             layer.ParentStructure = this;
+            layer.PropertyChanged += Layer_PropertyChanged;
             layersValue.Insert(index, layer);
 
             Evaluate();
@@ -98,7 +107,20 @@ namespace Band
 
         public void RemoveLayer(Material layer)
         {
+            layer.PropertyChanged -= Layer_PropertyChanged;
             layersValue.Remove(layer);
+
+            Evaluate();
+            OnPropertyChanged("Layers");
+        }
+
+        public void ReplaceLayer(Material layer, int index)
+        {
+            if (index < 0 || layer == null) return;
+
+            Layers[index].PropertyChanged -= Layer_PropertyChanged;
+            Layers.RemoveAt(index);
+            Layers.Insert(index, layer);
 
             Evaluate();
             OnPropertyChanged("Layers");
@@ -274,23 +296,6 @@ namespace Band
 
         [JsonProperty]
         public ElectricPotential Bias { get; private set; }
-
-        [JsonProperty]
-        public Temperature Temperature { get; private set; }
-
-        private ElectricPotential lazyThermalVoltage;
-        public ElectricPotential ThermalVoltage
-        {
-            get
-            {
-                if (lazyThermalVoltage == null)
-                {
-                    lazyThermalVoltage = Temperature.ToEnergy() / ElectricCharge.Elementary;
-                }
-
-                return lazyThermalVoltage;
-            }
-        }  
 
         public bool IsValid
         {

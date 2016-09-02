@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using Band.Units;
+using System.Collections.Specialized;
 
 namespace BandAid.iOS
 {
@@ -26,21 +27,64 @@ namespace BandAid.iOS
 			
             TableView.Source = new MaterialSource(this);
 
-            PreferredContentSize = new CGSize(360, 540);
+            Title = string.Format("{0}s", ViewModel.MaterialType);
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            base.ViewWillAppear(animated);
+
+            NavigationController.SetToolbarHidden(true, true);
         }
 
 		public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
 		{
 			base.PrepareForSegue(segue, sender);
 
-			if (segue.Identifier == "MaterialFormSegue")
+			if (segue.Identifier == "SelectMaterialSegue")
 			{
 				var destination = (MaterialDetailViewController)segue.DestinationViewController;
-				var selectedMatieral = ViewModel.Materials[TableView.IndexPathForSelectedRow.Row].Material;
+				var selectedMaterial = ViewModel.Materials[TableView.IndexPathForSelectedRow.Row].Material;
 
-				destination.ViewModel = new MaterialDetailViewModel(selectedMatieral, EditMode.Existing);
+                destination.NavigationItem.LeftBarButtonItem = null;
+                destination.ViewModel = new MaterialDetailViewModel(selectedMaterial, EditMode.Existing);
 			}
+
+            if (segue.Identifier == "AddMaterialSegue")
+            {
+                var nav = (UINavigationController)segue.DestinationViewController;
+                var destination = (MaterialDetailViewController)nav.ChildViewControllers[0];
+
+                destination.ViewModel = new MaterialDetailViewModel(ViewModel.MaterialType, EditMode.New);
+            }
 		}
+
+        [Action("UnwindFromMaterialForm:")]
+        public void UnwindFromMaterialForm(UIStoryboardSegue segue)
+        {
+            var source = (MaterialDetailViewController)segue.SourceViewController;
+            var material = source.ViewModel.Material;
+
+            if (segue.Identifier == "SaveFormSegue")
+            {
+                ViewModel.SaveMaterial(material);
+            }
+
+            if (segue.Identifier == "TrashSegue")
+            {
+                ViewModel.DeleteMaterial(material);
+            }
+
+            if (segue.Identifier == "DuplicateSegue")
+            {
+                ViewModel.DuplicateMaterial(material);
+            }
+        }
+
+        void Materials_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            TableView.ReloadData();
+        }
 
         //public void OnRowSelected(int row)
         //{
@@ -129,7 +173,9 @@ namespace BandAid.iOS
             public MaterialSource(MaterialSelectViewController viewController)
             {
                 this.viewController = viewController;
+
                 viewModel = viewController.ViewModel;
+                viewModel.Materials.CollectionChanged += (sender, e) => viewController.TableView.ReloadData();
             }
 
             public override nfloat GetHeightForRow(UITableView tableView, NSIndexPath indexPath)

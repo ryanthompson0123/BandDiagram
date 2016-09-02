@@ -1,64 +1,70 @@
 {
-	"name": "NVM Stack",
-	"currentIndex": 0,
-	"minVoltage": -10.0,
-	"maxVoltage": 10.0,
-	"stepSize": 0.25,
-	"structure": {
-	  "name": "NVM Stack",
-	  "bias": -10.0,
-	  "temperature": 300,
-	  "layers": [
-	    {
-	      "name": "TiN",
-	      "notes": null,
-	      "fillColor": "#ff0000",
-	      "thickness": 4E-9,
-	      "workFunction": 4.45,
-	      "materialType": "metal"
-	    },
-	    {
-	      "name": "Al2O3",
-	      "notes": null,
-	      "fillColor": "#0000ff",
-	      "bandGap": 8.7,
-	      "dielectricConstant": 9,
-	      "electronAffinity": 1.35,
-	      "thickness": 10E-9,
-	      "materialType": "dielectric"
-	    },
-	    {
-	      "name": "Ta2O5",
-	      "notes": null,
-	      "fillColor": "#008040",
-	      "bandGap": 4.5,
-	      "dielectricConstant": 26,
-	      "electronAffinity": 3.75,
-	      "thickness": 6E-9,
-	      "materialType": "dielectric"
-	    },
-	    {
-	      "name": "SiO2",
-	      "notes": null,
-	      "fillColor": "#804040",
-	      "bandGap": 8.9,
-	      "dielectricConstant": 3.9,
-	      "electronAffinity": 0.95,
-	      "thickness": 2E-9,
-	      "materialType": "dielectric"
-	    },
-	    {
-	      "name": "Si",
-	      "notes": null,
-	      "fillColor": "#00ff00",
-	      "bandGap": 1.1252,
-	      "dielectricConstant": 11.7,
-	      "intrinsicCarrierConcentration": 14100000000,
-	      "dopantConcentration": 1000000000000000000,
-	      "electronAffinity": 4.05,
-	      "materialType": "semiconductor",
-	      "dopingType": "N"
-	    }
-	  ]
-	}
+  "name": "NVM Stack",
+  "currentIndex": 0,
+  "minVoltage": -10,
+  "maxVoltage": 10,
+  "stepSize": 0.25,
+  "structure": {
+    "name": "NVM Stack",
+    "bias": -10,
+    "temperature": 300,
+    "layers": [
+      {
+        "name": "TiN",
+        "notes": null,
+        "fillColor": "#ff0000",
+        "thickness": 4e-9,
+        "workFunction": 4.45,
+        "materialType": "metal",
+        "id": "f9c8938e-3753-49f1-ae7d-60e4b9bc6f32"
+      },
+      {
+        "name": "Al2O3",
+        "notes": null,
+        "fillColor": "#0000ff",
+        "bandGap": 8.7,
+        "dielectricConstant": 9,
+        "electronAffinity": 1.35,
+        "thickness": 1e-8,
+        "materialType": "dielectric",
+        "id": "75d2e45f-b868-43ad-a81d-400b9747a882"
+      },
+      {
+        "name": "Ta2O5",
+        "notes": null,
+        "fillColor": "#008040",
+        "bandGap": 4.5,
+        "dielectricConstant": 26,
+        "electronAffinity": 3.75,
+        "thickness": 6e-9,
+        "materialType": "dielectric",
+        "id": "6e446d92-0824-4e99-b994-ece94d183be1"
+      },
+      {
+        "name": "SiO2",
+        "notes": null,
+        "fillColor": "#804040",
+        "bandGap": 8.9,
+        "dielectricConstant": 3.9,
+        "electronAffinity": 0.95,
+        "thickness": 2e-9,
+        "materialType": "dielectric",
+        "id": "5baa46e7-fefb-45de-ad6d-7c4016ee993a"
+      },
+      {
+        "name": "Si",
+        "notes": null,
+        "fillColor": "#00ff00",
+        "bandGap": "1.17-4.73E-4*T^2/(T+651)",
+        "dielectricConstant": 11.7,
+        "intrinsicCarrierConcentration": "3.87E16*T^(3/2)*exp(-7014/T)",
+        "dopantConcentration": "1E18",
+        "electronAffinity": 4.05,
+        "materialType": "semiconductor",
+        "dopingType": "N",
+        "temperature": 300,
+        "id": "6785242f-2e12-48df-b44f-ebbd5c64c1a5"
+      }
+    ]
+  }
 }

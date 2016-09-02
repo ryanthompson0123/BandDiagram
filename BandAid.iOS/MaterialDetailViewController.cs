@@ -3,6 +3,7 @@ using Band;
 using UIKit;
 using Foundation;
 using CoreGraphics;
+using System.Linq;
 
 namespace BandAid.iOS
 {
@@ -21,8 +22,69 @@ namespace BandAid.iOS
 
 			TableView.Source = new DetailSource(this);
 
-			PreferredContentSize = new CGSize(360, 540);
+            if (ViewModel.EditMode == EditMode.InStructure)
+            {
+                Title = ViewModel.Material.Name;
+                NavigationItem.LeftBarButtonItem = null;
+                NavigationItem.RightBarButtonItem = null;
+                NavigationController.SetToolbarHidden(false, true);
+                var newItems = ToolbarItems.ToList();
+                newItems.Remove(UpdateButton);
+                ToolbarItems = newItems.ToArray();
+            }
+            else if (ViewModel.EditMode == EditMode.Existing)
+            {
+                Title = ViewModel.Material.Name;
+                NavigationItem.LeftBarButtonItem = null;
+                NavigationItem.RightBarButtonItem = new UIBarButtonItem("Add", UIBarButtonItemStyle.Done, (sender, e) => OnAddClicked());
+                NavigationController.SetToolbarHidden(false, true);
+            }
+            else
+            {
+                Title = string.Format("New {0}", ViewModel.Material.MaterialType);
+                var newItems = ToolbarItems.ToList();
+                newItems.Remove(UpdateButton);
+                ToolbarItems = newItems.ToArray();
+            }
 		}
+
+        private void OnAddClicked()
+        {
+            PerformSegue("AddLayerSegue", this);
+        }
+
+        partial void OnSaveClicked(NSObject sender)
+        {
+            PerformSegue("SaveFormSegue", this);
+        }
+
+        partial void OnTrashClicked(NSObject sender)
+        {
+            if (ViewModel.EditMode == EditMode.Existing)
+            {
+                ConfirmDelete();
+                return;
+            }
+
+            PerformSegue("TrashSegue", this);
+        }
+
+        public void ConfirmDelete()
+        {
+            var alert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
+
+            var name = string.Format("Delete {0}", ViewModel.Material.Name);
+            var action = UIAlertAction.Create(name, UIAlertActionStyle.Destructive, (obj) => PerformSegue("TrashSegue", this));
+
+            alert.AddAction(action);
+
+            var popPresenter = alert.PopoverPresentationController;
+
+            popPresenter.BarButtonItem = TrashButton;
+            popPresenter.SourceView = View;
+
+            PresentViewController(alert, true, null);
+        }
 
 		[Action("UnwindFromColorPicker:")]
 		public void UnwindFromColorPicker(UIStoryboardSegue segue)
@@ -67,7 +129,6 @@ namespace BandAid.iOS
 				return viewModel.MaterialParameterSections[indexPath.Section][indexPath.Row];
 			}
 
-
 			public override nfloat GetHeightForRow(UITableView tableView, NSIndexPath indexPath)
 			{
 				var parameter = GetParameter(indexPath);
@@ -88,6 +149,9 @@ namespace BandAid.iOS
 				switch (parameter.ParameterType)
 				{
 					case ParameterType.Name:
+                    case ParameterType.IntrinsicCarrierConcentration:
+                    case ParameterType.DopantConcentration:
+                    case ParameterType.SemiconductorBandGap:
 						var textInputCell = (TextInputCell)tableView.DequeueReusableCell(TextInputCell.Key);
 						textInputCell.ViewModel = (MaterialParameterViewModel<string>)parameter;
 						textInputCell.Initialize();
@@ -95,11 +159,9 @@ namespace BandAid.iOS
 					case ParameterType.BandGap:
 					case ParameterType.Thickness:
 					case ParameterType.DielectricConstant:
-					case ParameterType.DopantConcentration:
 					case ParameterType.ElectronAffinity:
 					case ParameterType.WorkFunction:
 					case ParameterType.Temperature:
-					case ParameterType.IntrinsicCarrierConcentration:
 						var doubleSliderCell = (DoubleSliderCell)tableView.DequeueReusableCell(DoubleSliderCell.Key);
 						doubleSliderCell.ViewModel = (NumericMaterialParameterViewModel)parameter;
 						doubleSliderCell.Initialize();
@@ -128,7 +190,7 @@ namespace BandAid.iOS
 			{
 				return viewModel.MaterialParameterSections[(int)section].Count;
 			}
-
+    
 			public override nint NumberOfSections(UITableView tableView)
 			{
 				return viewModel.MaterialParameterSections.Count;

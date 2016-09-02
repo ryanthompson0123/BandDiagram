@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using Band.Units;
 
 namespace Band
 {
@@ -11,6 +13,7 @@ namespace Band
 		DielectricConstant,
 		WorkFunction,
 		BandGap,
+        SemiconductorBandGap,
 		IntrinsicCarrierConcentration,
 		DopantConcentration,
 		DopingType,
@@ -33,12 +36,34 @@ namespace Band
 		public EditMode EditMode { get; private set; }
 		public Material Material { get; private set; }
 
+        public MaterialDetailViewModel(MaterialType materialType, EditMode mode)
+        {
+            EditMode = mode;
+            Material = Material.Create(materialType);
+
+            MaterialParameterSections = BuildForm(Material);
+        }
+
 		public MaterialDetailViewModel(Material material, EditMode mode)
 		{
 			EditMode = mode;
-			Material = Material;
+            if (mode != EditMode.InStructure)
+            {
+                if (material.MaterialType == MaterialType.Semiconductor)
+                {
+                    Material = material.WithThickness(Length.FromNanometers(50.0));
+                }
+                else
+                {
+                    Material = material.WithThickness(Length.FromNanometers(5.0));
+                }
+            }
+            else
+            {
+                Material = material;
+            }
 
-			MaterialParameterSections = BuildForm(material);
+			MaterialParameterSections = BuildForm(Material);
 		}
 
 		private List<List<MaterialParameterViewModel>> BuildForm(Material material)
@@ -46,16 +71,6 @@ namespace Band
 			var form = new List<List<MaterialParameterViewModel>>();
 
 			form.Add(GetNameSection(material));
-
-			if (material.MaterialType != MaterialType.Semiconductor)
-			{
-				form.Add(GetThicknessSection(material));
-			}
-			else
-			{
-				form.Add(GetTemperatureSection());
-			}
-
 			form.Add(GetTypeSpecificParameterSection(material));
 			form.Add(GetPlotColorSection(material));
 			form.Add(GetNotesSection(material));
@@ -66,42 +81,34 @@ namespace Band
 		private static List<MaterialParameterViewModel> GetNameSection(Material material)
 		{
 			var titleSection = new List<MaterialParameterViewModel>();
-
-			titleSection.Add(new MaterialParameterViewModel<string>(ParameterType.Name)
+            var titleField = new MaterialParameterViewModel<string>(ParameterType.Name)
 			{
 				Value = material.Name
-			});
+			};
 
+            titleField.PropertyChanged += (sender, e) => material.Name = titleField.Value;
+
+            titleSection.Add(titleField);
 			return titleSection;
 		}
 
-		private static List<MaterialParameterViewModel> GetThicknessSection(Material material)
+        private static NumericMaterialParameterViewModel GetThicknessSection(Material material)
 		{
-			var thicknessSection = new List<MaterialParameterViewModel>();
+            var thicknessField = new NumericMaterialParameterViewModel(ParameterType.Thickness)
+            {
+                Minimum = 0.1,
+                Maximum = 10.0,
+                StepSize = 0.1,
+                Value = material.Thickness.Nanometers
+            };
 
-			thicknessSection.Add(new NumericMaterialParameterViewModel(ParameterType.Thickness)
-			{
-				Minimum = 0.1,
-				Maximum = 10.0,
-				StepSize = 0.1,
-				Value = material.Thickness != null ? material.Thickness.Nanometers : 5.0
-			});
+            thicknessField.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName != "Value") return;
+                material.Thickness = Length.FromNanometers(thicknessField.Value);
+            };
 
-			return thicknessSection;
-		}
-
-		private static List<MaterialParameterViewModel> GetTemperatureSection()
-		{
-			var temperatureSection = new List<MaterialParameterViewModel>();
-
-			temperatureSection.Add(new NumericMaterialParameterViewModel(ParameterType.Temperature)
-			{
-				Minimum = 100.0,
-				Maximum = 500.0,
-				StepSize = 25.0
-			});
-
-			return temperatureSection;
+            return thicknessField;
 		}
 
 		private List<MaterialParameterViewModel> GetTypeSpecificParameterSection(Material material)
@@ -122,45 +129,74 @@ namespace Band
 		private static List<MaterialParameterViewModel> GetMetalParameterSection(Metal material)
 		{
 			var metalSection = new List<MaterialParameterViewModel>();
-
-			metalSection.Add(new NumericMaterialParameterViewModel(ParameterType.WorkFunction)
+            var metalField = new NumericMaterialParameterViewModel(ParameterType.WorkFunction)
 			{
 				Minimum = 0.0,
 				Maximum = 10,
 				StepSize = 0.1,
-				Value = material.WorkFunction.ElectronVolts,
-			});
+                Value = material.WorkFunction?.ElectronVolts ?? 0.0
+			};
 
+            metalField.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName != "Value") return;
+                material.WorkFunction = Energy.FromElectronVolts(metalField.Value);
+            };
+
+            metalSection.Add(GetThicknessSection(material));
+            metalSection.Add(metalField);
 			return metalSection;
 		}
 
 		private static List<MaterialParameterViewModel> GetDielectricParameterSection(Dielectric material)
 		{
 			var dielectricSection = new List<MaterialParameterViewModel>();
-
-			dielectricSection.Add(new NumericMaterialParameterViewModel(ParameterType.BandGap)
+            var bandGapField = new NumericMaterialParameterViewModel(ParameterType.BandGap)
 			{
 				Minimum = 0,
 				Maximum = 10,
 				StepSize = 0.1,
-				Value = material.BandGap.ElectronVolts
-			});
+				Value = material.BandGap?.ElectronVolts ?? 0.0
+			};
 
-			dielectricSection.Add(new NumericMaterialParameterViewModel(ParameterType.ElectronAffinity)
+            bandGapField.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName != "Value") return;
+                material.BandGap = Energy.FromElectronVolts(bandGapField.Value);
+            };
+
+            var eaField = new NumericMaterialParameterViewModel(ParameterType.ElectronAffinity)
 			{
 				Minimum = 0,
 				Maximum = 5,
 				StepSize = 0.05,
-				Value = material.ElectronAffinity.ElectronVolts
-			});
+				Value = material.ElectronAffinity?.ElectronVolts ?? 0.0
+			};
 
-			dielectricSection.Add(new NumericMaterialParameterViewModel(ParameterType.DielectricConstant)
+            eaField.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName != "Value") return;
+                material.ElectronAffinity = Energy.FromElectronVolts(eaField.Value);
+            };
+
+            var dcField = new NumericMaterialParameterViewModel(ParameterType.DielectricConstant)
 			{
-				Minimum = 0,
+				Minimum = .1,
 				Maximum = 30,
 				StepSize = 1,
 				Value = material.DielectricConstant
-			});
+			};
+
+            dcField.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName != "Value") return;
+                material.DielectricConstant = dcField.Value;
+            };
+
+            dielectricSection.Add(GetThicknessSection(material));
+            dielectricSection.Add(bandGapField);
+            dielectricSection.Add(eaField);
+            dielectricSection.Add(dcField);
 
 			return dielectricSection;
 		}
@@ -168,45 +204,105 @@ namespace Band
 		private static List<MaterialParameterViewModel> GetSemiconductorParameterSection(Semiconductor material)
 		{
 			var semiconductorSection = new List<MaterialParameterViewModel>();
-
-			semiconductorSection.Add(new NumericMaterialParameterViewModel(ParameterType.BandGap)
+            var bgField = new MaterialParameterViewModel<string>(ParameterType.SemiconductorBandGap)
 			{
-				Minimum = 0,
-				Maximum = 10,
-				StepSize = 0.1,
-				Value = material.BandGap.ElectronVolts
-			});
+                Value = material.BandGap?.Expression
+			};
 
-			semiconductorSection.Add(new NumericMaterialParameterViewModel(ParameterType.ElectronAffinity)
+            bgField.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName != "Value") return;
+                material.BandGap = new MathExpression<Energy>(bgField.Value);
+            };
+
+            semiconductorSection.Add(bgField);
+
+            var eaField = new NumericMaterialParameterViewModel(ParameterType.ElectronAffinity)
 			{
 				Minimum = 0,
 				Maximum = 5,
 				StepSize = 0.05,
-				Value = material.ElectronAffinity.ElectronVolts
-			});
+                Value = material.ElectronAffinity?.ElectronVolts ?? 0.0
+			};
 
-			semiconductorSection.Add(new NumericMaterialParameterViewModel(ParameterType.DielectricConstant)
+            eaField.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName != "Value") return;
+                material.ElectronAffinity = Energy.FromElectronVolts(eaField.Value);
+            };
+
+            semiconductorSection.Add(eaField);
+
+            var dcField = new NumericMaterialParameterViewModel(ParameterType.DielectricConstant)
 			{
 				Minimum = 0,
 				Maximum = 30,
 				StepSize = 1,
 				Value = material.DielectricConstant
-			});
+			};
 
-			semiconductorSection.Add(new NumericMaterialParameterViewModel(ParameterType.IntrinsicCarrierConcentration)
+            dcField.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName != "Value") return;
+                material.DielectricConstant = dcField.Value;
+            };
+
+            semiconductorSection.Add(dcField);
+
+            var iccField = new MaterialParameterViewModel<string>(ParameterType.IntrinsicCarrierConcentration)
 			{
-				Value = material.IntrinsicCarrierConcentration.PerCubicCentimeter
-			});
+                Value = material.IntrinsicCarrierConcentration?.Expression
+			};
 
-			semiconductorSection.Add(new MaterialParameterViewModel<DopingType>(ParameterType.DopingType)
+            iccField.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName != "Value") return;
+                material.IntrinsicCarrierConcentration = new MathExpression<Concentration>(iccField.Value);
+            };
+
+            semiconductorSection.Add(iccField);
+
+            var dtField = new MaterialParameterViewModel<DopingType>(ParameterType.DopingType)
 			{
 				Value = material.DopingType
-			});
+			};
 
-			semiconductorSection.Add(new NumericMaterialParameterViewModel(ParameterType.DopantConcentration)
+            dtField.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName != "Value") return;
+                material.DopingType = dtField.Value;
+            };
+
+            semiconductorSection.Add(dtField);
+
+            var dopCField = new MaterialParameterViewModel<string>(ParameterType.DopantConcentration)
 			{
-				Value = material.DopantConcentration.PerCubicCentimeter
-			});
+                Value = material.DopantConcentration?.Expression
+			};
+
+            dopCField.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName != "Value") return;
+                material.DopantConcentration = new MathExpression<Concentration>(dopCField.Value);
+            };
+
+            semiconductorSection.Add(dopCField);
+
+            var tempField = new NumericMaterialParameterViewModel(ParameterType.Temperature)
+            {
+                Minimum = 100.0,
+                Maximum = 500.0,
+                StepSize = 25.0,
+                Value = material.Temperature?.Kelvin ?? 0.0
+            };
+
+            tempField.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName != "Value") return;
+                material.Temperature = new Temperature(tempField.Value);
+            };
+
+            semiconductorSection.Add(tempField);
 
 			return semiconductorSection;
 		}
@@ -214,22 +310,28 @@ namespace Band
 		private static List<MaterialParameterViewModel> GetPlotColorSection(Material material)
 		{
 			var plotColorSection = new List<MaterialParameterViewModel>();
-			plotColorSection.Add(new MaterialParameterViewModel<Color>(ParameterType.PlotColor)
-			{
-				Value = material.FillColor
-			});
+            var plotColorField = new MaterialParameterViewModel<Color>(ParameterType.PlotColor)
+            {
+                Value = material.FillColor
+            };
 
+            plotColorField.PropertyChanged += (sender, e) => material.FillColor = plotColorField.Value;
+
+            plotColorSection.Add(plotColorField);
 			return plotColorSection;
 		}
 
 		private static List<MaterialParameterViewModel> GetNotesSection(Material material)
 		{
 			var notesSection = new List<MaterialParameterViewModel>();
-			notesSection.Add(new MaterialParameterViewModel<string>(ParameterType.Notes)
+            var notesField = new MaterialParameterViewModel<string>(ParameterType.Notes)
 			{
 				Value = material.Notes
-			});
+			};
 
+            notesField.PropertyChanged += (sender, e) => material.Notes = notesField.Value;
+
+            notesSection.Add(notesField);
 			return notesSection;
 		}
 	}
@@ -254,6 +356,7 @@ namespace Band
 					return "Name";
 				case ParameterType.Notes:
 					return "Notes";
+                case ParameterType.SemiconductorBandGap:
 				case ParameterType.BandGap:
 					return "Band Gap (eV)";
 				case ParameterType.DopingType:
@@ -290,10 +393,20 @@ namespace Band
 			{
 				if (!ShouldSetValue(value)) return;
 
-				if (SetProperty(ref valueValue, value))
-				{
-					OnValueSet(value);
-				}
+                if (ShouldDebounceValue())
+                {
+                    if (SetPropertyDebounced(ref valueValue, value))
+                    {
+                        OnValueSet(value);
+                    }
+                }
+                else
+                {
+                    if (SetProperty(ref valueValue, value))
+                    {
+                        OnValueSet(value);
+				    }
+                }
 			}
 		}
 
@@ -301,6 +414,11 @@ namespace Band
 		{
 			return true;
 		}
+
+        protected virtual bool ShouldDebounceValue()
+        {
+            return true;
+        }
 
 		protected virtual void OnValueSet(TValue value)
 		{
@@ -354,7 +472,10 @@ namespace Band
 
 		protected override bool ShouldSetValue(double value)
 		{
-			return Math.Abs(value - GetRoundedValue((float)Value)) > double.Epsilon;
+            if (Math.Abs(value - GetRoundedValue((float)Value)) <= double.Epsilon) return false;
+            if (value < Minimum) return false;
+
+            return true;
 		}
 
 		protected override void OnValueSet(double value)

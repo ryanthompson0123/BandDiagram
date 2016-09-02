@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="eTQ-N8-aac">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="eTQ-N8-aac">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -441,6 +441,9 @@
                                         </label>
                                     </subviews>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <segue destination="fYI-QA-Ngi" kind="show" identifier="SelectLayerSegue" id="NIY-A1-ZAz"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -449,36 +452,21 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Layers" id="PJs-Pz-juc">
-                        <leftBarButtonItems>
-                            <barButtonItem systemItem="trash" id="56">
-                                <connections>
-                                    <action selector="OnTrashClicked:" destination="oCf-Fz-6NW" id="Tx1-l0-9TM"/>
-                                </connections>
-                            </barButtonItem>
-                            <barButtonItem image="copy.png" id="QVZ-Ra-qAJ">
-                                <connections>
-                                    <action selector="OnDuplicateClicked:" destination="oCf-Fz-6NW" id="D7z-Wm-Lne"/>
-                                </connections>
-                            </barButtonItem>
-                        </leftBarButtonItems>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="9Cp-Bi-UFv">
                             <connections>
-                                <segue destination="86" kind="presentation" identifier="AddSegue" modalPresentationStyle="currentContext" id="1wa-rP-AhD"/>
+                                <segue destination="86" kind="presentation" identifier="AddLayerSegue" modalPresentationStyle="currentContext" id="1wa-rP-AhD"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
-                    <value key="contentSizeForViewInPopover" type="size" width="360" height="480"/>
-                    <nil key="simulatedStatusBarMetrics"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MlM-O3-ybM" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="824" y="1631"/>
+            <point key="canvasLocation" x="52" y="1603"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="897-hX-TWZ">
             <objects>
-                <navigationController id="mPW-7u-WCm" sceneMemberID="viewController">
-                    <value key="contentSizeForViewInPopover" type="size" width="360" height="480"/>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" toolbarHidden="NO" id="mPW-7u-WCm" sceneMemberID="viewController">
                     <nil key="simulatedStatusBarMetrics"/>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <size key="freeformSize" width="360" height="480"/>
@@ -486,13 +474,17 @@
                         <rect key="frame" x="0.0" y="20" width="360" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="ffa-Iy-TIA">
+                        <rect key="frame" x="0.0" y="436" width="360" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
                     <connections>
                         <segue destination="oCf-Fz-6NW" kind="relationship" relationship="rootViewController" id="vsI-cg-go2"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="d7o-Ja-Ecb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="358" y="1631"/>
+            <point key="canvasLocation" x="-414" y="1603"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="qtT-SW-gFN">
@@ -519,19 +511,22 @@
         <scene sceneID="85">
             <objects>
                 <navigationController definesPresentationContext="YES" id="86" sceneMemberID="viewController">
-                    <value key="contentSizeForViewInPopover" type="size" width="360" height="480"/>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <size key="freeformSize" width="360" height="480"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="89">
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     </navigationBar>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="N7a-bs-jeu">
+                        <rect key="frame" x="0.0" y="436" width="360" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
                     <connections>
                         <segue destination="100" kind="relationship" relationship="rootViewController" id="109"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="90" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1283" y="1631"/>
+            <point key="canvasLocation" x="511" y="1603"/>
         </scene>
         <!--Add Layer-->
         <scene sceneID="99">
@@ -560,7 +555,7 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <segue destination="136" kind="show" id="144"/>
+                                            <segue destination="136" kind="show" identifier="MetalSegue" id="144"/>
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="121" style="IBUITableViewCellStyleDefault" id="116">
@@ -616,11 +611,10 @@
                             </connections>
                         </barButtonItem>
                     </navigationItem>
-                    <value key="contentSizeForViewInPopover" type="size" width="360" height="480"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="106" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1722" y="1631"/>
+            <point key="canvasLocation" x="950" y="1603"/>
         </scene>
         <!--Color Picker Hue Grid View Controller-->
         <scene sceneID="iCz-Rb-4VW">
@@ -631,7 +625,7 @@
                         <viewControllerLayoutGuide type="bottom" id="hbq-cR-1wm"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="5g3-1b-mCa">
-                        <rect key="frame" x="0.0" y="0.0" width="360" height="480"/>
+                        <rect key="frame" x="0.0" y="0.0" width="360" height="436"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="color-bar.png" translatesAutoresizingMaskIntoConstraints="NO" id="dv5-UP-4DX">
@@ -641,7 +635,7 @@
                                 </constraints>
                             </imageView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" scrollEnabled="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="mjZ-2S-uqV">
-                                <rect key="frame" x="10" y="104" width="340" height="368"/>
+                                <rect key="frame" x="10" y="104" width="340" height="324"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="pdt-if-B6z">
                                     <size key="itemSize" width="70" height="70"/>
@@ -690,14 +684,36 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="jwE-lk-ETx" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="FDh-pd-Z96" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3057" y="1631"/>
+            <point key="canvasLocation" x="511" y="2217"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="Bg1-sL-U3E">
+            <objects>
+                <navigationController id="T6R-OE-yrq" sceneMemberID="viewController">
+                    <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+                    <size key="freeformSize" width="360" height="480"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="dy7-U5-Jem">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="cao-AW-szv">
+                        <rect key="frame" x="0.0" y="436" width="360" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
+                    <connections>
+                        <segue destination="fYI-QA-Ngi" kind="relationship" relationship="rootViewController" id="ce6-0v-eN3"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="92e-pl-vsV" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-414" y="2217"/>
         </scene>
         <!--New Dielectric-->
         <scene sceneID="PYC-BT-KnQ">
             <objects>
                 <tableViewController id="fYI-QA-Ngi" customClass="MaterialDetailViewController" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" showsSelectionImmediatelyOnTouchBegin="NO" rowHeight="66" sectionHeaderHeight="18" sectionFooterHeight="18" id="Hgf-7r-ZTa">
-                        <rect key="frame" x="0.0" y="0.0" width="360" height="480"/>
+                        <rect key="frame" x="0.0" y="0.0" width="360" height="436"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
                         <prototypes>
@@ -905,17 +921,51 @@
                             <outlet property="delegate" destination="fYI-QA-Ngi" id="cM6-wc-7Ks"/>
                         </connections>
                     </tableView>
+                    <toolbarItems>
+                        <barButtonItem image="copy.png" id="t55-T5-w7Y">
+                            <connections>
+                                <segue destination="Xyy-yz-c8S" kind="unwind" identifier="DuplicateSegue" unwindAction="UnwindFromMaterialForm:" id="iIQ-40-RxR"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="km0-Th-ul5"/>
+                        <barButtonItem systemItem="organize" id="0eo-T4-mpz">
+                            <connections>
+                                <segue destination="Xyy-yz-c8S" kind="unwind" identifier="SaveFormSegue" unwindAction="UnwindFromMaterialForm:" id="AdC-AW-ZLA"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="ZMa-zM-MES"/>
+                        <barButtonItem systemItem="trash" id="6RR-P0-DqI">
+                            <connections>
+                                <action selector="OnTrashClicked:" destination="fYI-QA-Ngi" id="EVZ-vr-fvt"/>
+                            </connections>
+                        </barButtonItem>
+                    </toolbarItems>
                     <navigationItem key="navigationItem" title="New Dielectric" id="GZ5-Vs-ezu">
-                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="AUM-81-phW"/>
-                        <barButtonItem key="rightBarButtonItem" systemItem="save" id="QcY-3D-DJ0"/>
+                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="AUM-81-phW">
+                            <connections>
+                                <segue destination="Xyy-yz-c8S" kind="unwind" identifier="CancelFormSegue" unwindAction="UnwindFromMaterialForm:" id="SoW-MQ-hg5"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="save" id="QcY-3D-DJ0">
+                            <connections>
+                                <action selector="OnSaveClicked:" destination="fYI-QA-Ngi" id="sDq-TQ-5qr"/>
+                                <segue destination="Xyy-yz-c8S" kind="unwind" identifier="SaveFormSegue" unwindAction="UnwindFromMaterialForm:" id="1vg-IE-kQg"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics" translucent="NO"/>
                     <connections>
+                        <outlet property="TrashButton" destination="6RR-P0-DqI" id="EDa-b5-few"/>
+                        <outlet property="UpdateButton" destination="0eo-T4-mpz" id="cmG-SM-rG7"/>
                         <segue destination="2Ro-co-C5Q" kind="show" identifier="ColorPickerSegue" id="2o7-pd-lrh"/>
+                        <segue destination="Xyy-yz-c8S" kind="unwind" identifier="AddLayerSegue" unwindAction="UnwindFromAddLayer:" id="pUS-kQ-LR6"/>
+                        <segue destination="Xyy-yz-c8S" kind="unwind" identifier="TrashSegue" unwindAction="UnwindFromMaterialForm:" id="oFg-Ua-ata"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qNp-QN-LJ8" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="Xyy-yz-c8S" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="2635" y="1631"/>
+            <point key="canvasLocation" x="52" y="2217"/>
         </scene>
         <!--Material Select View Controller-->
         <scene sceneID="135">
@@ -966,7 +1016,7 @@
                                     <outlet property="leftColumnLabel" destination="8bJ-0Q-x8o" id="Psx-jK-rab"/>
                                     <outlet property="rightColumnLabel" destination="nXW-pu-HRt" id="3G5-1Q-0MC"/>
                                     <outlet property="titleLabel" destination="hTK-Ws-g0f" id="V6t-dG-bRE"/>
-                                    <segue destination="fYI-QA-Ngi" kind="show" identifier="MaterialFormSegue" id="fHz-n0-AJM"/>
+                                    <segue destination="fYI-QA-Ngi" kind="show" identifier="SelectMaterialSegue" id="wgb-Vy-c5V"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -975,8 +1025,13 @@
                             <outlet property="delegate" destination="136" id="139"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="EsB-BW-DT7"/>
-                    <value key="contentSizeForViewInPopover" type="size" width="360" height="480"/>
+                    <navigationItem key="navigationItem" id="EsB-BW-DT7">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="sip-ko-JF1">
+                            <connections>
+                                <segue destination="T6R-OE-yrq" kind="presentation" identifier="AddMaterialSegue" modalPresentationStyle="currentContext" id="kvI-rU-Oak"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <segue destination="XFd-1F-lfO" kind="unwind" identifier="unwindToStructure" unwindAction="UnwindToStructure:" id="tMw-Mu-s0g"/>
                     </connections>
@@ -984,7 +1039,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="142" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="XFd-1F-lfO" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="2174" y="1631"/>
+            <point key="canvasLocation" x="1402" y="1603"/>
         </scene>
         <!--Settings View Controller-->
         <scene sceneID="224">
@@ -1163,6 +1218,7 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="SHI-ZH-Mwb"/>
-        <segue reference="144"/>
+        <segue reference="NIY-A1-ZAz"/>
+        <segue reference="148"/>
     </inferredMetricsTieBreakers>
 </document>
