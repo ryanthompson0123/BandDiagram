@@ -180,7 +180,14 @@ namespace Band
 
             foreach (var layer in Layers)
             {
-                evaluatedThickness += layer.Thickness;
+                if (layer.Thickness == null)
+                {
+                    evaluatedThickness += Length.FromNanometers(1000);
+                }
+                else
+                {
+                    evaluatedThickness += layer.Thickness;
+                }
                 if (location < evaluatedThickness)
                     return layer;
             }

@@ -6,6 +6,13 @@ namespace Band
 {
     public class StructureViewModel : ObservableObject
     {
+        private LayerViewModel directEditLayerValue;
+        public LayerViewModel DirectEditLayer
+        {
+            get { return directEditLayerValue; }
+            set { SetProperty(ref directEditLayerValue, value); }
+        }
+
         private ObservableCollection<LayerViewModel> layersValue;
         public ObservableCollection<LayerViewModel> Layers
         {
@@ -77,6 +84,11 @@ namespace Band
             Layers.Insert(position, viewModel);
 
             structure.ReplaceLayer(viewModel.Material, position);
+        }
+
+        public void SetDirectEditMaterial(Material material)
+        {
+            DirectEditLayer = Layers.FirstOrDefault(l => l.Material == material);
         }
     }
 }

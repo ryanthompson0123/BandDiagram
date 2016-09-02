@@ -22,7 +22,7 @@ namespace BandAid.iOS
                 CalculatePlotRect();
                 CalculatePaths(value);
                 RemoveSublayers();
-                
+
                 if (!laidOut)
                 {
                     SetNeedsLayout();
@@ -82,6 +82,15 @@ namespace BandAid.iOS
                 selectedPlotIndex = nextIndex;
                 UpdatePlot();
             }
+        }
+
+        public PlotDataPoint DataPointForPoint(CGPoint point)
+        {
+            return new PlotDataPoint
+            {
+                X = point.X / XRatio,
+                Y = point.Y / YRatio
+            };
         }
 
         private void RemoveSublayers()

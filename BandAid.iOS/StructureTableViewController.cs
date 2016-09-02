@@ -34,6 +34,16 @@ namespace BandAid.iOS
             NavigationController.SetToolbarHidden(true, true);
         }
 
+        public override void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+
+            if (ViewModel.DirectEditLayer != null)
+            {
+                PerformSegue("SelectLayerSegue", this);
+            }
+        }
+
         public override void ViewDidDisappear(bool animated)
         {
             base.ViewDidDisappear(animated);
@@ -72,7 +82,17 @@ namespace BandAid.iOS
 
             if (segue.Identifier == "SelectLayerSegue")
             {
-                var selectedLayer = ViewModel.Layers[TableView.IndexPathForSelectedRow.Row];
+                LayerViewModel selectedLayer;
+
+                if (ViewModel.DirectEditLayer != null)
+                {
+                    selectedLayer = ViewModel.DirectEditLayer;
+                }
+                else
+                {
+                    selectedLayer = ViewModel.Layers[TableView.IndexPathForSelectedRow.Row];
+                }
+
                 var destination = (MaterialDetailViewController)segue.DestinationViewController;
 
                 destination.ViewModel = new MaterialDetailViewModel(selectedLayer.Material, EditMode.InStructure);

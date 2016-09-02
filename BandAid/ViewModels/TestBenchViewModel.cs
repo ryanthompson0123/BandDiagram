@@ -346,5 +346,10 @@ namespace Band
             var fileManager = DependencyService.Get<IFileManager>();
             await fileManager.DeleteTestBenchAsync(oldName);
         }
+
+        public Material GetMaterialAtPoint(PlotDataPoint point)
+        {
+            return TestBench.Structure.GetLayer(Length.FromNanometers(point.X));
+        }
     }
 }

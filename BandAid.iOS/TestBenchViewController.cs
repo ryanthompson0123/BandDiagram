@@ -68,6 +68,7 @@ namespace BandAid.iOS
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
             chartSegments.ValueChanged += chartSegments_ValueChanged;
             GraphView.AnimationValueChanged += GraphView_AnimationValueChanged;
+            GraphView.PointLongPressed += GraphView_PointLongPressed;
         }
 
         public override void ViewDidDisappear(bool animated)
@@ -75,6 +76,9 @@ namespace BandAid.iOS
             base.ViewDidDisappear(animated);
 
             ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+            chartSegments.ValueChanged -= chartSegments_ValueChanged;
+            GraphView.AnimationValueChanged -= GraphView_AnimationValueChanged;
+            GraphView.PointLongPressed -= GraphView_PointLongPressed;
         }
 
         private void SetUpTitleText()
@@ -131,12 +135,19 @@ namespace BandAid.iOS
                 case 3:
                     ViewModel.SetSelectedPlotType(PlotType.ChargeDensity);
                     break;
-            }     
+            }
         }
 
         private void GraphView_AnimationValueChanged (object sender, EventArgs e)
         {
             ViewModel.SetSelectedBias(GraphView.AnimationValue);
+        }
+
+        private Material longPressedMaterial;
+        void GraphView_PointLongPressed(object sender, PointTappedEventArgs e)
+        {
+            longPressedMaterial = ViewModel.GetMaterialAtPoint(e.PlotDataPoint);
+            PerformSegue("layersPopoverSegue", this);
         }
 
         void ViewModel_PropertyChanged (object sender, PropertyChangedEventArgs e)
@@ -273,7 +284,10 @@ namespace BandAid.iOS
             {
                 var destination = (UINavigationController)segue.DestinationViewController;
                 var layers = (StructureTableViewController)destination.ChildViewControllers[0];
+
                 layers.ViewModel = new StructureViewModel(ViewModel.TestBench.Structure);
+                layers.ViewModel.SetDirectEditMaterial(longPressedMaterial);
+                longPressedMaterial = null;
             }
 
             if (segue.Identifier == "settingsPopoverSegue")

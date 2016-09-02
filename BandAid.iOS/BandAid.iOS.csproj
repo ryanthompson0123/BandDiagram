@@ -122,11 +122,9 @@
   <ItemGroup>
     <None Include="Info.plist" />
     <None Include="Entitlements.plist" />
-    <BundleResource Include="Resources\highk.json" />
     <BundleResource Include="Resources\nvm.json" />
     <None Include="packages.config" />
     <None Include="Paths.sketchcs" />
-    <BundleResource Include="Resources\highk.png" />
     <BundleResource Include="Resources\nvm.png" />
     <BundleResource Include="Resources\toggle%402x.png" />
     <BundleResource Include="Resources\toggle.png" />
@@ -135,6 +133,8 @@
     <BundleResource Include="Resources\layers.png" />
     <BundleResource Include="Resources\layers%402x.png" />
     <BundleResource Include="Resources\color-bar%402x.png" />
+    <BundleResource Include="Resources\sio2.json" />
+    <BundleResource Include="Resources\sio2.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />

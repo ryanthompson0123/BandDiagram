@@ -9,39 +9,37 @@
         "fillColor": "#ff0000",
         "thickness": 5E-09,
         "workFunction": 4.15,
-        "materialType": "metal"
+        "materialType": "metal",
+        "id": "5ca95d22-90f7-4e6d-bf44-f392acbfbfcd"
       },
       {
         "dielectricConstant": 3.9,
-        "dielectricConstantExpression": null,
         "bandGap": 8.9,
         "electronAffinity": 0.95,
-        "electronEffectiveMass": null,
-        "holeEffectiveMass": null,
         "name": "SiO2",
         "notes": null,
         "fillColor": "#804040",
         "thickness": 2E-09,
         "workFunction": null,
-        "materialType": "dielectric"
+        "materialType": "dielectric",
+        "id": "5baa46e7-fefb-45de-ad6d-7c4016ee993a"
       },
       {
-        "dielectricConstant": 11.7,
-        "bandGap": 1.1252,
-        "electronAffinity": 4.05,
-        "dopingType": "N",
-        "dopantConcentration": 1E+18,
-        "intrinsicCarrierConcentration": 14100000000.0,
-        "workFunction": 4.1452705295493182,
         "name": "Si",
         "notes": null,
         "fillColor": "#00ff00",
-        "thickness": null,
-        "materialType": "semiconductor"
+        "bandGap": "1.17-4.73E-4*T^2/(T+651)",
+        "dielectricConstant": 11.7,
+        "intrinsicCarrierConcentration": "3.87E16*T^(3/2)*exp(-7014/T)",
+        "dopantConcentration": "1E18",
+        "electronAffinity": 4.05,
+        "materialType": "semiconductor",
+        "dopingType": "N",
+        "temperature": 300,
+        "id": "6785242f-2e12-48df-b44f-ebbd5c64c1a5"
       }
     ],
-    "bias": -2.0,
-    "temperature": 300.0
+    "bias": -2.0
   },
   "currentIndex": 0,
   "minVoltage": -2.0,

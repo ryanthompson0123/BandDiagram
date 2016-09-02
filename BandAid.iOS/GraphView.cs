@@ -9,6 +9,9 @@ namespace BandAid.iOS
     public partial class GraphView : UIView
     {
         public event EventHandler<EventArgs> AnimationValueChanged;
+        public event EventHandler<PointTappedEventArgs> PointLongPressed;
+        public event EventHandler<PointPinchedEventArgs> PointPinched;
+        public event EventHandler<PointTappedEventArgs> PointTapped;
 
         public AxisView PrimaryYAxis
         {
@@ -71,11 +74,69 @@ namespace BandAid.iOS
             Duration = 2000;
         }
 
+        private UILongPressGestureRecognizer longPressRecognizer;
+        private UIPinchGestureRecognizer pinchRecognizer;
+        private UITapGestureRecognizer tapRecognizer;
+
         public override void AwakeFromNib()
         {
             base.AwakeFromNib();
 
             Slider.ValueChanged += Slider_ValueChanged;
+
+            pinchRecognizer = new UIPinchGestureRecognizer(OnPlotPinch);
+
+            longPressRecognizer = new UILongPressGestureRecognizer(OnPlotLongPress);
+
+            tapRecognizer = new UITapGestureRecognizer(OnPlotTap);
+            tapRecognizer.RequireGestureRecognizerToFail(longPressRecognizer);
+
+            Plot.AddGestureRecognizer(pinchRecognizer);
+            Plot.AddGestureRecognizer(longPressRecognizer);
+            Plot.AddGestureRecognizer(tapRecognizer);
+        }
+
+        private void OnPlotPinch(UIPinchGestureRecognizer recognizer)
+        {
+            if (PointPinched != null)
+            {
+                var location = recognizer.LocationInView(Plot);
+                var dataPoint = Plot.DataPointForPoint(location);
+
+                PointPinched(this, new PointPinchedEventArgs
+                {
+                    PlotDataPoint = dataPoint,
+                    Scale = (float)recognizer.Scale
+                });
+            }
+        }
+
+        private void OnPlotLongPress(UILongPressGestureRecognizer recognizer)
+        {
+            if (PointLongPressed != null)
+            {
+                var location = recognizer.LocationInView(Plot);
+                var dataPoint = Plot.DataPointForPoint(location);
+
+                PointLongPressed(this, new PointTappedEventArgs
+                {
+                    PlotDataPoint = dataPoint
+                });
+            }
+        }
+
+        private void OnPlotTap(UITapGestureRecognizer recognizer)
+        {
+            if (PointTapped != null)
+            {
+                var location = recognizer.LocationInView(Plot);
+                var dataPoint = Plot.DataPointForPoint(location);
+
+                PointTapped(this, new PointTappedEventArgs
+                {
+                    PlotDataPoint = dataPoint
+                });
+            }
         }
 
         public void SetPlotGroup(PlotAnimationGrouping value)
@@ -166,5 +227,15 @@ namespace BandAid.iOS
                 AnimationValueChanged(this, e);
             }
         }
+    }
+
+    public class PointTappedEventArgs : EventArgs
+    {
+        public PlotDataPoint PlotDataPoint { get; set; }
+    }
+
+    public class PointPinchedEventArgs : PointTappedEventArgs
+    {
+        public float Scale { get; set; }
     }
 }
