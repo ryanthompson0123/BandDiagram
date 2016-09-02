@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
+using MoreLinq;
 using Band.Units;
 
 namespace Band
@@ -29,20 +30,48 @@ namespace Band
             set { SetProperty(ref materialTypeValue, value); }
         }
 
+        private MaterialRepository materials;
+
         public MaterialSelectViewModel(MaterialType materialType)
         {
+            materials = new MaterialRepository();
             MaterialType = materialType;
+            Materials = new ObservableCollection<MaterialViewModel>();
             LoadMaterials();
         }
 
         private async void LoadMaterials()
         {
-            var repo = new MaterialRepository();
+            var loadedMaterials = await materials.GetAsync(MaterialType);
 
-            var loadedMaterials = await repo.GetMaterialsAsync(MaterialType);
+            Materials.Clear();
 
-            Materials = new ObservableCollection<MaterialViewModel>(
-                loadedMaterials.Select(m => new MaterialViewModel(m)));
+            loadedMaterials
+                .Select(m => new MaterialViewModel(m))
+                .ForEach(Materials.Add);
+        }
+
+        public async void SaveMaterial(Material m)
+        {
+            await materials.PutAsync(m);
+            LoadMaterials();
+        }
+
+        public async void DuplicateMaterial(Material m)
+        {
+            var duplicate = m.DeepClone();
+
+            duplicate.Name = duplicate.Name + " Copy";
+            duplicate.Id = Guid.NewGuid().ToString();
+
+            await materials.PutAsync(duplicate);
+            LoadMaterials();
+        }
+
+        public async void DeleteMaterial(Material m)
+        {
+            await materials.DeleteAsync(m);
+            LoadMaterials();
         }
     }
 }

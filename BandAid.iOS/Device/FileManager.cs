@@ -172,6 +172,22 @@ namespace BandAid.iOS
 
         public Task<string> GetMaterialDataAsync(MaterialType materialType)
         {
+            var path = GetMaterialPath(materialType);
+
+            return Task.FromResult(File.ReadAllText(path));
+        }
+
+
+        public Task PutMaterialDataAsync(MaterialType materialType, string data)
+        {
+            var path = GetMaterialPath(materialType);
+            File.WriteAllText(path, data);
+                
+            return Task.FromResult(0);
+        }
+
+        string GetMaterialPath(MaterialType materialType)
+        {
             var materialFileName = "";
 
             switch (materialType)
@@ -188,8 +204,7 @@ namespace BandAid.iOS
             }
 
             var path = Path.Combine(MaterialsPath, materialFileName + ".json");
-
-            return Task.FromResult(File.ReadAllText(path));
+            return path;
         }
 
         private void GenerateMaterialsLibrary()

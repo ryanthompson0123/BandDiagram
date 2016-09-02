@@ -13,22 +13,44 @@ namespace Band
         #region Configuration
 
         [JsonProperty]
-		public double DielectricConstant { get; private set; }
+        private double dielectricConstant;
+		public double DielectricConstant
+        {
+            get { return dielectricConstant; }
+            set { SetProperty(ref dielectricConstant, value); }
+        }
 
         [JsonProperty]
-		public string DielectricConstantExpression { get; private set; }
+        private Energy bandGap;
+		public Energy BandGap
+        {
+            get { return bandGap; }
+            set { SetProperty(ref bandGap, value); }
+        }
 
         [JsonProperty]
-		public Energy BandGap { get; private set; }
+        private Energy electronAffinity;
+		public Energy ElectronAffinity
+        {
+            get { return electronAffinity; }
+            set { SetProperty(ref electronAffinity, value); }
+        }
 
         [JsonProperty]
-		public Energy ElectronAffinity { get; private set; }
+        private Mass electronEffectiveMass;
+		public Mass ElectronEffectiveMass
+        {
+            get { return electronEffectiveMass; }
+            set { SetProperty(ref electronEffectiveMass, value); }
+        }
 
         [JsonProperty]
-		public Mass ElectronEffectiveMass { get; private set; }
-
-        [JsonProperty]
-		public Mass HoleEffectiveMass { get; private set; }
+        private Mass holeEffectiveMass;
+        public Mass HoleEffectiveMass
+        {
+            get { return holeEffectiveMass; }
+            set { SetProperty(ref holeEffectiveMass, value); }
+        }
 
         #endregion
 
@@ -115,7 +137,6 @@ namespace Band
             var dielectric = new Dielectric
             {
                 DielectricConstant = DielectricConstant,
-                DielectricConstantExpression = DielectricConstantExpression,
                 BandGap = BandGap,
                 ElectronAffinity = ElectronAffinity,
                 HoleEffectiveMass = HoleEffectiveMass,
@@ -132,7 +153,6 @@ namespace Band
 		public sealed override void Prepare()
 		{
             if (Thickness == null) return;
-
 			// Check to see if there is a point at the beginning (0), if not, add one.
 			if (EvalPoints.All(p => p.Location > Length.Zero))
 			{

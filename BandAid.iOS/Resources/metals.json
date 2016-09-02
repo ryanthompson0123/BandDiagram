@@ -1,277 +1,309 @@
 [
-{
-		"materialType": "metal",
-"workFunction": 4.7,
-"extraCharge": 0.0,
-"name": "Ag",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#fa5666"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.2,
-"extraCharge": 0.0,
-"name": "Al",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#808080"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.28,
-"extraCharge": 0.0,
-"name": "Al-2",
-"fillColor": "#00ffff"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.8,
-"extraCharge": 0.0,
-"name": "Au",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#ff8040"
-},
-{
-		"materialType": "metal",
-"workFunction": 5.1,
-"extraCharge": 0.0,
-"name": "Au-2",
-"fillColor": "#00ff00"
-},
-{
-		"materialType": "metal",
-"workFunction": 2.9,
-"extraCharge": 0.0,
-"name": "Ca",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#000000"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.4,
-"extraCharge": 0.0,
-"name": "Cr",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#0000a0",
-},
-{
-		"materialType": "metal",
-"workFunction": 4.5,
-"extraCharge": 0.0,
-"name": "Cu",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#ff8080"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.4,
-"extraCharge": 0.0,
-"name": "Fe",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#000000"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.65,
-"extraCharge": 0.0,
-"name": "HfN",
-"notes": "Tan et al., Hafnium Aluminum Oxide as Charge Storage & Blocking-Oxide Layers in SONOS-Type NVM
-for High-Speed Operation, IEEE TED VOL. 53, NO. 4, APRIL 2006
-Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
-"fillColor": "#ff0000"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.5,
-"extraCharge": 0.0,
-"name": "Hg",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#c0c0c0"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.6,
-"extraCharge": 0.0,
-"name": "Ir",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#008000"
-},
-{
-		"materialType": "metal",
-"workFunction": 3.8,
-"extraCharge": 0.0,
-"name": "Mn",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#804000"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.2,
-"extraCharge": 0.0,
-"name": "Mo",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#000000"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.6,
-"extraCharge": 0.0,
-"name": "Mo-2",
-"fillColor": "#ec0000"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.15,
-"extraCharge": 0.0,
-"name": "n+ PolySi",
-"notes": "Ricki's 1st Band Diagram Program",
-"fillColor": "#ff0000"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.9,
-"extraCharge": 0.0,
-"name": "Ni",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#0000a0"
-},
-{
-		"materialType": "metal",
-"workFunction": 5.15,
-"extraCharge": 0.0,
-"name": "Ni-2",
-"fillColor": "#0080c0"
-},
-{
-		"materialType": "metal",
-"workFunction": 5.27,
-"extraCharge": 0.0,
-"name": "p+ PolySi",
-"notes": "Ricki's 1st Band Diagram Program",
-"fillColor": "#ff0000"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.0,
-"extraCharge": 0.0,
-"name": "Pb",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#808080"
-},
-{
-		"materialType": "metal",
-"workFunction": 5.0,
-"extraCharge": 0.0,
-"name": "Pd",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#000000"
-},
-{
-		"materialType": "metal",
-"workFunction": 5.3,
-"extraCharge": 0.0,
-"name": "Pt",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#808080"
-},
-{
-		"materialType": "metal",
-"workFunction": 5.65,
-"extraCharge": 0.0,
-"name": "Pt-2",
-"fillColor": "#8080c0"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.3,
-"extraCharge": 0.0,
-"name": "Sn",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#808080"
-},
-{
-		"materialType": "metal",
-"workFunction": 5.2,
-"extraCharge": 0.0,
-"name": "SrRuO3",
-"notes": "Appl. Phys. Lett. 90, 143507 (2007); Conducting Oxide",
-"fillColor": "#000040"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.7,
-"extraCharge": 0.0,
-"name": "TaN",
-"notes": "Jaydeb Goswami & Allen McTeer (Micron Technology, Inc.), \"EOT, Workfunction, and Vfb Roll-off in HfO2/Metal Gate Stacks\" in proceedings of the 2009 IEEE WMED. ",
-"fillColor": "#000000"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.65,
-"extraCharge": 0.0,
-"name": "TaN-2",
-"notes": "From:
-MRS Olsen et al., TaN workfunctions on HfO2 and HfSiOx 2004",
-"fillColor": "#0000a0"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.4,
-"extraCharge": 0.0,
-"name": "TaSiN",
-"notes": "Jaydeb Goswami & Allen McTeer (Micron Technology, Inc.), \"EOT, Workfunction, and Vfb Roll-off in HfO2/Metal Gate Stacks\" in proceedings of the 2009 IEEE WMED. ",
-"fillColor": "#000000"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.1,
-"extraCharge": 0.0,
-"name": "Ti",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#008000"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.33,
-"extraCharge": 0.0,
-"name": "Ti-2",
-"fillColor": "#ffff00"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.45,
-"extraCharge": 0.0,
-"name": "TiN",
-"fillColor": "#ff0000"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.5,
-"extraCharge": 0.0,
-"name": "W",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#808000"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.55,
-"extraCharge": 0.0,
-"name": "W-2",
-"fillColor": "#ff00ff"
-},
-{
-		"materialType": "metal",
-"workFunction": 4.3,
-"extraCharge": 0.0,
-"name": "Zn",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#008000"
-},
-{
-		"materialType": "metal",
-"workFunction": 3.8,
-"extraCharge": 0.0,
-"name": "Zr",
-"notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
-"fillColor": "#000000"
-}
+  {
+    "materialType": "metal",
+    "workFunction": 4.7,
+    "extraCharge": 0,
+    "name": "Ag",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#fa5666",
+    "id": "3cf7302a-fa1b-41e5-a7b1-9aa163d71426"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.2,
+    "extraCharge": 0,
+    "name": "Al",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#808080",
+    "id": "a3beeefe-1adb-46a9-a19d-2bad678172be"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.28,
+    "extraCharge": 0,
+    "name": "Al-2",
+    "fillColor": "#00ffff",
+    "id": "c44b374d-5b0c-4d96-8d99-5ff2656fb4d5"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.8,
+    "extraCharge": 0,
+    "name": "Au",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#ff8040",
+    "id": "5d8e1632-803f-4e76-8672-8c55c12d964d"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 5.1,
+    "extraCharge": 0,
+    "name": "Au-2",
+    "fillColor": "#00ff00",
+    "id": "b7f462b2-61a6-4d9d-a47d-c0b90ef215cb"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 2.9,
+    "extraCharge": 0,
+    "name": "Ca",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#000000",
+    "id": "07bc0a41-8e87-4330-864f-65727a002a2b"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.4,
+    "extraCharge": 0,
+    "name": "Cr",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#0000a0",
+    "id": "aa89263d-6d54-4445-9875-bd174c694724"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.5,
+    "extraCharge": 0,
+    "name": "Cu",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#ff8080",
+    "id": "5f168309-1214-4206-be98-fdd6250b5f8b"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.4,
+    "extraCharge": 0,
+    "name": "Fe",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#000000",
+    "id": "40303766-62b5-4a10-9c1a-d0edc4722d71"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.65,
+    "extraCharge": 0,
+    "name": "HfN",
+    "notes": "Tan et al., Hafnium Aluminum Oxide as Charge Storage & Blocking-Oxide Layers in SONOS-Type NVM for High-Speed Operation, IEEE TED VOL. 53, NO. 4, APRIL 2006 Work function=(EcSiO2-EfHfN)+XSiO2 = 3.7+0.95=4.65eV",
+    "fillColor": "#ff0000",
+    "id": "1bdfc5b5-ae31-40a4-997a-257ad6294e29"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.5,
+    "extraCharge": 0,
+    "name": "Hg",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#c0c0c0",
+    "id": "e6f13640-0801-4db1-8ac0-7aff022ea7c2"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.6,
+    "extraCharge": 0,
+    "name": "Ir",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#008000",
+    "id": "69399e4a-0fb3-4c7b-8f1b-7eaccb310546"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 3.8,
+    "extraCharge": 0,
+    "name": "Mn",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#804000",
+    "id": "d679d7bd-fddd-4484-b831-c9b257b5ac94"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.2,
+    "extraCharge": 0,
+    "name": "Mo",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#000000",
+    "id": "2e5bd7b3-41f1-45b1-90bb-d23e82a0f321"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.6,
+    "extraCharge": 0,
+    "name": "Mo-2",
+    "fillColor": "#ec0000",
+    "id": "87e459c1-93e7-417b-bd40-5a88746f9685"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.15,
+    "extraCharge": 0,
+    "name": "n+ PolySi",
+    "notes": "Ricki's 1st Band Diagram Program",
+    "fillColor": "#ff0000",
+    "id": "5ca95d22-90f7-4e6d-bf44-f392acbfbfcd"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.9,
+    "extraCharge": 0,
+    "name": "Ni",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#0000a0",
+    "id": "45f1fe70-16ec-4c82-a49f-cbb60e80eb6b"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 5.15,
+    "extraCharge": 0,
+    "name": "Ni-2",
+    "fillColor": "#0080c0",
+    "id": "1d12a22b-91f3-4ad6-98e4-a458a9fa9b73"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 5.27,
+    "extraCharge": 0,
+    "name": "p+ PolySi",
+    "notes": "Ricki's 1st Band Diagram Program",
+    "fillColor": "#ff0000",
+    "id": "2c40e879-ebe9-4cc2-9671-49f9316d6fd6"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4,
+    "extraCharge": 0,
+    "name": "Pb",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#808080",
+    "id": "bf900e28-4ed1-4acc-a28b-3d488f9bd816"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 5,
+    "extraCharge": 0,
+    "name": "Pd",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#000000",
+    "id": "a2a80180-2b68-42fd-a880-f2fac4df50b2"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 5.3,
+    "extraCharge": 0,
+    "name": "Pt",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#808080",
+    "id": "391f5efb-d8dd-47cb-8d25-6099189ddc05"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 5.65,
+    "extraCharge": 0,
+    "name": "Pt-2",
+    "fillColor": "#8080c0",
+    "id": "7949d3fd-f015-4d76-8ec8-3bdcbf7fb615"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.3,
+    "extraCharge": 0,
+    "name": "Sn",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#808080",
+    "id": "6d07cec7-582f-444a-90a1-94452229507b"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 5.2,
+    "extraCharge": 0,
+    "name": "SrRuO3",
+    "notes": "Appl. Phys. Lett. 90, 143507 (2007); Conducting Oxide",
+    "fillColor": "#000040",
+    "id": "8aa0eb54-f6c9-4d0d-b772-ba1f50df361a"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.7,
+    "extraCharge": 0,
+    "name": "TaN",
+    "notes": "Jaydeb Goswami & Allen McTeer (Micron Technology, Inc.), \"EOT, Workfunction, and Vfb Roll-off in HfO2/Metal Gate Stacks\" in proceedings of the 2009 IEEE WMED. ",
+    "fillColor": "#000000",
+    "id": "aeea54dd-598d-427e-97de-1f1a248f90c9"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.65,
+    "extraCharge": 0,
+    "name": "TaN-2",
+    "notes": "From: MRS Olsen et al., TaN workfunctions on HfO2 and HfSiOx 2004",
+    "fillColor": "#0000a0",
+    "id": "7f11f507-e8dd-4b03-84ce-f7e754704bf3"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.4,
+    "extraCharge": 0,
+    "name": "TaSiN",
+    "notes": "Jaydeb Goswami & Allen McTeer (Micron Technology, Inc.), \"EOT, Workfunction, and Vfb Roll-off in HfO2/Metal Gate Stacks\" in proceedings of the 2009 IEEE WMED. ",
+    "fillColor": "#000000",
+    "id": "1052ed5f-24f0-4b42-9755-4101836e164d"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.1,
+    "extraCharge": 0,
+    "name": "Ti",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#008000",
+    "id": "03cfa438-2600-4393-a3b1-95162985ef93"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.33,
+    "extraCharge": 0,
+    "name": "Ti-2",
+    "fillColor": "#ffff00",
+    "id": "29ef1952-f7b4-4d0d-818f-dc36e111f6fb"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.45,
+    "extraCharge": 0,
+    "name": "TiN",
+    "fillColor": "#ff0000",
+    "id": "f9c8938e-3753-49f1-ae7d-60e4b9bc6f32"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.5,
+    "extraCharge": 0,
+    "name": "W",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#808000",
+    "id": "ae50c1c3-b1d6-4443-b24d-777a1e428492"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.55,
+    "extraCharge": 0,
+    "name": "W-2",
+    "fillColor": "#ff00ff",
+    "id": "802ddf05-5f7d-49cc-ae05-f98692d6da20"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 4.3,
+    "extraCharge": 0,
+    "name": "Zn",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#008000",
+    "id": "8c7db211-668f-48b8-bfa8-ca0f48150cee"
+  },
+  {
+    "materialType": "metal",
+    "workFunction": 3.8,
+    "extraCharge": 0,
+    "name": "Zr",
+    "notes": "Smithell's Metals Handbook, p. 18-4, Table 18.5",
+    "fillColor": "#000000",
+    "id": "49aef748-229e-43e7-a250-4e8717af51ac"
+  }
 ]

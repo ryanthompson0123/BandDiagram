@@ -11,7 +11,12 @@ namespace Band
     public class Metal : Material
 	{
         [JsonProperty]
-        public ChargeDensity ExtraCharge { get ; private set; }
+        private ChargeDensity extraCharge;
+        public ChargeDensity ExtraCharge
+        {
+            get { return extraCharge; }
+            set { SetProperty(ref extraCharge, value); }
+        }
 
 		public override Energy EnergyFromVacuumToBottomBand
 		{

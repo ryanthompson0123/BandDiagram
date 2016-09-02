@@ -54,10 +54,20 @@ namespace Band.Units
 			return new Energy(left.Joules + right.Joules);
 		}
 
+        public static Energy operator +(Energy left, MathExpression<Energy> right)
+        {
+            return new Energy(left.Joules + right.Evaluate().Joules);
+        }
+
 		public static Energy operator -(Energy left, Energy right)
 		{
 			return new Energy(left.Joules - right.Joules);
 		}
+
+        public static Energy operator -(Energy left, MathExpression<Energy> right)
+        {
+            return new Energy(left.Joules - right.Evaluate().Joules);
+        }
 
 		public static Energy operator +(Energy left, ElectricPotential right)
 		{

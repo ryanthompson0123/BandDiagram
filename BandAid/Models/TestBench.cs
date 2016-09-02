@@ -216,7 +216,7 @@ namespace Band
 
             var steps = Enumerable.Range(0, StepCount)
                 .Select(s => PotentialForStep(s).RoundMilliVolts)
-                .Select(mv => Structure.DeepClone(ElectricPotential.FromMillivolts(mv), new Temperature(300.0)))
+                .Select(mv => Structure.DeepClone(ElectricPotential.FromMillivolts(mv)))
                 .ToList();
 
             Debug.WriteLine(string.Format("Finished all calculations in {0} ms", stopwatch.ElapsedMilliseconds));

@@ -5,6 +5,9 @@ using System.Linq;
 using Foundation;
 using UIKit;
 using System.IO;
+using Newtonsoft.Json;
+using Band;
+using Band.Units;
 
 namespace BandAid.iOS
 {
@@ -30,7 +33,14 @@ namespace BandAid.iOS
             fm.UnpackAssetsIfNotUnpacked();
             Console.WriteLine(fm.DocumentsPath);
 
-           
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+            {
+                Converters = new List<JsonConverter>
+                {
+                    new MathExpression<Energy>.Converter(),
+                    new MathExpression<Concentration>.Converter()
+                }
+            };
         }
 		
         // This method is invoked when the application is about to move from active to inactive state.

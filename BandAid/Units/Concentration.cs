@@ -41,6 +41,11 @@ namespace Band.Units
 			return new Concentration(left.PerCubicMeter - right.PerCubicMeter);
 		}
 
+        public static Concentration operator -(Concentration left, MathExpression<Concentration> right)
+        {
+            return new Concentration(left.PerCubicMeter - right.Evaluate().PerCubicMeter);
+        }
+
 		public static Concentration operator *(double left, Concentration right)
 		{
 			return new Concentration(left*right.PerCubicMeter);

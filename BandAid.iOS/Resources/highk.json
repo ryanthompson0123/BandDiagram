@@ -1,13 +1,12 @@
 {
-  "name": "NVM Stack",
+  "name": "High-k Stack",
   "currentIndex": 0,
-  "minVoltage": -10,
-  "maxVoltage": 10,
-  "stepSize": 0.25,
+  "minVoltage": -2,
+  "maxVoltage": 2,
+  "stepSize": 0.1,
   "structure": {
-    "name": "NVM Stack",
-    "bias": -10,
-    "temperature": 300,
+    "name": "High-k Stack",
+    "bias": -2,
     "layers": [
       {
         "name": "TiN",
@@ -19,26 +18,15 @@
         "id": "f9c8938e-3753-49f1-ae7d-60e4b9bc6f32"
       },
       {
-        "name": "Al2O3",
+        "name": "HfO2",
         "notes": null,
-        "fillColor": "#0000ff",
-        "bandGap": 8.7,
-        "dielectricConstant": 9,
-        "electronAffinity": 1.35,
-        "thickness": 1e-8,
+        "fillColor": "#808040",
+        "bandGap": 5.7,
+        "dielectricConstant": 25,
+        "electronAffinity": 2.65,
+        "thickness": 7e-9,
         "materialType": "dielectric",
-        "id": "75d2e45f-b868-43ad-a81d-400b9747a882"
-      },
-      {
-        "name": "Ta2O5",
-        "notes": null,
-        "fillColor": "#008040",
-        "bandGap": 4.5,
-        "dielectricConstant": 26,
-        "electronAffinity": 3.75,
-        "thickness": 6e-9,
-        "materialType": "dielectric",
-        "id": "6e446d92-0824-4e99-b994-ece94d183be1"
+        "id": "12ae6301-8104-48e9-b985-c0188a61c7f2"
       },
       {
         "name": "SiO2",

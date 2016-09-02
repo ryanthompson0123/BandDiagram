@@ -70,6 +70,13 @@ namespace Band
 
             structure.AddLayer(viewModel.Material);
         }
+
+        public void ReplaceLayer(LayerViewModel viewModel, int position)
+        {
+            Layers.RemoveAt(position);
+            Layers.Insert(position, viewModel);
+
+            structure.ReplaceLayer(viewModel.Material, position);
+        }
     }
 }
-

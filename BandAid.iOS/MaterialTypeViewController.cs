@@ -14,13 +14,6 @@ namespace BandAid.iOS
         {
         }
 
-        public override void ViewDidLoad()
-        {
-            base.ViewDidLoad();
-
-            PreferredContentSize = new CGSize(360, 540);
-        }
-
         async partial void OnCancelTouched(NSObject sender)
         {
             await PresentingViewController.DismissViewControllerAsync(true);
