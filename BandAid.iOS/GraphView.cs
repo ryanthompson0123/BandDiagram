@@ -1,5 +1,4 @@
 ﻿using System;
-using SpriteKit;
 using UIKit;
 using Band;
 using System.Threading.Tasks;
@@ -10,7 +9,6 @@ namespace BandAid.iOS
     {
         public event EventHandler<EventArgs> AnimationValueChanged;
         public event EventHandler<PointTappedEventArgs> PointLongPressed;
-        public event EventHandler<PointPinchedEventArgs> PointPinched;
         public event EventHandler<PointTappedEventArgs> PointTapped;
 
         public AxisView PrimaryYAxis
@@ -77,6 +75,7 @@ namespace BandAid.iOS
         private UILongPressGestureRecognizer longPressRecognizer;
         private UIPinchGestureRecognizer pinchRecognizer;
         private UITapGestureRecognizer tapRecognizer;
+        private UIPanGestureRecognizer panRecognizer;
 
         public override void AwakeFromNib()
         {
@@ -85,6 +84,8 @@ namespace BandAid.iOS
             Slider.ValueChanged += Slider_ValueChanged;
 
             pinchRecognizer = new UIPinchGestureRecognizer(OnPlotPinch);
+            panRecognizer = new UIPanGestureRecognizer(OnPlotPan);
+            panRecognizer.MinimumNumberOfTouches = 2;
 
             longPressRecognizer = new UILongPressGestureRecognizer(OnPlotLongPress);
 
@@ -92,22 +93,50 @@ namespace BandAid.iOS
             tapRecognizer.RequireGestureRecognizerToFail(longPressRecognizer);
 
             Plot.AddGestureRecognizer(pinchRecognizer);
+            Plot.AddGestureRecognizer(panRecognizer);
             Plot.AddGestureRecognizer(longPressRecognizer);
             Plot.AddGestureRecognizer(tapRecognizer);
         }
 
+        private nfloat currentScale = 1.0f;
+
         private void OnPlotPinch(UIPinchGestureRecognizer recognizer)
         {
-            if (PointPinched != null)
-            {
-                var location = recognizer.LocationInView(Plot);
-                var dataPoint = Plot.DataPointForPoint(location);
+            var location = recognizer.LocationInView(Plot);
 
-                PointPinched(this, new PointPinchedEventArgs
-                {
-                    PlotDataPoint = dataPoint,
-                    Scale = (float)recognizer.Scale
-                });
+            if (recognizer.State == UIGestureRecognizerState.Ended)
+            {
+                Plot.ZoomTo(recognizer.Scale, location);
+                PrimaryYAxis.ZoomTo(recognizer.Scale, location.Y);
+                PrimaryXAxis.ZoomTo(recognizer.Scale, location.X);
+                Grid.ZoomTo(recognizer.Scale, location);
+            }
+            else
+            {
+                Plot.ZoomBy(recognizer.Scale, location);
+                PrimaryYAxis.ZoomBy(recognizer.Scale, location.Y);
+                PrimaryXAxis.ZoomBy(recognizer.Scale, location.X);
+                Grid.ZoomBy(recognizer.Scale, location);
+            }
+        }
+
+        private void OnPlotPan(UIPanGestureRecognizer recognizer)
+        {
+            var translation = recognizer.TranslationInView(Plot);
+
+            if (recognizer.State == UIGestureRecognizerState.Ended)
+            {
+                Plot.PanTo(translation);
+                PrimaryYAxis.PanTo(translation.Y);
+                PrimaryXAxis.PanTo(translation.X);
+                Grid.PanTo(translation);
+            }
+            else
+            {
+                Plot.PanBy(translation);
+                PrimaryYAxis.PanBy(translation.Y);
+                PrimaryXAxis.PanBy(translation.X);
+                Grid.PanBy(translation);
             }
         }
 

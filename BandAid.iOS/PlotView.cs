@@ -29,7 +29,7 @@ namespace BandAid.iOS
                 }
                 else
                 {
-                    plotTransform = CalculateAffineTransform(plotRect, Bounds);
+                    ResetTransform();
                     UpdatePlot();
                 }
             }
@@ -39,6 +39,9 @@ namespace BandAid.iOS
 
         private List<List<CGPath>> plotPaths;
         private CGAffineTransform plotTransform;
+        private CGAffineTransform baseTransform;
+        private CGAffineTransform lastTransform;
+
         private CGRect plotRect;
 
         private int selectedPlotIndex;
@@ -64,14 +67,23 @@ namespace BandAid.iOS
 
             Layer.BorderWidth = 2.0f;
             Layer.BorderColor = UIColor.Black.CGColor;
+            Layer.MasksToBounds = true;
         }
 
         public override void LayoutSubviews()
         {
             // Now that we have our bounds, we can calculate the transform and draw the plot
-            plotTransform = CalculateAffineTransform(plotRect, Bounds);
+            ResetTransform();
+
             UpdatePlot();
             laidOut = true;
+        }
+
+        void ResetTransform()
+        {
+            baseTransform = CalculateAffineTransform(plotRect, Bounds);
+            lastTransform = baseTransform;
+            plotTransform = baseTransform;
         }
 
         public void SelectPlot(double value)
@@ -82,6 +94,142 @@ namespace BandAid.iOS
                 selectedPlotIndex = nextIndex;
                 UpdatePlot();
             }
+        }
+
+        private nfloat cumulativeScale = 1.0f;
+
+        public void ZoomBy(nfloat newScale, CGPoint newAnchor)
+        {
+            // Figure out what the final scale will be after this transform.
+            var targetScale = cumulativeScale * newScale;
+
+            // If it's less than 1, we don't allow that at this point, so we constrain it to 1.0.
+            if (targetScale < 1.0f)
+            {
+                newScale = 1.0f / cumulativeScale;
+            }
+
+            // Copy the last transform, scale it, then translate it.
+            var nextTransform = lastTransform;
+            nextTransform.Scale(newScale, newScale);
+            nextTransform.Translate(-(newAnchor.X * newScale - newAnchor.X), -(newAnchor.Y * newScale -  newAnchor.Y));
+
+            // Now constrain the plot to the bounds of the chart using the final scale.
+            var constrainScale = cumulativeScale * newScale;
+            nextTransform = ConstrainTransformToBounds(nextTransform, constrainScale);
+
+            // Update the plot transform
+            plotTransform = nextTransform;
+            UpdatePlot();
+        }
+
+        public void ZoomTo(nfloat newScale, CGPoint newAnchor)
+        {
+            // Figure out what the final scale will be after this transform.
+            var targetScale = cumulativeScale * newScale;
+
+            // If it's less than 1, we don't allow that at this point, so we constrain it to 1.0.
+            if (targetScale < 1.0f)
+            {
+                newScale = 1.0f / cumulativeScale;
+            }
+
+            // Scale and translate the last transform.
+            lastTransform.Scale(newScale, newScale);
+            lastTransform.Translate(-GetZoomOffsetX(newScale, newAnchor), -GetZoomOffsetY(newScale, newAnchor));
+
+            // Update the cumulative scale.
+            cumulativeScale *= newScale;
+
+            // Constrain the plot to the bounds of the chart using the new cumulative scale.
+            lastTransform = ConstrainTransformToBounds(lastTransform, cumulativeScale);
+
+            // Update the ploat transform.
+            plotTransform = lastTransform;
+            UpdatePlot();
+        }
+
+        private nfloat GetZoomOffsetX(nfloat newScale, CGPoint newAnchor)
+        {
+            return newAnchor.X * newScale - newAnchor.X;
+        }
+
+        private nfloat GetZoomOffsetY(nfloat newScale, CGPoint newAnchor)
+        {
+            return newAnchor.Y * newScale - newAnchor.Y;
+        }
+
+        public void PanBy(CGPoint translation)
+        {
+            // Copy the last transform and translate it by the given amount.
+            var nextTransform = lastTransform;
+            nextTransform.Translate(translation.X, translation.Y);
+
+            // Constrain the transform to the bounds of the plot.
+            nextTransform = ConstrainTransformToBounds(nextTransform, cumulativeScale);
+
+            // Update the plot transform.
+            plotTransform = nextTransform;
+            UpdatePlot();
+        }
+
+        public void PanTo(CGPoint translation)
+        {
+            // Copy the last transform and translate it by the given amount.
+            var nextTransform = lastTransform;
+            nextTransform.Translate(translation.X, translation.Y);
+
+            // Constrain the transform to the bounds of the plot.
+            nextTransform = ConstrainTransformToBounds(nextTransform, cumulativeScale);
+
+            // Update the plot transform.
+            lastTransform = nextTransform;
+            plotTransform = nextTransform;
+            UpdatePlot();
+        }
+
+
+
+        CGAffineTransform ConstrainTransformToBounds(CGAffineTransform nextTransform, nfloat targetScale)
+        {
+            // The left edge of the plot can never go further right than 0.
+            if (nextTransform.x0 > 0)
+            {
+                nextTransform.x0 = 0;
+            }
+
+            // The left edge of the plot can never go further left than
+            // the delta between the original plot size and the scaled size.
+            if (nextTransform.x0 < -GetScaledMaxPanDeltaX(targetScale))
+            {
+                nextTransform.x0 = -GetScaledMaxPanDeltaX(targetScale);
+            }
+
+            // The top edge of the plot can never go higher than the delta between the 
+            // original plot size and the scaled size above the original top edge location.
+            if (nextTransform.y0 < baseTransform.y0 - GetScaledMaxPanDeltaY(targetScale))
+            {
+                nextTransform.y0 = baseTransform.y0 - GetScaledMaxPanDeltaY(targetScale);
+            }
+
+            // The top edge of the plot can never go lower than the original location
+            // of the top edge of the plot in the scaled coordinate system.
+            if (nextTransform.y0 > baseTransform.y0 * targetScale)
+            {
+                nextTransform.y0 = baseTransform.y0 * targetScale;
+            }
+
+            return nextTransform;
+        }
+
+        private nfloat GetScaledMaxPanDeltaX(nfloat targetScale)
+        {
+            return Bounds.Width * targetScale - Bounds.Width;
+        }
+
+        private nfloat GetScaledMaxPanDeltaY(nfloat targetScale)
+        {
+            return Bounds.Height * targetScale - Bounds.Height;
         }
 
         public PlotDataPoint DataPointForPoint(CGPoint point)
@@ -182,6 +330,19 @@ namespace BandAid.iOS
                 targetRect.Y - sourceRect.Y); 
             transform.Scale(targetRect.Width / sourceRect.Width, 
                 targetRect.Height / sourceRect.Height);
+            return transform;
+        }
+
+        private static CGAffineTransform CalculateAffineTransform(CGRect sourceRect, CGRect targetRect, nfloat scale, CGPoint anchor)
+        {
+            var transform = CGAffineTransform.MakeTranslation(targetRect.X - sourceRect.X,
+                                                              targetRect.Y - sourceRect.Y);
+            transform.Scale(targetRect.Width / sourceRect.Width * scale,
+                targetRect.Height / sourceRect.Height * scale);
+
+
+            //transform.Translate(-(anchor.X * scale - anchor.X), -(anchor.Y * scale - anchor.Y));
+
             return transform;
         }
 

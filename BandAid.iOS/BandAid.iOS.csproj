@@ -231,6 +231,7 @@
     <Compile Include="MaterialParameterCells\MathExpressionCell.designer.cs">
       <DependentUpon>MathExpressionCell.cs</DependentUpon>
     </Compile>
+    <Compile Include="CGPointExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />

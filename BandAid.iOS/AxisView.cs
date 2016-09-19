@@ -21,6 +21,9 @@ namespace BandAid.iOS
             {
                 axisValue = value;
                 titleLabel.Text = value.Title;
+
+                SetUpCoordinateDelegates();
+
                 BuildTickLabels();
                 SetNeedsDisplay();
                 SetNeedsLayout();
@@ -34,6 +37,127 @@ namespace BandAid.iOS
             titleLabel.Font = UIFont.BoldSystemFontOfSize(20f);
             titleLabel.TextColor = UIColor.Black;
             AddSubview(titleLabel);
+        }
+
+        private nfloat baseOffset = 0.0f;
+        private nfloat drawOffset = 0.0f;
+
+        private nfloat baseScale = 1.0f;
+        private nfloat drawScale = 1.0f;
+
+        private Func<nfloat, double> valueForCoordDelegate;
+        private Func<double, nfloat> getCoordDelegate;
+        private Func<nfloat, nfloat> getScaledMaxPanDelegate;
+
+        private void SetUpCoordinateDelegates()
+        {
+            switch (Axis.AxisType)
+            {
+                case AxisType.PrimaryY:
+                    valueForCoordDelegate = ValueForYCoord;
+                    getCoordDelegate = GetYCoord;
+                    getScaledMaxPanDelegate = GetScaledMaxPanDeltaY;
+                    break;
+                case AxisType.X:
+                    valueForCoordDelegate = ValueForXCoord;
+                    getCoordDelegate = GetXCoord;
+                    getScaledMaxPanDelegate = GetScaledMaxPanDeltaX;
+                    break;
+                    
+            }
+        }
+
+        public void ZoomBy(nfloat newScale, nfloat anchor)
+        {
+            drawScale = baseScale;
+            drawOffset = baseOffset;
+
+            var anchorValue = valueForCoordDelegate(anchor);
+            Console.WriteLine(anchorValue);
+
+            drawScale = baseScale * newScale;
+            if (drawScale < 1.0f)
+            {
+                drawScale = 1.0f;
+            }
+
+            var newAnchor = getCoordDelegate(anchorValue);
+
+
+            drawOffset = newAnchor - anchor + drawOffset;
+
+            ConstrainDrawOffset();
+            UpdateAxis();
+        }
+
+        public void ZoomTo(nfloat newScale, nfloat anchor)
+        {
+            drawScale = baseScale;
+            drawOffset = baseOffset;
+
+            var anchorValue = valueForCoordDelegate(anchor);
+            Console.WriteLine(anchorValue);
+
+            drawScale = baseScale * newScale;
+            if (drawScale < 1.0f)
+            {
+                drawScale = 1.0f;
+            }
+
+            var newAnchor = getCoordDelegate(anchorValue);
+
+            drawOffset = newAnchor - anchor + drawOffset;
+            ConstrainDrawOffset();
+
+            baseOffset = drawOffset;
+            baseScale = drawScale;
+            UpdateAxis();
+        }
+
+        public void PanBy(nfloat amount)
+        {
+            drawOffset = baseOffset - amount;
+
+            ConstrainDrawOffset();
+            UpdateAxis();
+        }
+
+        public void PanTo(nfloat amount)
+        {
+            drawOffset = baseOffset - amount;
+            ConstrainDrawOffset();
+
+            baseOffset = drawOffset;
+            UpdateAxis();
+        }
+
+        private void ConstrainDrawOffset()
+        {
+            if (drawOffset < 0)
+            {
+                drawOffset = 0;
+            }
+
+            if (drawOffset > getScaledMaxPanDelegate(drawScale))
+            {
+                drawOffset = getScaledMaxPanDelegate(drawScale);
+            }
+        }
+
+        private nfloat GetScaledMaxPanDeltaX(nfloat targetScale)
+        {
+            return Bounds.Width * targetScale - Bounds.Width;
+        }
+
+        private nfloat GetScaledMaxPanDeltaY(nfloat targetScale)
+        {
+            return Bounds.Height * targetScale - Bounds.Height;
+        }
+
+        private void UpdateAxis()
+        {
+            SetNeedsDisplay();
+            SetNeedsLayout();
         }
 
         public override void Draw(CGRect rect)
@@ -100,7 +224,9 @@ namespace BandAid.iOS
             for (var i = 0; i < tickLabels.Count; i++)
             {
                 var tickLabel = tickLabels[i];
-                var yCoord = GetLabelYCoord(i);
+                var yCoord = GetYCoordForIndex(i);
+
+                tickLabel.Hidden = yCoord <= 0.0 || yCoord >= Bounds.Height + 1.0f;
                 tickLabel.SizeToFit();
                 tickLabel.Center = new CGPoint(72f, yCoord);
             }
@@ -111,7 +237,9 @@ namespace BandAid.iOS
             for (var i = 0; i < tickLabels.Count; i++)
             {
                 var tickLabel = tickLabels[i];
-                var xCoord = GetLabelXCoord(i);
+                var xCoord = GetXCoordForIndex(i);
+
+                tickLabel.Hidden = xCoord <= -1.0f || xCoord >= Bounds.Width;
                 tickLabel.SizeToFit();
                 tickLabel.Center = new CGPoint(xCoord, Bounds.Height - 52f);
             }
@@ -137,16 +265,16 @@ namespace BandAid.iOS
             }
         }
 
-        private nfloat GetLabelXCoord(int index)
+        private nfloat GetYCoordForIndex(int index)
         {
-            var xValue = index * Axis.MajorSpan;
-            return GetXCoord(xValue / Axis.Range);
+            var value = Axis.GetTickValue(index);
+            return GetYCoord(value);
         }
 
-        private nfloat GetLabelYCoord(int index)
+        private nfloat GetXCoordForIndex(int index)
         {
-            var yValue = index * Axis.MajorSpan;
-            return GetYCoord(yValue / Axis.Range);
+            var value = Axis.GetTickValue(index);
+            return GetXCoord(value);
         }
 
         private void DrawLeftAxis(CGRect rect)
@@ -160,13 +288,16 @@ namespace BandAid.iOS
 
             for (var i = 0; i < tickLabels.Count; i++)
             {
-                var yCoord = GetYCoord(i * Axis.MajorSpan / Axis.Range);
+                var yCoord = GetYCoordForIndex(i);
 
                 if (i == 0) yCoord -= 1;
                 if (i == tickLabels.Count - 1) yCoord += 1;
 
-                context.MoveTo(Bounds.Width - 28f, yCoord);
-                context.AddLineToPoint(Bounds.Width - 16f, yCoord);
+                if (yCoord >= 0.0f && yCoord <= Bounds.Height)
+                {
+                    context.MoveTo(Bounds.Width - 28f, yCoord);
+                    context.AddLineToPoint(Bounds.Width - 16f, yCoord);
+                }
             }
 
             context.StrokePath();
@@ -183,24 +314,48 @@ namespace BandAid.iOS
 
             for (var i = 0; i < tickLabels.Count; i++)
             {
-                var xCoord = GetXCoord(i * Axis.MajorSpan / Axis.Range);
+                var xCoord = GetXCoordForIndex(i);
 
                 if (i == 0) xCoord += 1;
-                context.MoveTo(xCoord, 28f);
-                context.AddLineToPoint(xCoord, 16f);
+
+                if (xCoord >= 0.0f && xCoord <= Bounds.Width)
+                {
+                    context.MoveTo(xCoord, 28f);
+                    context.AddLineToPoint(xCoord, 16f);
+                }
             }
 
             context.StrokePath();
         }
 
+        private nfloat YRatio
+        {
+            get { return Bounds.Height * drawScale / (nfloat)Axis.Range; }
+        }
+
+        private nfloat XRatio
+        {
+            get { return Bounds.Width * drawScale / (nfloat)Axis.Range; }
+        }
+
         private nfloat GetYCoord(double value)
         {
-            return Bounds.Height - ((nfloat)value * Bounds.Height);
+            return (nfloat)(Axis.Max - value) * YRatio - drawOffset;
         }
 
         private nfloat GetXCoord(double value)
         {
-            return (nfloat)value * Bounds.Width;
+            return (nfloat)(value - Axis.Min) * XRatio - drawOffset;
+        }
+
+        private double ValueForYCoord(nfloat yCoord)
+        {
+            return Axis.Max - (yCoord + drawOffset) / YRatio;
+        }
+
+        private double ValueForXCoord(nfloat xCoord)
+        {
+            return Axis.Min + (xCoord + drawOffset) / XRatio;
         }
     }
 }
