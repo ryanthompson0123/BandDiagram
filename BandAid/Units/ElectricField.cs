@@ -144,6 +144,26 @@ namespace Band.Units
 		{
 			return VoltsPerMeter.GetHashCode();
 		}
+
+        public override string ToString()
+        {
+            return string.Format("{0:F1} V/m", VoltsPerMeter);
+        }
+
+        public string ToString(string format)
+        {
+            return string.Format(format, VoltsPerMeter);
+        }
+
+        public string MegavoltsPerCentimeterToString()
+        {
+            return string.Format("{0:F1} MV/cm", MegavoltsPerCentimeter);
+        }
+
+        public string MegavoltsPerCentimeterToString(string format)
+        {
+            return string.Format(format, MegavoltsPerCentimeter);
+        }
 	}
 }
 

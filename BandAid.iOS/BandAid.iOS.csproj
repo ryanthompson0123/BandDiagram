@@ -232,6 +232,10 @@
       <DependentUpon>MathExpressionCell.cs</DependentUpon>
     </Compile>
     <Compile Include="CGPointExtensions.cs" />
+    <Compile Include="StructurePointDetailViewController.cs" />
+    <Compile Include="StructurePointDetailViewController.designer.cs">
+      <DependentUpon>StructurePointDetailViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />

@@ -234,10 +234,13 @@ namespace BandAid.iOS
 
         public PlotDataPoint DataPointForPoint(CGPoint point)
         {
+            var totalXDistance = point.X - plotTransform.x0;
+            var totalYDistance = plotTransform.y0 - baseTransform.y0 * cumulativeScale + point.Y;
+
             return new PlotDataPoint
             {
-                X = point.X / XRatio,
-                Y = point.Y / YRatio
+                X = totalXDistance / (cumulativeScale * XRatio),
+                Y = totalYDistance / (cumulativeScale * YRatio)
             };
         }
 

@@ -2,6 +2,7 @@
 using UIKit;
 using Band;
 using System.Threading.Tasks;
+using CoreGraphics;
 
 namespace BandAid.iOS
 {
@@ -69,7 +70,7 @@ namespace BandAid.iOS
         public GraphView(IntPtr handle)
             : base(handle)
         {
-            Duration = 2000;
+            Duration = 1000;
         }
 
         private UILongPressGestureRecognizer longPressRecognizer;
@@ -149,6 +150,7 @@ namespace BandAid.iOS
 
                 PointLongPressed(this, new PointTappedEventArgs
                 {
+                    Location = location,
                     PlotDataPoint = dataPoint
                 });
             }
@@ -163,6 +165,7 @@ namespace BandAid.iOS
 
                 PointTapped(this, new PointTappedEventArgs
                 {
+                    Location = location,
                     PlotDataPoint = dataPoint
                 });
             }
@@ -260,6 +263,7 @@ namespace BandAid.iOS
 
     public class PointTappedEventArgs : EventArgs
     {
+        public CGPoint Location { get; set; }
         public PlotDataPoint PlotDataPoint { get; set; }
     }
 

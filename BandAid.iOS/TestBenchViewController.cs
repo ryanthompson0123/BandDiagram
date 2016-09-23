@@ -69,6 +69,7 @@ namespace BandAid.iOS
             chartSegments.ValueChanged += chartSegments_ValueChanged;
             GraphView.AnimationValueChanged += GraphView_AnimationValueChanged;
             GraphView.PointLongPressed += GraphView_PointLongPressed;
+            GraphView.PointTapped += GraphView_PointTapped;
         }
 
         public override void ViewDidDisappear(bool animated)
@@ -79,6 +80,7 @@ namespace BandAid.iOS
             chartSegments.ValueChanged -= chartSegments_ValueChanged;
             GraphView.AnimationValueChanged -= GraphView_AnimationValueChanged;
             GraphView.PointLongPressed -= GraphView_PointLongPressed;
+
         }
 
         private void SetUpTitleText()
@@ -148,6 +150,15 @@ namespace BandAid.iOS
         {
             longPressedMaterial = ViewModel.GetMaterialAtPoint(e.PlotDataPoint);
             PerformSegue("layersPopoverSegue", this);
+        }
+
+        private PlotDataPoint tappedPoint;
+        private CGPoint tappedLocation;
+        void GraphView_PointTapped(object sender, PointTappedEventArgs e)
+        {
+            tappedPoint = e.PlotDataPoint;
+            tappedLocation = e.Location;
+            PerformSegue("locationPopoverSegue", this);
         }
 
         void ViewModel_PropertyChanged (object sender, PropertyChangedEventArgs e)
@@ -290,6 +301,11 @@ namespace BandAid.iOS
                 longPressedMaterial = null;
             }
 
+            if (segue.Identifier == "locationPopoverSegue")
+            {
+                DoLocationPopoverSegue(segue);
+            }
+
             if (segue.Identifier == "settingsPopoverSegue")
             {
                 var settings = (SettingsViewController)segue.DestinationViewController;
@@ -303,6 +319,16 @@ namespace BandAid.iOS
             {
                 ViewModel.SaveTestBench();
             }
+        }
+
+        private void DoLocationPopoverSegue(UIStoryboardSegue segue)
+        {
+            var viewController = (StructurePointDetailViewController)segue.DestinationViewController;
+            var popover = viewController.PopoverPresentationController;
+            popover.SourceView = GraphView.Plot;
+            popover.SourceRect = new CGRect(tappedLocation.X, tappedLocation.Y, 10f, 10f);
+
+            viewController.ViewModel = new StructurePointDetailViewModel(ViewModel.TestBench.CurrentStructure, tappedPoint);
         }
 
         private readonly UISegmentedControl chartSegments = new UISegmentedControl(new[] {
