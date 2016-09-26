@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using Band.Units;
 
 namespace Band
 {
@@ -17,18 +18,11 @@ namespace Band
             set { SetProperty(ref titleTextValue, value); }
         }
 
-        private string leftTextValue;
-        public string LeftText
+        private ObservableCollection<string> columnsValue;
+        public ObservableCollection<string> Columns
         {
-            get { return leftTextValue; }
-            set { SetProperty(ref leftTextValue, value); }
-        }
-
-        private string rightTextValue;
-        public string RightText
-        {
-            get { return rightTextValue; }
-            set { SetProperty(ref rightTextValue, value); }
+            get { return columnsValue; }
+            set { SetProperty(ref columnsValue, value); }
         }
 
         private Material materialValue;
@@ -41,32 +35,40 @@ namespace Band
         public MaterialViewModel(Material material)
         {
             Material = material;
-
             TitleText = material.Name;
+            Columns = new ObservableCollection<string>();
 
             switch (material.MaterialType)
             {
                 case MaterialType.Dielectric:
                     var dielectric = (Dielectric)material;
-                    LeftText = String.Join("\n", dielectricLabels);
-                    RightText = String.Format("{0}\n{1}\n{2}", dielectric.DielectricConstant,
-                        dielectric.BandGap.ElectronVolts, dielectric.ElectronAffinity.ElectronVolts);
+                    Columns.Add(string.Format("{0:F2}", dielectric.DielectricConstant));
+                    Columns.Add(string.Format("{0:F2}", dielectric.BandGap.ElectronVolts));
+                    Columns.Add(string.Format("{0:F2}", dielectric.ElectronAffinity.ElectronVolts));
                     break;
                 case MaterialType.Metal:
                     var metal = (Metal)material;
-                    LeftText = metalLabels[0];
-                    RightText = String.Format("{0}", metal.WorkFunction.ElectronVolts);
+                    Columns.Add(string.Format("{0:F3}", metal.WorkFunction.ElectronVolts));
                     break;
                 case MaterialType.Semiconductor:
                     var semiconductor = (Semiconductor)material;
-                    LeftText = String.Join("\n", semiconductorLabels);
-                    RightText = String.Format("{0}\n{1}\n{2}\n{3}\n{4}",
-                        semiconductor.DielectricConstant, semiconductor.BandGap.Evaluate().ElectronVolts,
-                        semiconductor.ElectronAffinity.ElectronVolts, 
-                        semiconductor.IntrinsicCarrierConcentration.Evaluate().PerCubicCentimeter,
-                        semiconductor.DopantConcentration.Evaluate().PerCubicCentimeter);
+                    semiconductor.Temperature = new Temperature(300);
+                    semiconductor.IntrinsicCarrierConcentration.CustomConstructor = Concentration.FromPerCubicCentimeter;
+                    Columns.Add(string.Format("{0:F2}", semiconductor.DielectricConstant));
+                    Columns.Add(string.Format("{0:F3}", semiconductor.BandGap.Evaluate().ElectronVolts));
+                    Columns.Add(string.Format("{0:F2}", semiconductor.ElectronAffinity.ElectronVolts));
+                    Columns.Add(string.Format("{0:0.0#E+00}", semiconductor.IntrinsicCarrierConcentration.Evaluate().PerCubicCentimeter));
                     break;
             }
+        }
+
+        public double GetSortValue(int columnIndex)
+        {
+            double parsed;
+
+            double.TryParse(Columns[columnIndex], out parsed);
+
+            return parsed;
         }
     }
 }

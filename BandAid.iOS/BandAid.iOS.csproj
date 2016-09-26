@@ -124,7 +124,6 @@
     <None Include="Entitlements.plist" />
     <BundleResource Include="Resources\nvm.json" />
     <None Include="packages.config" />
-    <None Include="Paths.sketchcs" />
     <BundleResource Include="Resources\nvm.png" />
     <BundleResource Include="Resources\toggle%402x.png" />
     <BundleResource Include="Resources\toggle.png" />
@@ -139,103 +138,118 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="StructureGalleryViewController.cs" />
-    <Compile Include="StructureGalleryViewController.designer.cs">
-      <DependentUpon>StructureGalleryViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TestBenchViewController.cs" />
-    <Compile Include="TestBenchViewController.designer.cs">
-      <DependentUpon>TestBenchViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="SettingsViewController.cs" />
-    <Compile Include="SettingsViewController.designer.cs">
-      <DependentUpon>SettingsViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="StructurePlotScene.cs" />
-    <Compile Include="MaterialTypeViewController.cs" />
-    <Compile Include="MaterialTypeViewController.designer.cs">
-      <DependentUpon>MaterialTypeViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MaterialSelectViewController.cs" />
-    <Compile Include="MaterialSelectViewController.designer.cs">
-      <DependentUpon>MaterialSelectViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MaterialCell.cs" />
-    <Compile Include="MaterialCell.designer.cs">
-      <DependentUpon>MaterialCell.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UIColorExtensions.cs" />
-    <Compile Include="StructureParameterListViewController.cs" />
-    <Compile Include="StructureCollectionViewCell.cs" />
-    <Compile Include="StructureCollectionViewCell.designer.cs">
-      <DependentUpon>StructureCollectionViewCell.cs</DependentUpon>
-    </Compile>
     <Compile Include="Device\FileManager.cs" />
-    <Compile Include="StructureViewController.cs" />
-    <Compile Include="StructureViewController.designer.cs">
-      <DependentUpon>StructureViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="StructureTableViewController.cs" />
-    <Compile Include="StructureTableViewController.designer.cs">
-      <DependentUpon>StructureTableViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="AxisView.cs" />
-    <Compile Include="AxisView.designer.cs">
-      <DependentUpon>AxisView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="GraphView.designer.cs">
-      <DependentUpon>GraphView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="GraphView.cs" />
-    <Compile Include="PlotView.cs" />
-    <Compile Include="PlotView.designer.cs">
-      <DependentUpon>PlotView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="GridView.cs" />
-    <Compile Include="GridView.designer.cs">
-      <DependentUpon>GridView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MaterialDetailViewController.cs" />
-    <Compile Include="MaterialDetailViewController.designer.cs">
-      <DependentUpon>MaterialDetailViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MaterialParameterCells\TextInputCell.cs" />
-    <Compile Include="MaterialParameterCells\TextInputCell.designer.cs">
-      <DependentUpon>TextInputCell.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MaterialParameterCells\DoubleSliderCell.cs" />
-    <Compile Include="MaterialParameterCells\DoubleSliderCell.designer.cs">
-      <DependentUpon>DoubleSliderCell.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MaterialParameterCells\TextAreaCell.cs" />
-    <Compile Include="MaterialParameterCells\TextAreaCell.designer.cs">
-      <DependentUpon>TextAreaCell.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MaterialParameterCells\ColorPickerCell.cs" />
-    <Compile Include="MaterialParameterCells\ColorPickerCell.designer.cs">
-      <DependentUpon>ColorPickerCell.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MaterialParameterCells\MultiButtonCell.cs" />
-    <Compile Include="MaterialParameterCells\MultiButtonCell.designer.cs">
-      <DependentUpon>MultiButtonCell.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MaterialParameterCells\BaseParameterCell.cs" />
     <Compile Include="ColorPicker\ColorPickerHueGridViewController.cs" />
     <Compile Include="ColorPicker\ColorPickerHueGridViewController.designer.cs" />
     <Compile Include="ColorPicker\ColorPickerColorCell.cs" />
     <Compile Include="ColorPicker\ColorPickerColorCell.designer.cs">
       <DependentUpon>ColorPickerColorCell.cs</DependentUpon>
     </Compile>
-    <Compile Include="ColorExtensions.cs" />
-    <Compile Include="MaterialParameterCells\MathExpressionCell.cs" />
-    <Compile Include="MaterialParameterCells\MathExpressionCell.designer.cs">
-      <DependentUpon>MathExpressionCell.cs</DependentUpon>
+    <Compile Include="GraphKit\AxisView.cs" />
+    <Compile Include="GraphKit\AxisView.designer.cs">
+      <DependentUpon>AxisView.cs</DependentUpon>
     </Compile>
-    <Compile Include="CGPointExtensions.cs" />
-    <Compile Include="StructurePointDetailViewController.cs" />
-    <Compile Include="StructurePointDetailViewController.designer.cs">
+    <Compile Include="GraphKit\GraphView.cs" />
+    <Compile Include="GraphKit\GraphView.designer.cs">
+      <DependentUpon>GraphView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GraphKit\GridView.cs" />
+    <Compile Include="GraphKit\GridView.designer.cs">
+      <DependentUpon>GridView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GraphKit\PlotView.cs" />
+    <Compile Include="GraphKit\PlotView.designer.cs">
+      <DependentUpon>PlotView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\MaterialDetailViewController.cs" />
+    <Compile Include="ViewControllers\MaterialDetailViewController.designer.cs">
+      <DependentUpon>MaterialDetailViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\MaterialSelectViewController.cs" />
+    <Compile Include="ViewControllers\MaterialSelectViewController.designer.cs">
+      <DependentUpon>MaterialSelectViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\MaterialTypeViewController.cs" />
+    <Compile Include="ViewControllers\MaterialTypeViewController.designer.cs">
+      <DependentUpon>MaterialTypeViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\SettingsViewController.cs" />
+    <Compile Include="ViewControllers\SettingsViewController.designer.cs">
+      <DependentUpon>SettingsViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\StructureGalleryViewController.cs" />
+    <Compile Include="ViewControllers\StructureGalleryViewController.designer.cs">
+      <DependentUpon>StructureGalleryViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\StructureParameterListViewController.cs" />
+    <Compile Include="ViewControllers\StructurePointDetailViewController.cs" />
+    <Compile Include="ViewControllers\StructurePointDetailViewController.designer.cs">
       <DependentUpon>StructurePointDetailViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="ViewControllers\StructureTableViewController.cs" />
+    <Compile Include="ViewControllers\StructureTableViewController.designer.cs">
+      <DependentUpon>StructureTableViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\StructureViewController.cs" />
+    <Compile Include="ViewControllers\StructureViewController.designer.cs">
+      <DependentUpon>StructureViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\TestBenchViewController.cs" />
+    <Compile Include="ViewControllers\TestBenchViewController.designer.cs">
+      <DependentUpon>TestBenchViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\StructureCollectionViewCell.cs" />
+    <Compile Include="Cells\StructureCollectionViewCell.designer.cs">
+      <DependentUpon>StructureCollectionViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\MaterialParameterCells\BaseParameterCell.cs" />
+    <Compile Include="Cells\MaterialParameterCells\ColorPickerCell.cs" />
+    <Compile Include="Cells\MaterialParameterCells\ColorPickerCell.designer.cs">
+      <DependentUpon>..\..\MaterialParameterCells\ColorPickerCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\MaterialParameterCells\DoubleSliderCell.cs" />
+    <Compile Include="Cells\MaterialParameterCells\DoubleSliderCell.designer.cs">
+      <DependentUpon>..\..\MaterialParameterCells\DoubleSliderCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\MaterialParameterCells\MathExpressionCell.cs" />
+    <Compile Include="Cells\MaterialParameterCells\MathExpressionCell.designer.cs">
+      <DependentUpon>..\..\MaterialParameterCells\MathExpressionCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\MaterialParameterCells\MultiButtonCell.cs" />
+    <Compile Include="Cells\MaterialParameterCells\MultiButtonCell.designer.cs">
+      <DependentUpon>..\..\MaterialParameterCells\MultiButtonCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\MaterialParameterCells\TextAreaCell.cs" />
+    <Compile Include="Cells\MaterialParameterCells\TextAreaCell.designer.cs">
+      <DependentUpon>..\..\MaterialParameterCells\TextAreaCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\MaterialParameterCells\TextInputCell.cs" />
+    <Compile Include="Cells\MaterialParameterCells\TextInputCell.designer.cs">
+      <DependentUpon>..\..\MaterialParameterCells\TextInputCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\MaterialCell.cs" />
+    <Compile Include="Cells\MaterialCell.designer.cs">
+      <DependentUpon>MaterialCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Extensions\CGPointExtensions.cs" />
+    <Compile Include="Extensions\ColorExtensions.cs" />
+    <Compile Include="Extensions\UIColorExtensions.cs" />
+    <Compile Include="Cells\SingleColumnCell.cs" />
+    <Compile Include="Cells\SingleColumnCell.designer.cs">
+      <DependentUpon>SingleColumnCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\TripleColumnCell.cs" />
+    <Compile Include="Cells\TripleColumnCell.designer.cs">
+      <DependentUpon>TripleColumnCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\QuadColumnCell.cs" />
+    <Compile Include="Cells\QuadColumnCell.designer.cs">
+      <DependentUpon>QuadColumnCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TableViewCellDividerView.cs" />
+    <Compile Include="QuadColumnTableHeaderView.cs" />
+    <Compile Include="QuadColumnTableHeaderView.designer.cs" />
+    <Compile Include="TableViewCellDividerView.designer.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />
@@ -260,7 +274,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Device\" />
-    <Folder Include="MaterialParameterCells\" />
     <Folder Include="ColorPicker\" />
+    <Folder Include="GraphKit\" />
+    <Folder Include="ViewControllers\" />
+    <Folder Include="Cells\" />
+    <Folder Include="Cells\MaterialParameterCells\" />
+    <Folder Include="Extensions\" />
   </ItemGroup>
 </Project>

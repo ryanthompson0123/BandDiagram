@@ -9,6 +9,8 @@ using System.IO;
 using Newtonsoft.Json;
 using Band.Units;
 using System.Collections.Specialized;
+using System.Linq;
+using System.ComponentModel;
 
 namespace BandAid.iOS
 {
@@ -28,6 +30,8 @@ namespace BandAid.iOS
             TableView.Source = new MaterialSource(this);
 
             Title = string.Format("{0}s", ViewModel.MaterialType);
+
+            SetUpColumnHeaders();
         }
 
         public override void ViewWillAppear(bool animated)
@@ -35,6 +39,26 @@ namespace BandAid.iOS
             base.ViewWillAppear(animated);
 
             NavigationController.SetToolbarHidden(true, true);
+            ViewModel.Materials.CollectionChanged += Materials_CollectionChanged;
+            HeaderView.TitleClick += HeaderView_TitleClick;
+            HeaderView.ColumnClick += HeaderView_ColumnClick;
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+        }
+
+        public override void ViewDidDisappear(bool animated)
+        {
+            base.ViewDidDisappear(animated);
+
+            ViewModel.Materials.CollectionChanged -= Materials_CollectionChanged;
+            HeaderView.TitleClick -= HeaderView_TitleClick;
+            HeaderView.ColumnClick -= HeaderView_ColumnClick;
+            ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+        }
+
+        private void SetUpColumnHeaders()
+        {
+            HeaderView.TitleText = ViewModel.TableTitle;
+            HeaderView.Headers = ViewModel.ColumnHeaders;
         }
 
 		public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
@@ -86,84 +110,25 @@ namespace BandAid.iOS
             TableView.ReloadData();
         }
 
-        //public void OnRowSelected(int row)
-        //{
-        //    var material = ViewModel.Materials[row].Material;
+        void HeaderView_TitleClick(object sender, EventArgs e)
+        {
+            ViewModel.OnTitleClicked();
+        }
 
-        //    if (material.MaterialType == MaterialType.Semiconductor)
-        //    {
-        //        OnSemiconductorSelected((Semiconductor)material);
-        //    }
-        //    else
-        //    {
-        //        OnMaterialSelected(material);
-        //    }
-        //}
+        void HeaderView_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            ViewModel.OnColumnClicked(e.ClickedIndex);
+        }
 
-        //private async void OnSemiconductorSelected(Semiconductor semiconductor)
-        //{
-        //    var alert = UIAlertController.Create("Select Doping Type", "", UIAlertControllerStyle.Alert);
-        //    alert.AddAction(UIAlertAction.Create("N Type", UIAlertActionStyle.Default, action =>
-        //    {
-        //        ViewModel.SelectedMaterial = semiconductor.DeepClone(DopingType.N);
-        //        PerformSegue("unwindToStructure", this);
-        //    }));
-        //    alert.AddAction(UIAlertAction.Create("P Type", UIAlertActionStyle.Default, action =>
-        //    {
-        //        ViewModel.SelectedMaterial = semiconductor.DeepClone(DopingType.P);
-        //        PerformSegue("unwindToStructure", this);
-        //    }));
-
-        //    await PresentViewControllerAsync(alert, true);
-        //}
-
-        //private async void OnMaterialSelected(Material material)
-        //{
-        //    var alert = UIAlertController.Create("Enter Thickness (nm)", "", UIAlertControllerStyle.Alert);
-        //    alert.AddTextField(textField =>
-        //    {
-        //        textField.KeyboardType = UIKeyboardType.DecimalPad;
-        //    });
-
-        //    alert.AddAction(UIAlertAction.Create("Ok", UIAlertActionStyle.Default, action =>
-        //    {
-        //        double thickness;
-        //        if (!double.TryParse(alert.TextFields[0].Text, out thickness))
-        //        {
-        //            OnMaterialSelected(material);
-        //            return;
-        //        }
-
-        //        ViewModel.SelectedMaterial = material.WithThickness(Length.FromNanometers(thickness));
-        //        PerformSegue("unwindToStructure", this);
-        //    }));
-
-        //    await PresentViewControllerAsync(alert, true);
-        //}
-
-        //private static string DocumentsPath
-        //{
-        //    get
-        //    {
-        //        return NSFileManager.DefaultManager.GetUrls(
-        //            NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomain.User)[0].Path;
-        //    }
-        //}
-
-        //private static string MetalsPath
-        //{
-        //    get { return Path.Combine(DocumentsPath, "metals.json"); }
-        //}
-
-        //private static string DielectricsPath
-        //{
-        //    get { return Path.Combine(DocumentsPath, "dielectrics.json"); }
-        //}
-
-        //private static string SemiconductorsPath
-        //{
-        //    get { return Path.Combine(DocumentsPath, "semiconductors.json"); }
-        //}
+        void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "TableTitle":
+                    HeaderView.TitleText = ViewModel.TableTitle;
+                    break;
+            }
+        }
 
         class MaterialSource : UITableViewSource
         {
@@ -195,13 +160,53 @@ namespace BandAid.iOS
 
             public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
             {
-				var cell = (MaterialCell)tableView.DequeueReusableCell(MaterialCell.Key);
+                switch (viewModel.MaterialType)
+                {
+                    case MaterialType.Metal:
+                        return GetSingleCell(tableView, indexPath);
+                    case MaterialType.Dielectric:
+                        return GetTripleCell(tableView, indexPath);
+                    case MaterialType.Semiconductor:
+                        return GetQuadCell(tableView, indexPath);
+                    default:
+                        return null;
+                }
+            }
+
+            private UITableViewCell GetSingleCell(UITableView tableView, NSIndexPath indexPath)
+            {
+                var cell = (SingleColumnCell)tableView.DequeueReusableCell(SingleColumnCell.Key);
 
                 var materialVm = viewModel.Materials[indexPath.Row];
+                cell.TitleText = materialVm.TitleText;
+                cell.Column1Text = materialVm.Columns[0];
 
-                cell.TitleLabel.Text = materialVm.TitleText;
-                cell.LeftColumnLabel.Text = materialVm.LeftText;
-                cell.RightColumnLabel.Text = materialVm.RightText;
+                return cell;
+            }
+
+            private UITableViewCell GetTripleCell(UITableView tableView, NSIndexPath indexPath)
+            {
+                var cell = (TripleColumnCell)tableView.DequeueReusableCell(TripleColumnCell.Key);
+
+                var materialVm = viewModel.Materials[indexPath.Row];
+                cell.TitleText = materialVm.TitleText;
+                cell.Column1Text = materialVm.Columns[0];
+                cell.Column2Text = materialVm.Columns[1];
+                cell.Column3Text = materialVm.Columns[2];
+
+                return cell;
+            }
+
+            private UITableViewCell GetQuadCell(UITableView tableView, NSIndexPath indexPath)
+            {
+                var cell = (QuadColumnCell)tableView.DequeueReusableCell(QuadColumnCell.Key);
+
+                var materialVm = viewModel.Materials[indexPath.Row];
+                cell.TitleText = materialVm.TitleText;
+                cell.Column1Text = materialVm.Columns[0];
+                cell.Column2Text = materialVm.Columns[1];
+                cell.Column3Text = materialVm.Columns[2];
+                cell.Column4Text = materialVm.Columns[3];
 
                 return cell;
             }

@@ -9,11 +9,33 @@ namespace Band
 {
     public class MaterialSelectViewModel : ObservableObject
     {
+        public const string Phi = "Φ";
+        public const string Chi = "χ";
+        public const string Kappa = "κ";
+        public const string UpArrowLeftAligned = " ▲";
+        public const string UpArrow = "▲";
+        public const string DownArrowLeftAligned = " ▼";
+        public const string DownArrow = "▼";
+
         private ObservableCollection<MaterialViewModel> materialsValue;
         public ObservableCollection<MaterialViewModel> Materials
         {
             get { return materialsValue; }
             set { SetProperty(ref materialsValue, value); }
+        }
+
+        private ObservableCollection<string> columnHeadersValue;
+        public ObservableCollection<string> ColumnHeaders
+        {
+            get { return columnHeadersValue; }
+            set { SetProperty(ref columnHeadersValue, value); }
+        }
+
+        private string tableTitleValue;
+        public string TableTitle
+        {
+            get { return tableTitleValue; }
+            set { SetProperty(ref tableTitleValue, value); }
         }
 
         private Material selectedMaterialValue;
@@ -30,14 +52,74 @@ namespace Band
             set { SetProperty(ref materialTypeValue, value); }
         }
 
+        private bool sortByTitleValue;
+        public bool SortByTitle
+        {
+            get { return sortByTitleValue; }
+            set { SetProperty(ref sortByTitleValue, value); }
+        }
+
+        private int columnSortIndexValue;
+        public int ColumnSortIndex
+        {
+            get { return columnSortIndexValue; }
+            set { SetProperty(ref columnSortIndexValue, value); }
+        }
+
+        private bool sortDescendingValue;
+        public bool SortDescending
+        {
+            get { return sortDescendingValue; }
+            set { SetProperty(ref sortDescendingValue, value); }
+        }
+
         private MaterialRepository materials;
 
         public MaterialSelectViewModel(MaterialType materialType)
         {
             materials = new MaterialRepository();
-            MaterialType = materialType;
             Materials = new ObservableCollection<MaterialViewModel>();
+            ColumnHeaders = new ObservableCollection<string>();
+
+            MaterialType = materialType;
+            SortByTitle = true;
+            ColumnSortIndex = -1;
+
+            SetUpColumnHeaders();
             LoadMaterials();
+        }
+
+        private void SetUpColumnHeaders()
+        {
+            TableTitle = string.Format("Name{0}", SortByTitle ? SortDescending ? DownArrowLeftAligned : UpArrowLeftAligned : "");
+
+            ColumnHeaders.Clear();
+
+            switch (MaterialType)
+            {
+                case MaterialType.Metal:
+                    ColumnHeaders.Add(GetSortedLabel(0, Phi));
+                    break;
+                case MaterialType.Dielectric:
+                    ColumnHeaders.Add(GetSortedLabel(0, Kappa));
+                    ColumnHeaders.Add(GetSortedLabel(1, "Eg"));
+                    ColumnHeaders.Add(GetSortedLabel(2, Phi));
+                    break;
+                case MaterialType.Semiconductor:
+                    ColumnHeaders.Add(GetSortedLabel(0, Kappa));
+                    ColumnHeaders.Add(GetSortedLabel(1, "Eg"));
+                    ColumnHeaders.Add(GetSortedLabel(2, Phi));
+                    ColumnHeaders.Add(GetSortedLabel(3, "ni"));
+                    break;
+            }
+        }
+
+        private string GetSortedLabel(int index, string title)
+        {
+            if (ColumnSortIndex != index) return title;
+
+
+            return string.Format("{1} {0}", title, SortDescending ? DownArrow : UpArrow);
         }
 
         private async void LoadMaterials()
@@ -46,9 +128,35 @@ namespace Band
 
             Materials.Clear();
 
-            loadedMaterials
-                .Select(m => new MaterialViewModel(m))
-                .ForEach(Materials.Add);
+            var mats =
+                loadedMaterials
+                .Select(m => new MaterialViewModel(m));
+
+
+            if (SortByTitle)
+            {
+                if (SortDescending)
+                {
+                    mats = mats.OrderByDescending(m => m.TitleText);
+                }
+                else
+                {
+                    mats = mats.OrderBy(m => m.TitleText);
+                }
+            }
+            else
+            {
+                if (SortDescending)
+                {
+                    mats = mats.OrderByDescending(m => m.GetSortValue(ColumnSortIndex));
+                }
+                else
+                {
+                    mats = mats.OrderBy(m => m.GetSortValue(ColumnSortIndex));
+                }
+            }
+
+            mats.ForEach(Materials.Add);
         }
 
         public async void SaveMaterial(Material m)
@@ -71,6 +179,32 @@ namespace Band
         public async void DeleteMaterial(Material m)
         {
             await materials.DeleteAsync(m);
+            LoadMaterials();
+        }
+
+        public void OnTitleClicked()
+        {
+            if (SortByTitle)
+            {
+                SortDescending = !SortDescending;
+            }
+
+            SortByTitle = true;
+            ColumnSortIndex = -1;
+            SetUpColumnHeaders();
+            LoadMaterials();
+        }
+
+        public void OnColumnClicked(int index)
+        {
+            if (ColumnSortIndex == index)
+            {
+                SortDescending = !SortDescending;
+            }
+
+            ColumnSortIndex = index;
+            SortByTitle = false;
+            SetUpColumnHeaders();
             LoadMaterials();
         }
     }

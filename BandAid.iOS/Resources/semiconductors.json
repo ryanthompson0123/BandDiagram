@@ -42,7 +42,7 @@
     "dielectricConstant": 16,
     "bandGap": "0.67",
     "electronAffinity": 4,
-    "intrinsicCarrierConcentration": "24000000000000",
+    "intrinsicCarrierConcentration": "2.4E13",
     "dopantConcentration": "1E18",
     "name": "Ge",
     "fillColor": "#ff8040",

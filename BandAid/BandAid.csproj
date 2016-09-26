@@ -56,7 +56,6 @@
     <Compile Include="Units\ChargeConcentration.cs" />
     <Compile Include="ViewModels\AxisViewModel.cs" />
     <Compile Include="ViewModels\PlotViewModel.cs" />
-    <Compile Include="ViewModels\StructureSceneViewModel.cs" />
     <Compile Include="ViewModels\StructureGalleryItemViewModel.cs" />
     <Compile Include="ViewModels\StructureGalleryViewModel.cs" />
     <Compile Include="ViewModels\StructureParameterListViewModel.cs" />
