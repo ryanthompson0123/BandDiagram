@@ -101,23 +101,31 @@ namespace BandAid.iOS
 
         private nfloat currentScale = 1.0f;
 
+        private CGPoint anchorPoint;
         private void OnPlotPinch(UIPinchGestureRecognizer recognizer)
         {
             var location = recognizer.LocationInView(Plot);
 
+            if (recognizer.State == UIGestureRecognizerState.Began)
+            {
+                anchorPoint = location;
+            }
+
             if (recognizer.State == UIGestureRecognizerState.Ended)
             {
-                Plot.ZoomTo(recognizer.Scale, location);
-                PrimaryYAxis.ZoomTo(recognizer.Scale, location.Y);
-                PrimaryXAxis.ZoomTo(recognizer.Scale, location.X);
-                Grid.ZoomTo(recognizer.Scale, location);
+                Plot.ZoomTo(recognizer.Scale, anchorPoint);
+                PrimaryYAxis.ZoomTo(recognizer.Scale, anchorPoint.Y);
+                PrimaryXAxis.ZoomTo(recognizer.Scale, anchorPoint.X);
+                Grid.ZoomTo(recognizer.Scale, anchorPoint);
+
+                anchorPoint = CGPoint.Empty;
             }
             else
             {
-                Plot.ZoomBy(recognizer.Scale, location);
-                PrimaryYAxis.ZoomBy(recognizer.Scale, location.Y);
-                PrimaryXAxis.ZoomBy(recognizer.Scale, location.X);
-                Grid.ZoomBy(recognizer.Scale, location);
+                Plot.ZoomBy(recognizer.Scale, anchorPoint);
+                PrimaryYAxis.ZoomBy(recognizer.Scale, anchorPoint.Y);
+                PrimaryXAxis.ZoomBy(recognizer.Scale, anchorPoint.X);
+                Grid.ZoomBy(recognizer.Scale, anchorPoint);
             }
         }
 
