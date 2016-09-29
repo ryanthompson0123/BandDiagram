@@ -250,6 +250,10 @@
     <Compile Include="QuadColumnTableHeaderView.cs" />
     <Compile Include="QuadColumnTableHeaderView.designer.cs" />
     <Compile Include="TableViewCellDividerView.designer.cs" />
+    <Compile Include="ViewControllers\TableHeaderHintTextViewController.cs" />
+    <Compile Include="ViewControllers\TableHeaderHintTextViewController.designer.cs">
+      <DependentUpon>TableHeaderHintTextViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />

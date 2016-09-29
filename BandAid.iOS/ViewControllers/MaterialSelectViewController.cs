@@ -42,6 +42,7 @@ namespace BandAid.iOS
             ViewModel.Materials.CollectionChanged += Materials_CollectionChanged;
             HeaderView.TitleClick += HeaderView_TitleClick;
             HeaderView.ColumnClick += HeaderView_ColumnClick;
+            HeaderView.ColumnLongPress += HeaderView_ColumnLongPress;
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
@@ -52,6 +53,7 @@ namespace BandAid.iOS
             ViewModel.Materials.CollectionChanged -= Materials_CollectionChanged;
             HeaderView.TitleClick -= HeaderView_TitleClick;
             HeaderView.ColumnClick -= HeaderView_ColumnClick;
+            HeaderView.ColumnLongPress -= HeaderView_ColumnLongPress;
             ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
         }
 
@@ -80,6 +82,18 @@ namespace BandAid.iOS
                 var destination = (MaterialDetailViewController)nav.ChildViewControllers[0];
 
                 destination.ViewModel = new MaterialDetailViewModel(ViewModel.MaterialType, EditMode.New);
+            }
+
+            if (segue.Identifier == "HeaderHintPopoverSegue")
+            {
+                var viewController = (TableHeaderHintTextViewController)segue.DestinationViewController;
+                var popover = viewController.PopoverPresentationController;
+                popover.SourceView = HeaderView;
+                popover.SourceRect = new CGRect(
+                    longPressedButton.Frame.X + longPressedButton.Frame.Width / 2,
+                    longPressedButton.Frame.Y + longPressedButton.Frame.Height / 4, 5f, 5f);
+
+                viewController.HintText = ViewModel.HeaderHints[longPressedColumnIndex];
             }
 		}
 
@@ -118,6 +132,15 @@ namespace BandAid.iOS
         void HeaderView_ColumnClick(object sender, ColumnClickEventArgs e)
         {
             ViewModel.OnColumnClicked(e.ClickedIndex);
+        }
+
+        private int longPressedColumnIndex;
+        private UIButton longPressedButton;
+        void HeaderView_ColumnLongPress(object sender, ColumnLongPressEventArgs e)
+        {
+            longPressedColumnIndex = e.Index;
+            longPressedButton = e.Button;
+            PerformSegue("HeaderHintPopoverSegue", this);
         }
 
         void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)

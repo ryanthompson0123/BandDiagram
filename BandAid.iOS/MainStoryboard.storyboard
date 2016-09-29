@@ -1087,6 +1087,45 @@
             </objects>
             <point key="canvasLocation" x="1184" y="1005"/>
         </scene>
+        <!--Table Header Hint Text View Controller-->
+        <scene sceneID="fk2-vi-ggi">
+            <objects>
+                <viewController id="QF0-6u-2Zt" customClass="TableHeaderHintTextViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="N3C-ac-jyS"/>
+                        <viewControllerLayoutGuide type="bottom" id="DnV-Wg-3OS"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="rjr-mo-LlW">
+                        <rect key="frame" x="0.0" y="0.0" width="250" height="50"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Intrinsic Carrier Concentration (cm-3)" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="5" translatesAutoresizingMaskIntoConstraints="NO" id="u0z-xZ-agr">
+                                <rect key="frame" x="8" y="0.0" width="234" height="50"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="u0z-xZ-agr" firstAttribute="top" secondItem="N3C-ac-jyS" secondAttribute="bottom" id="TaB-9J-goz"/>
+                            <constraint firstItem="u0z-xZ-agr" firstAttribute="leading" secondItem="rjr-mo-LlW" secondAttribute="leadingMargin" constant="-8" id="emF-dG-tcu"/>
+                            <constraint firstItem="u0z-xZ-agr" firstAttribute="trailing" secondItem="rjr-mo-LlW" secondAttribute="trailingMargin" constant="8" id="jps-Ut-gzd"/>
+                            <constraint firstItem="DnV-Wg-3OS" firstAttribute="top" secondItem="u0z-xZ-agr" secondAttribute="bottom" id="lAA-5q-td6"/>
+                        </constraints>
+                    </view>
+                    <value key="contentSizeForViewInPopover" type="size" width="250" height="50"/>
+                    <nil key="simulatedStatusBarMetrics"/>
+                    <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+                    <size key="freeformSize" width="250" height="50"/>
+                    <connections>
+                        <outlet property="HintTextLabel" destination="u0z-xZ-agr" id="1RK-Dl-oKa"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Bis-NY-5qE" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1724" y="1215"/>
+        </scene>
         <!--Material Select View Controller-->
         <scene sceneID="135">
             <objects>
@@ -1107,9 +1146,6 @@
                                     </constraints>
                                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
                                     <state key="normal" title="Button"/>
-                                    <connections>
-                                        <action selector="Column4Clicked:" destination="3kO-r8-zpC" eventType="touchUpInside" id="uw4-Lg-2yU"/>
-                                    </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="bottom" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="V6U-GQ-xCu">
                                     <rect key="frame" x="310" y="0.0" width="60" height="44"/>
@@ -1118,9 +1154,6 @@
                                     </constraints>
                                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
                                     <state key="normal" title="Button"/>
-                                    <connections>
-                                        <action selector="Column3Clicked:" destination="3kO-r8-zpC" eventType="touchUpInside" id="uxw-9p-eGh"/>
-                                    </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="bottom" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iKU-s6-ZZR">
                                     <rect key="frame" x="242" y="0.0" width="60" height="44"/>
@@ -1129,9 +1162,6 @@
                                     </constraints>
                                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
                                     <state key="normal" title="Button"/>
-                                    <connections>
-                                        <action selector="Column2Clicked:" destination="3kO-r8-zpC" eventType="touchUpInside" id="7zf-2r-fCe"/>
-                                    </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="bottom" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="F1v-Sa-7QX">
                                     <rect key="frame" x="174" y="0.0" width="60" height="44"/>
@@ -1140,9 +1170,6 @@
                                     </constraints>
                                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
                                     <state key="normal" title="Button"/>
-                                    <connections>
-                                        <action selector="Column1Clicked:" destination="3kO-r8-zpC" eventType="touchUpInside" id="WU2-Mc-mlj"/>
-                                    </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="bottom" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gBS-lV-Szo">
                                     <rect key="frame" x="8" y="0.0" width="158" height="44"/>
@@ -1462,6 +1489,9 @@
                     <connections>
                         <outlet property="HeaderView" destination="3kO-r8-zpC" id="b3Z-2U-mi8"/>
                         <segue destination="XFd-1F-lfO" kind="unwind" identifier="unwindToStructure" unwindAction="UnwindToStructure:" id="tMw-Mu-s0g"/>
+                        <segue destination="QF0-6u-2Zt" kind="popoverPresentation" identifier="HeaderHintPopoverSegue" popoverAnchorView="SaJ-UY-oVN" id="WUT-nk-52n">
+                            <popoverArrowDirection key="popoverArrowDirection" right="YES"/>
+                        </segue>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="142" userLabel="First Responder" sceneMemberID="firstResponder"/>

@@ -31,6 +31,13 @@ namespace Band
             set { SetProperty(ref columnHeadersValue, value); }
         }
 
+        private List<string> headerHintsValue;
+        public List<string> HeaderHints
+        {
+            get { return headerHintsValue; }
+            set { SetProperty(ref headerHintsValue, value); }
+        }
+
         private string tableTitleValue;
         public string TableTitle
         {
@@ -80,6 +87,7 @@ namespace Band
             materials = new MaterialRepository();
             Materials = new ObservableCollection<MaterialViewModel>();
             ColumnHeaders = new ObservableCollection<string>();
+            HeaderHints = new List<string>();
 
             MaterialType = materialType;
             SortByTitle = true;
@@ -94,22 +102,31 @@ namespace Band
             TableTitle = string.Format("Name{0}", SortByTitle ? SortDescending ? DownArrowLeftAligned : UpArrowLeftAligned : "");
 
             ColumnHeaders.Clear();
+            HeaderHints.Clear();
 
             switch (MaterialType)
             {
                 case MaterialType.Metal:
                     ColumnHeaders.Add(GetSortedLabel(0, Phi));
+                    HeaderHints.Add("Work Function (eV)");
                     break;
                 case MaterialType.Dielectric:
                     ColumnHeaders.Add(GetSortedLabel(0, Kappa));
+                    HeaderHints.Add("Dielectric Constant");
                     ColumnHeaders.Add(GetSortedLabel(1, "Eg"));
+                    HeaderHints.Add("Band Gap (eV)");
                     ColumnHeaders.Add(GetSortedLabel(2, Phi));
+                    HeaderHints.Add("Electron Affinity (eV)");
                     break;
                 case MaterialType.Semiconductor:
                     ColumnHeaders.Add(GetSortedLabel(0, Kappa));
+                    HeaderHints.Add("Dielectric Constant");
                     ColumnHeaders.Add(GetSortedLabel(1, "Eg"));
+                    HeaderHints.Add("Band Gap (eV)");
                     ColumnHeaders.Add(GetSortedLabel(2, Phi));
+                    HeaderHints.Add("Electron Affinity (eV)");
                     ColumnHeaders.Add(GetSortedLabel(3, "ni"));
+                    HeaderHints.Add("Intrinsic Carrier Concentration (cm\u207a\u00b2)");
                     break;
             }
         }

@@ -87,6 +87,7 @@ namespace BandAid.iOS
                 if (ViewModel.DirectEditLayer != null)
                 {
                     selectedLayer = ViewModel.DirectEditLayer;
+                    ViewModel.DirectEditLayer = null;   // So that we don't trigger again when we go back.
                 }
                 else
                 {

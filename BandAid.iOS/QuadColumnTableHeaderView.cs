@@ -13,10 +13,17 @@ namespace BandAid.iOS
         public int ClickedIndex { get; set; }
     }
 
+    public class ColumnLongPressEventArgs : EventArgs
+    {
+        public int Index { get; set; }
+        public UIButton Button { get; set; }
+    }
+
     partial class QuadColumnTableHeaderView : UIView
     {
         public event EventHandler<EventArgs> TitleClick;
         public event EventHandler<ColumnClickEventArgs> ColumnClick;
+        public event EventHandler<ColumnLongPressEventArgs> ColumnLongPress;
 
         private ObservableCollection<string> headersValue;
         public ObservableCollection<string> Headers
@@ -41,6 +48,8 @@ namespace BandAid.iOS
             }
         }
 
+        public List<string> HeaderHints { get; set; }
+
         public string TitleText
         {
             set { TitleButton.SetTitle(value, UIControlState.Normal); }
@@ -49,6 +58,23 @@ namespace BandAid.iOS
         public QuadColumnTableHeaderView(IntPtr handle)
             : base(handle)
         {
+        }
+
+        public override void AwakeFromNib()
+        {
+            base.AwakeFromNib();
+
+            Column1Button.AddGestureRecognizer(new UITapGestureRecognizer(() => OnColumnClick(Headers.Count - 4)));
+            Column1Button.AddGestureRecognizer(new UILongPressGestureRecognizer((r) => OnColumnLongPress(Headers.Count - 4, Column1Button, r)));
+
+            Column2Button.AddGestureRecognizer(new UITapGestureRecognizer(() => OnColumnClick(Headers.Count - 3)));
+            Column2Button.AddGestureRecognizer(new UILongPressGestureRecognizer((r) => OnColumnLongPress(Headers.Count - 3, Column2Button, r)));
+
+            Column3Button.AddGestureRecognizer(new UITapGestureRecognizer(() => OnColumnClick(Headers.Count - 2)));
+            Column3Button.AddGestureRecognizer(new UILongPressGestureRecognizer((r) => OnColumnLongPress(Headers.Count - 2, Column3Button, r)));
+
+            Column4Button.AddGestureRecognizer(new UITapGestureRecognizer(() => OnColumnClick(Headers.Count - 1)));
+            Column4Button.AddGestureRecognizer(new UILongPressGestureRecognizer((r) => OnColumnLongPress(Headers.Count - 1, Column4Button, r)));                             
         }
 
         void Headers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -121,32 +147,27 @@ namespace BandAid.iOS
             }
         }
 
+        private void OnColumnLongPress(int index, UIButton button, UIGestureRecognizer r)
+        {
+            if (r.State == UIGestureRecognizerState.Began)
+            {
+                if (ColumnLongPress != null)
+                {
+                    ColumnLongPress(this, new ColumnLongPressEventArgs
+                    {
+                        Index = index,
+                        Button = button
+                    });
+                }
+            }
+        }
+
         partial void TitleClicked(NSObject sender)
         {
             if (TitleClick != null)
             {
                 TitleClick(this, EventArgs.Empty);
             }
-        }
-
-        partial void Column1Clicked(NSObject sender)
-        {
-            OnColumnClick(Headers.Count - 4);
-        }
-
-        partial void Column2Clicked(NSObject sender)
-        {
-            OnColumnClick(Headers.Count - 3);
-        }
-
-        partial void Column3Clicked(NSObject sender)
-        {
-            OnColumnClick(Headers.Count - 2);
-        }
-
-        partial void Column4Clicked(NSObject sender)
-        {
-            OnColumnClick(Headers.Count - 1);
         }
     }
 }
