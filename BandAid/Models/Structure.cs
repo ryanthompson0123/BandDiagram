@@ -5,6 +5,7 @@ using Band.Units;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.ComponentModel;
+using System.Threading;
 
 namespace Band
 {
@@ -54,7 +55,7 @@ namespace Band
             OnPropertyChanged("Layers");
         }
 
-        public Structure DeepClone(ElectricPotential bias)
+        public Structure DeepClone(ElectricPotential bias, CancellationToken cancellationToken)
         {
             var structure = new Structure();
 
@@ -68,14 +69,14 @@ namespace Band
             }
 
             structure.layersValue.AddRange(layerClones);
-            structure.Evaluate();
+            structure.Evaluate(cancellationToken);
 
             return structure;
         }
 
         public Structure DeepClone()
         {
-            return DeepClone(Bias);
+            return DeepClone(Bias, default(CancellationToken));
         }
 
         public void InsertLayer(int index, Material layer)
@@ -330,7 +331,7 @@ namespace Band
 
         private const int maximumIterations = 1000;
 
-        private void Evaluate()
+        private void Evaluate(CancellationToken cancellationToken = default(CancellationToken))
         {
             // Don't do anything if the structure isn't valid
             if (!IsValid) return;
@@ -346,8 +347,10 @@ namespace Band
             var chargeGuess = (chargeHigh + chargeLow) / 2;
 
             // !!!!!!!!!!!!!!!!!!
-            EvaluateGivenCharge(chargeGuess);
+            EvaluateGivenCharge(chargeGuess, cancellationToken);
             // !!!!!!!!!!!!!!!!!!
+
+            if (cancellationToken.IsCancellationRequested) return;
 
             var potentialCalc = BottomLayer.EvalPoints[1].Potential;
             var tinyPositiveBias = new ElectricPotential(1e-6);
@@ -362,6 +365,8 @@ namespace Band
                 && iterationNumber < maximumIterations;
                 iterationNumber++)
             {
+                if (cancellationToken.IsCancellationRequested) return;
+
                 if (potentialCalc > voltageBias)
                 {
                     chargeLow = chargeGuess;
@@ -375,8 +380,10 @@ namespace Band
                 chargeGuess = (chargeHigh + chargeLow) / 2;
 
                 // !!!!!!!!!!!!!!!!!!
-                EvaluateGivenCharge(chargeGuess);
+                EvaluateGivenCharge(chargeGuess, cancellationToken);
                 // !!!!!!!!!!!!!!!!!!
+
+                if (cancellationToken.IsCancellationRequested) return;
 
                 potentialCalc = BottomLayer.EvalPoints[1].Potential;
 
@@ -408,6 +415,8 @@ namespace Band
                 {
                     foreach (var ep in layer.EvalPoints)
                     {
+                        if (cancellationToken.IsCancellationRequested) return;
+
                         ep.Potential = ep.Potential - potential;
                     }
                 }
@@ -428,7 +437,7 @@ namespace Band
         }
 
         // Calculate based on top charge return running charge
-        private ChargeDensity EvaluateGivenCharge(ChargeDensity topCharge)
+        private ChargeDensity EvaluateGivenCharge(ChargeDensity topCharge, CancellationToken cancellationToken = default(CancellationToken))
         {
             // Set the top metal to have a charge at the bottom (location = thickness)
             TopLayer.Prepare();
@@ -449,6 +458,8 @@ namespace Band
             // Now integrate the charges to get the electric field in all the dielectrics
             foreach (var layer in Layers.Skip(1)) // Only inner layers
             {
+                if (cancellationToken.IsCancellationRequested) return ChargeDensity.Zero;
+
                 if (layer is Dielectric)
                 {
                     var dielectric = (Dielectric)layer;
@@ -456,6 +467,8 @@ namespace Band
 
                     for (var i = 0; i < dielectric.EvalPoints.Count; i++)
                     {
+                        if (cancellationToken.IsCancellationRequested) return ChargeDensity.Zero;
+
                         var point = dielectric.EvalPoints[i];
 
                         // Integrate the charge (sum really)
@@ -501,6 +514,11 @@ namespace Band
                 }
             }
 
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return ChargeDensity.Zero;
+            }
+
             // Now add the stuff for the last point - here we assume that it is a metal
             if (IsBottomLayerMetal)
             {
@@ -528,6 +546,8 @@ namespace Band
                 // Evaulate the potential drop given the remaining charge
                 semiconductor.EvalPoints[0].ChargeDensity = -runningCharge;
                 semiconductor.EvalPoints[0].Potential = runningPotential;
+
+                if (cancellationToken.IsCancellationRequested) return ChargeDensity.Zero;
 
                 // Last Point
                 semiconductor.EvalPoints[1].Potential 

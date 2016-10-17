@@ -81,6 +81,19 @@ namespace Band
             return (TUnit)Activator.CreateInstance(typeof(TUnit), value);
         }
 
+        public MathExpression<TUnit> DeepClone()
+        {
+            var clone = new MathExpression<TUnit>(Expression);
+            clone.CustomConstructor = customConstructor;
+
+            foreach (var variable in variables)
+            {
+                clone.variables[variable.Key] = variable.Value;
+            }
+
+            return clone;
+        }
+
         public override bool Equals(object obj)
         {
             // If parameter is null return false.

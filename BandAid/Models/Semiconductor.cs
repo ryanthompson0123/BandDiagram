@@ -481,11 +481,11 @@ namespace Band
             var semiconductor = new Semiconductor
             {
                 DielectricConstant = DielectricConstant,
-                BandGap = BandGap,
+                BandGap = BandGap.DeepClone(),
                 ElectronAffinity = ElectronAffinity,
                 DopingType = dopingType,
-                DopantConcentration = DopantConcentration,
-                IntrinsicCarrierConcentration = IntrinsicCarrierConcentration,
+                DopantConcentration = DopantConcentration.DeepClone(),
+                IntrinsicCarrierConcentration = IntrinsicCarrierConcentration.DeepClone(),
                 Temperature = Temperature
             };
 

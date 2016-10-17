@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using System.Runtime.Serialization;
 using System.ComponentModel;
+using System.Threading;
 
 namespace Band
 {
@@ -165,11 +166,11 @@ namespace Band
             NeedsCompute = true;
         }
 
-        public async Task ComputeIfNeededAsync()
+        public async Task ComputeIfNeededAsync(CancellationToken cancellationToken)
         {
             if (NeedsCompute)
             {
-                await Task.Run(Compute); 
+                await Task.Run(() => Compute(cancellationToken));
             }
         }
 
@@ -205,19 +206,32 @@ namespace Band
             }
         }
 
-        private void Compute()
+        private void Compute(CancellationToken cancellationToken)
         {
             NeedsCompute = false;
 
             if (!Structure.IsValid) return;
 
+            var referenceStructure = Structure.DeepClone();
+
             Debug.WriteLine(string.Format("Beginning calculation of {0} steps", StepCount));
             var stopwatch = Stopwatch.StartNew();
 
-            var steps = Enumerable.Range(0, StepCount)
-                .Select(s => PotentialForStep(s).RoundMilliVolts)
-                .Select(mv => Structure.DeepClone(ElectricPotential.FromMillivolts(mv)))
-                .ToList();
+            var steps = new List<Structure>();
+
+            foreach (var step in Enumerable.Range(0, StepCount))
+            {
+                var potential = PotentialForStep(step).RoundMilliVolts;
+                var structure = referenceStructure.DeepClone(ElectricPotential.FromMillivolts(potential), cancellationToken);
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    Debug.WriteLine("Cancellation requested - aborting.");
+                    return;
+                }
+
+                steps.Add(structure);
+            }
 
             Debug.WriteLine(string.Format("Finished all calculations in {0} ms", stopwatch.ElapsedMilliseconds));
 

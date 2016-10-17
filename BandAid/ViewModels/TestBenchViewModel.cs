@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using System.ComponentModel;
 using System.IO;
+using System.Threading;
 
 namespace Band
 {
@@ -122,9 +123,11 @@ namespace Band
 
         private async void Compute()
         {
-            await TestBench.ComputeIfNeededAsync();
+            await TestBench.ComputeIfNeededAsync(default(CancellationToken));
             SetAllQuickValues();
         }
+
+        private CancellationTokenSource tokenSource;
 
         private async void TestBench_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -137,10 +140,18 @@ namespace Band
                 case "NeedsCompute":
                     if (TestBench.NeedsCompute)
                     {
-                        SaveTestBench();
+                        if (tokenSource != null)
+                        {
+                            tokenSource.Cancel();
+                        }
+
+                        tokenSource = new CancellationTokenSource();
                         Computing = true;
-                        await TestBench.ComputeIfNeededAsync();
+                        await TestBench.ComputeIfNeededAsync(tokenSource.Token);
+                        if (tokenSource.IsCancellationRequested) return;
+
                         SetAllQuickValues();
+                        SaveTestBench();
                         Computing = false;
                     }
                     break;
