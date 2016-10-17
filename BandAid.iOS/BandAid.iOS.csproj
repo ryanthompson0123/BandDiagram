@@ -261,6 +261,7 @@
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard.storyboard" />
     <InterfaceDefinition Include="Resources\MaterialDetailViewController.xib" />
+    <InterfaceDefinition Include="LaunchScreen.storyboard" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.2.3.1.114\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.2.3.1.114\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" />
@@ -287,5 +288,21 @@
     <Folder Include="Cells\" />
     <Folder Include="Cells\MaterialParameterCells\" />
     <Folder Include="Extensions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\BandIcon-76.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\BandIcon-76%402x.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\BandIcon-60%402x.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\BandIcon-60%403x.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\BandIcon-Small-40.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\BandIcon-Small-40%402x.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\BandIcon-Small.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\BandIcon-Small%402x.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\167.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ITunesArtwork Include="iTunesArtwork" />
+    <ITunesArtwork Include="iTunesArtwork%402x" />
   </ItemGroup>
 </Project>
