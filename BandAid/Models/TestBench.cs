@@ -185,6 +185,7 @@ namespace Band
             maxVoltageValue = max;
             stepSizeValue = step;
 
+            CurrentIndex = 0;
             SetNeedsCompute();
         }
 

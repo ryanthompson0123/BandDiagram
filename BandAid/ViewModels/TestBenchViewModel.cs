@@ -123,8 +123,10 @@ namespace Band
 
         private async void Compute()
         {
+            Computing = true;
             await TestBench.ComputeIfNeededAsync(default(CancellationToken));
             SetAllQuickValues();
+            Computing = false;
         }
 
         private CancellationTokenSource tokenSource;
@@ -182,7 +184,7 @@ namespace Band
 
         public async void SaveTestBench()
         {
-            NeedsScreenshot = false;
+            //NeedsScreenshot = false;
             await TestBench.SaveAsync();
             NeedsScreenshot = true;
         }
@@ -210,6 +212,8 @@ namespace Band
 
             PlotGroup = new PlotAnimationGrouping(animationAxis, 
                 d => CreatePlot(TestBench.GetStep(new ElectricPotential(d))));
+
+            NeedsScreenshot = true;
         }
 
         private Plot CreatePlot(Structure structure)

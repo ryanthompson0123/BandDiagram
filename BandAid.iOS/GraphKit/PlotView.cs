@@ -273,6 +273,11 @@ namespace BandAid.iOS
 
         private void AddSublayers()
         {
+            if (selectedPlotIndex > PlotGroup.Plots.Count - 1)
+            {
+                selectedPlotIndex = PlotGroup.Plots.Count - 1;
+            }
+
             var selectedDatasets = PlotGroup.Plots[selectedPlotIndex].DataSets;
             var selectedPaths = plotPaths[selectedPlotIndex];
 

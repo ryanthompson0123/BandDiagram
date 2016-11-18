@@ -254,7 +254,26 @@ namespace BandAid.iOS
 
         private void Slider_ValueChanged(object sender, EventArgs e)
         {
-            AnimationAxisValue.Text = string.Format("{0:0.0}", AnimationValue);
+            var animationStep = PlotGrouping.AnimationAxis.MajorSpan;
+            var animationStepDecimal = animationStep - Math.Truncate(animationStep);
+
+            if (animationStepDecimal >= .1)
+            {
+                AnimationAxisValue.Text = string.Format("{0:F1}", AnimationValue);
+            }
+            else if (animationStepDecimal >= .01)
+            {
+                AnimationAxisValue.Text = string.Format("{0:F2}", AnimationValue);
+            }
+            else if (animationStepDecimal >= .001)
+            {
+                AnimationAxisValue.Text = string.Format("{0:F3}", AnimationValue);
+            }
+            else
+            {
+                AnimationAxisValue.Text = string.Format("{0:D}", AnimationValue);
+            }
+
             Plot.SelectPlot(Slider.Value);
 
             OnAnimationValueChanged(EventArgs.Empty);

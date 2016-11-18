@@ -60,6 +60,7 @@ namespace BandAid.iOS
             eotLabel.Text = "";
             cstackLabel.Text = "";
             vthLabel.Text = "";
+            graphView.UserInteractionEnabled = false;
         }
 
         public override void ViewWillAppear(bool animated)
@@ -173,11 +174,11 @@ namespace BandAid.iOS
                         break;
                     case "Computing":
                         if (ViewModel.Computing && ViewModel.TestBench.Structure.IsValid) graphView.ActivityIndicator.StartAnimating();
+                        graphView.UserInteractionEnabled = !ViewModel.Computing;
                         break;
                     case "PlotGroup":
                         GraphView.SetPlotGroup(ViewModel.PlotGroup);
                         GraphView.SetAnimationValue(ViewModel.TestBench.CurrentVoltage.Volts, false);
-                        TakeScreenshot();
                         break;
                     case "NeedsScreenshot":
                         if (ViewModel.NeedsScreenshot)
