@@ -91,6 +91,7 @@ namespace BandAid.iOS
                 }
                 else
                 {
+                    // Don't do anything if user tapped on 'Structure is invalid'
                     selectedLayer = ViewModel.Layers[TableView.IndexPathForSelectedRow.Row];
                 }
 
@@ -98,6 +99,20 @@ namespace BandAid.iOS
 
                 destination.ViewModel = new MaterialDetailViewModel(selectedLayer.Material, EditMode.InStructure);
             }
+        }
+
+        public override bool ShouldPerformSegue(string segueIdentifier, NSObject sender)
+        {
+            if (segueIdentifier == "SelectLayerSegue")
+            {
+                if (TableView.IndexPathForSelectedRow.Row >= ViewModel.Layers.Count)
+                {
+                    TableView.DeselectRow(TableView.IndexPathForSelectedRow, true);
+                    return false;
+                }
+            }
+
+            return base.ShouldPerformSegue(segueIdentifier, sender);
         }
 
         [Action("UnwindFromAddLayer:")]
