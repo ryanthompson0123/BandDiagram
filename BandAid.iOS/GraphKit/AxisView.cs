@@ -22,11 +22,11 @@ namespace BandAid.iOS
                 axisValue = value;
                 titleLabel.Text = value.Title;
 
+                ResetScaleAndOffset();
                 SetUpCoordinateDelegates();
 
                 BuildTickLabels();
-                SetNeedsDisplay();
-                SetNeedsLayout();
+                UpdateAxis();
             }
         }
 
@@ -48,6 +48,15 @@ namespace BandAid.iOS
         private Func<nfloat, double> valueForCoordDelegate;
         private Func<double, nfloat> getCoordDelegate;
         private Func<nfloat, nfloat> getScaledMaxPanDelegate;
+
+        private void ResetScaleAndOffset()
+        {
+            baseOffset = 0.0f;
+            drawOffset = 0.0f;
+
+            baseScale = 1.0f;
+            drawScale = 1.0f;
+        }
 
         private void SetUpCoordinateDelegates()
         {

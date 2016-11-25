@@ -14,6 +14,7 @@ namespace BandAid.iOS
             set
             {
                 xAxisValue = value;
+                ResetScaleAndAnchor();
                 SetNeedsDisplay();
             }
         }
@@ -25,6 +26,7 @@ namespace BandAid.iOS
             set
             {
                 yAxisValue = value;
+                ResetScaleAndAnchor();
                 SetNeedsDisplay();
                 SetNeedsLayout();
             }
@@ -55,6 +57,15 @@ namespace BandAid.iOS
 
         private nfloat baseScale = 1.0f;
         private nfloat drawScale = 1.0f;
+
+        private void ResetScaleAndAnchor()
+        {
+            baseAnchor = new CGPoint(0, 0);
+            drawAnchor = new CGPoint(0, 0);
+
+            baseScale = 1.0f;
+            drawScale = 1.0f;
+        }
 
         public void ZoomBy(nfloat newScale, CGPoint anchor)
         {
