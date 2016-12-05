@@ -31,13 +31,13 @@
 	<true/>
 	<key>CFBundleName</key>
 	<string>Band Diagram</string>
-	<key>CFBundleVersion</key>
-	<string>2</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
+	<key>CFBundleVersion</key>
+	<string>3</string>
 </dict>
 </plist>
