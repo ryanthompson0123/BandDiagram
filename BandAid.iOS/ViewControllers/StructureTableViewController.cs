@@ -170,6 +170,10 @@ namespace BandAid.iOS
                     {
                         cell.TextLabel.Text = "No soultion found for this structure";
                     }
+                    else
+                    {
+                        cell.TextLabel.Text = "";
+                    }
 
                     return cell;
                 }

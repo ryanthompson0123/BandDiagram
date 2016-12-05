@@ -64,6 +64,8 @@ namespace Band
 
         public void AddLayer(LayerViewModel viewModel)
         {
+            structure.AddLayer(viewModel.Material);
+
             // If the bottom layer is a semiconductor or metal, then there's no point
             // in adding this material below that, because it's not valid.
             if (structure.Layers.Count > 0 && structure.BottomLayer.MaterialType != MaterialType.Dielectric)
@@ -74,8 +76,6 @@ namespace Band
             {
                 Layers.Add(viewModel);
             }
-
-            structure.AddLayer(viewModel.Material);
         }
 
         public void ReplaceLayer(LayerViewModel viewModel, int position)
