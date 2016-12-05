@@ -125,7 +125,11 @@ namespace Band
         {
             Computing = true;
             await TestBench.ComputeIfNeededAsync(default(CancellationToken));
-            SetAllQuickValues();
+
+            if (TestBench.Structure.IsValid)
+            {
+                SetAllQuickValues();
+            }
             Computing = false;
         }
 
