@@ -92,7 +92,7 @@ namespace Band
 
         public void AddLayer(Material layer)
         {
-            if (BottomLayer.MaterialType != MaterialType.Dielectric)
+            if (Layers.Count > 0 && BottomLayer.MaterialType != MaterialType.Dielectric)
             {
                 // If we're inserting a layer, and there's a metal or semiconductor on the
                 // bottom, then there's no point inserting it at the bottom
