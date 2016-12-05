@@ -94,7 +94,11 @@ namespace BandAid.iOS
 
         public Task<TestBench> LoadDefaultTestBenchAsync()
         {
-            return LoadTestBenchAsync(DefaultTestBenchName);
+            var filename = NSBundle.MainBundle.PathForResource("sio2", "json");
+            var inJson = File.ReadAllText(filename);
+
+            var bench = JsonConvert.DeserializeObject<TestBench>(inJson);
+            return Task.FromResult(bench);
         }
 
         public Task DeleteTestBenchAsync(string name)
