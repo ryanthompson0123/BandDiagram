@@ -456,7 +456,7 @@ namespace Band
             var runningPotential = ElectricPotential.Zero;
 
             // Now integrate the charges to get the electric field in all the dielectrics
-            foreach (var layer in Layers.Skip(1)) // Only inner layers
+            foreach (var layer in Layers.Skip(1).Take(Layers.Count - 2)) // Only inner layers
             {
                 if (cancellationToken.IsCancellationRequested) return ChargeDensity.Zero;
 
@@ -531,9 +531,9 @@ namespace Band
                 metal.EvalPoints[0].Potential = runningPotential;
 
                 // For the last point put no charge
-                metal.EvalPoints[0].ChargeDensity = ChargeDensity.Zero;
-                metal.EvalPoints[0].ElectricField = ElectricField.Zero;
-                metal.EvalPoints[0].Potential = runningPotential;
+                metal.EvalPoints[1].ChargeDensity = ChargeDensity.Zero;
+                metal.EvalPoints[1].ElectricField = ElectricField.Zero;
+                metal.EvalPoints[1].Potential = runningPotential;
             }
             else if (IsBottomLayerSemiconductor)
             {

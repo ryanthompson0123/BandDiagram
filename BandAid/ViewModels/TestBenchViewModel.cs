@@ -182,8 +182,17 @@ namespace Band
                 .EquivalentOxideThickness.NanometersToString("{0:F3} nm");
             CstackText = TestBench.CurrentStructure
                 .StackCapacitance.MicroFaradsPerSquareCentimeterToString("{0:F3} μF/cm\xB2");
-            ThresholdVoltageText = TestBench.CurrentStructure
-                .ThresholdVoltage.ToString("{0:F3} V");
+
+            var thresholdVoltage = TestBench.CurrentStructure.ThresholdVoltage;
+
+            if (thresholdVoltage == null)
+            {
+                ThresholdVoltageText = "N/A";
+            }
+            else
+            {
+                ThresholdVoltageText = thresholdVoltage.ToString("{0:F3} V");
+            }
         }
 
         public async void SaveTestBench()
