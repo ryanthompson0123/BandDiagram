@@ -42,6 +42,10 @@ namespace BandAid.iOS
             {
                 PerformSegue("SelectLayerSegue", this);
             }
+            else
+            {
+                TableView.ReloadData();
+            }
         }
 
         public override void ViewDidDisappear(bool animated)

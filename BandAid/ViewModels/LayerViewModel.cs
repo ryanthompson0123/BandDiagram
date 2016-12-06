@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace Band
 {
@@ -25,6 +26,18 @@ namespace Band
             Material = material;
             NameText = material.Name;
             MaterialTypeText = material.MaterialType.ToString();
+
+            material.PropertyChanged += Material_PropertyChanged;
+        }
+
+        void Material_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "Name":
+                    NameText = Material.Name;
+                    break;
+            }
         }
     }
 }
